@@ -14,7 +14,8 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 /**
- * Sticky helper service: optional overlay home detection + accessibility watchdog.
+ * Sticky helper service: optional overlay home detection, accessibility watchdog,
+ * and kid-mode emergency corner overlay.
  */
 public class HomeButtonService extends Service {
     private static final String TAG = "KidsHome.HomeButton";
@@ -22,11 +23,15 @@ public class HomeButtonService extends Service {
 
     private LinearLayout layout;
     private WindowManager windowManager;
+    private EscapeOverlay escapeOverlay;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable watchdog = new Runnable() {
         @Override
         public void run() {
             checkAccessibility();
+            if (escapeOverlay != null) {
+                escapeOverlay.refresh();
+            }
             handler.postDelayed(this, WATCHDOG_INTERVAL_MS);
         }
     };
@@ -40,18 +45,20 @@ public class HomeButtonService extends Service {
     public void onCreate() {
         super.onCreate();
         StatusNotifier.ensureChannel(this);
+        escapeOverlay = new EscapeOverlay(this);
 
         if (Prefs.overlayDetection(this)) {
             createOverlayWatcher();
         }
 
+        escapeOverlay.refresh();
         handler.post(watchdog);
     }
 
     private void createOverlayWatcher() {
         layout = new LinearLayout(getApplicationContext()) {
             public void onCloseSystemDialogs(String reason) {
-                if (reason != null && reason.contains("homekey")) {
+                if (reason != null && reason.contains("homekey") && !KidModeGate.isEscapeUiActive()) {
                     HomePress.perform(getApplicationContext());
                 }
             }
@@ -104,19 +111,29 @@ public class HomeButtonService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null && EscapeOverlayNotifier.ACTION_REFRESH_ESCAPE_OVERLAY.equals(intent.getAction())) {
+            if (escapeOverlay != null) {
+                escapeOverlay.refresh();
+            }
+        } else if (escapeOverlay != null) {
+            escapeOverlay.refresh();
+        }
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
         handler.removeCallbacks(watchdog);
+        if (escapeOverlay != null) {
+            escapeOverlay.hide();
+            escapeOverlay = null;
+        }
         if (windowManager != null && layout != null) {
             try {
                 windowManager.removeView(layout);
             } catch (Exception ignored) {
             }
         }
-        // Attempt a delayed restart so we survive process reclaim on low-RAM devices.
         ServiceMan.startDelayed(getApplicationContext(), 500);
         super.onDestroy();
     }

@@ -60,6 +60,7 @@
 
     <string name="kid_mode_enable">Enable kid mode</string>
     <string name="kid_mode_limits">Limits: KidsHome uses accessibility — it is not a true device-owner / MDM lock. A tech-savvy child, ADB, or force-stopping the app can still bypass it. Use it as a convenience aid, not a security boundary.</string>
+    <string name="kid_mode_escape_help">Emergency exit (works even when locked to a single app):\n• Tap the top-right corner of the screen 5 times quickly, or\n• Hold the Back button for about 3 seconds.\nThen enter the parent PIN. The corner gesture needs “Display over other apps” permission.</string>
     <string name="lock_to_launcher">Lock to chosen launcher</string>
     <string name="lock_to_app">Lock to a single app</string>
     <string name="pick_kid_app">Choose kid app</string>
@@ -69,6 +70,25 @@
     <string name="kid_app_required">Select a kid app or choose launcher lock</string>
     <string name="kid_mode_enabled">Kid mode enabled</string>
     <string name="kid_mode_disabled">Kid mode disabled</string>
+
+    <string name="escape_options_title">Emergency exit options</string>
+    <string name="escape_option_corner">5 quick taps in the top-right corner (needs overlay permission)</string>
+    <string name="escape_option_back_hold">Hold Back ~3 seconds</string>
+    <string name="escape_option_required">Enable at least one emergency exit option</string>
+    <string name="escape_pin_title">Parent unlock</string>
+    <string name="escape_pin_message">Enter the parent PIN to leave kid mode or open KidsHome.</string>
+    <string name="escape_pin_wrong_wait">Wrong PIN. Wait %1$d s before trying again.</string>
+    <string name="escape_pin_locked_out">Too many attempts. Wait %1$d s.</string>
+    <string name="escape_pin_try_again">Incorrect PIN (%1$d failed attempts). Try again.</string>
+    <string name="escape_unlocked_title">Unlocked</string>
+    <string name="escape_unlocked_message">What would you like to do?</string>
+    <string name="escape_disable_kid_mode">Disable kid mode</string>
+    <string name="escape_open_settings">Open KidsHome settings</string>
+    <string name="escape_stay_locked">Stay in kid mode</string>
+    <string name="overlay_permission_title">Overlay permission needed</string>
+    <string name="overlay_permission_message">The corner-tap escape needs “Display over other apps”. You can grant it now, or rely on holding Back. On Fire OS you can also run:\nadb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allow</string>
+    <string name="overlay_permission_adb">Grant overlay via Settings or:\nadb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allow</string>
+    <string name="overlay_permission_later">Kid mode will enable. Grant overlay later for corner taps; Back-hold still works.</string>
 
     <string name="about_title">About KidsHome</string>
     <string name="about_version">Version %1$s</string>

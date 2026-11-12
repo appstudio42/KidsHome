@@ -69,6 +69,10 @@ public final class HomePress {
      * @param force when true, skip debounce (used after boot / service reconnect).
      */
     public static boolean perform(Context context, boolean force) {
+        if (KidModeGate.isEscapeUiActive()) {
+            Log.d(TAG, "Skipping HomePress while emergency PIN UI is active");
+            return false;
+        }
         long now = System.currentTimeMillis();
         if (!force && now - lastActivateMs < DEBOUNCE_MS) {
             return false;
@@ -101,6 +105,9 @@ public final class HomePress {
      * Warm the chosen launcher process so the next Home press is less likely to show Fire launcher.
      */
     public static void warmTarget(Context context) {
+        if (KidModeGate.isEscapeUiActive()) {
+            return;
+        }
         try {
             Intent intent = getDesiredIntent(context);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

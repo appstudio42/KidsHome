@@ -3,3 +3,4 @@
 -keep class io.github.marcelsavegnago.kidshome.BootReceiver { *; }
 -keep class io.github.marcelsavegnago.kidshome.HomeButtonService { *; }
 -keep class io.github.marcelsavegnago.kidshome.MainActivity { *; }
+-keep class io.github.marcelsavegnago.kidshome.EscapePinActivity { *; }

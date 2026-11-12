@@ -16,8 +16,8 @@ android {
         applicationId "io.github.marcelsavegnago.kidshome"
         minSdk 22
         targetSdk 28
-        versionCode 100
-        versionName "1.0.0"
+        versionCode 101
+        versionName "1.0.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // Keep the APK lean for 1 GB Fire tablets.

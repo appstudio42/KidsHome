@@ -22,6 +22,8 @@ public class AccServ extends AccessibilityService {
             "com.android.launcher3"
     };
 
+    private static final long BACK_HOLD_ESCAPE_MS = 3000L;
+
     static volatile boolean homePressCanceled = false;
     static volatile String lastApp = "";
     static volatile String lastClass = "";
@@ -29,6 +31,14 @@ public class AccServ extends AccessibilityService {
 
     private HomeWatcher homeWatcher;
     private final Handler handler = new Handler(Looper.getMainLooper());
+    private long backDownAtMs;
+    private boolean backEscapeFired;
+    private final Runnable backHoldRunnable = () -> {
+        if (!backEscapeFired && Prefs.isKidModeEnabled(AccServ.this) && Prefs.isEscapeBackHoldEnabled(AccServ.this)) {
+            backEscapeFired = true;
+            EscapeLauncher.openPin(AccServ.this);
+        }
+    };
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
@@ -43,6 +53,10 @@ public class AccServ extends AccessibilityService {
         }
         if (classCs != null) {
             lastClass = classCs.toString();
+        }
+
+        if (KidModeGate.isEscapeUiActive()) {
+            return;
         }
 
         int eventType = event.getEventType();
@@ -64,7 +78,7 @@ public class AccServ extends AccessibilityService {
     }
 
     private void maybeEnforceKidMode() {
-        if (!Prefs.isKidModeEnabled(this)) {
+        if (!Prefs.isKidModeEnabled(this) || KidModeGate.isEscapeUiActive()) {
             return;
         }
         String packageName = lastApp;
@@ -74,13 +88,12 @@ public class AccServ extends AccessibilityService {
         if (isAllowedInKidMode(packageName)) {
             return;
         }
-        // Redirect away from non-allowed apps (settings, play store, etc.).
         HomePress.perform(this);
     }
 
     private boolean isAllowedInKidMode(String packageName) {
         if (packageName.equals(getPackageName())) {
-            // KidsHome itself is gated by PIN in the UI.
+            // KidsHome itself (including EscapePinActivity) is allowed; UI is PIN-gated.
             return true;
         }
         if (packageName.equals("com.android.systemui")
@@ -89,7 +102,6 @@ public class AccServ extends AccessibilityService {
             return true;
         }
         if (shouldHijackPackage(packageName)) {
-            // Stock launcher is never "allowed"; AccServ will redirect.
             return false;
         }
 
@@ -120,12 +132,26 @@ public class AccServ extends AccessibilityService {
 
     @Override
     public boolean onKeyEvent(KeyEvent event) {
-        if (!Prefs.hardwareDetection(this) || event == null) {
+        if (event == null) {
+            return false;
+        }
+
+        // Emergency escape: hold Back ~3s while kid mode is on (independent of hardware Home detection).
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK
+                && Prefs.isKidModeEnabled(this)
+                && Prefs.isEscapeBackHoldEnabled(this)) {
+            return handleBackEscape(event);
+        }
+
+        if (!Prefs.hardwareDetection(this)) {
             return false;
         }
 
         switch (event.getKeyCode()) {
             case KeyEvent.KEYCODE_HOME:
+                if (KidModeGate.isEscapeUiActive()) {
+                    return true;
+                }
                 if (event.getAction() == KeyEvent.ACTION_UP) {
                     homePressCanceled = false;
                 } else if (event.getAction() == KeyEvent.ACTION_DOWN && !homePressCanceled) {
@@ -145,6 +171,38 @@ public class AccServ extends AccessibilityService {
         }
     }
 
+    /**
+     * Detect a ~3s Back hold without breaking short Back presses.
+     * @return true only after the escape fires (consumes the long-press); false otherwise.
+     */
+    private boolean handleBackEscape(KeyEvent event) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            if (event.getRepeatCount() == 0) {
+                backDownAtMs = System.currentTimeMillis();
+                backEscapeFired = false;
+                handler.removeCallbacks(backHoldRunnable);
+                handler.postDelayed(backHoldRunnable, BACK_HOLD_ESCAPE_MS);
+            }
+            // Do not consume DOWN so short presses still work for the foreground app.
+            return backEscapeFired;
+        }
+
+        if (event.getAction() == KeyEvent.ACTION_UP) {
+            handler.removeCallbacks(backHoldRunnable);
+            long held = System.currentTimeMillis() - backDownAtMs;
+            if (backEscapeFired || held >= BACK_HOLD_ESCAPE_MS) {
+                if (!backEscapeFired) {
+                    backEscapeFired = true;
+                    EscapeLauncher.openPin(this);
+                }
+                return true;
+            }
+            backDownAtMs = 0L;
+            return false;
+        }
+        return false;
+    }
+
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
@@ -161,6 +219,9 @@ public class AccServ extends AccessibilityService {
         homeWatcher.setOnHomePressedListener(new OnHomePressedListener() {
             @Override
             public void onHomePressed() {
+                if (KidModeGate.isEscapeUiActive()) {
+                    return;
+                }
                 if (!Prefs.broadcastDetection(AccServ.this) || homePressCanceled) {
                     return;
                 }
@@ -175,26 +236,48 @@ public class AccServ extends AccessibilityService {
 
             @Override
             public void onRecentAppPressed() {
+                if (KidModeGate.isEscapeUiActive()) {
+                    return;
+                }
                 if (Prefs.isKidModeEnabled(AccServ.this)) {
-                    // In kid mode, Recents should also bounce back to the locked target.
-                    handler.postDelayed(() -> HomePress.perform(AccServ.this), 80);
+                    handler.postDelayed(() -> {
+                        if (!KidModeGate.isEscapeUiActive()) {
+                            HomePress.perform(AccServ.this);
+                        }
+                    }, 80);
                 }
             }
         });
         homeWatcher.startWatch();
 
         ServiceMan.start(getApplicationContext());
+        EscapeOverlayNotifier.requestRefresh(getApplicationContext());
         StatusNotifier.ensureChannel(this);
 
-        Log.i(TAG, "KidsHome accessibility service connected on " + android.os.Build.MODEL);
-        // Force launch after reconnect to recover from the known cold-start / ~10s delay case.
-        handler.post(() -> HomePress.perform(getApplicationContext(), true));
-        handler.postDelayed(() -> HomePress.warmTarget(getApplicationContext()), 1500);
+        Log.i(TAG, "KidsHome accessibility service connected on " + android.os.Build.MODEL
+                + " kidMode=" + Prefs.isKidModeEnabled(this));
+
+        // Re-read prefs after connect (kid-mode disable uses commit()) before forcing a launch.
+        handler.post(() -> {
+            if (KidModeGate.isEscapeUiActive()) {
+                return;
+            }
+            if (Prefs.hasChosenLauncher(getApplicationContext()) || Prefs.isKidModeEnabled(getApplicationContext())) {
+                HomePress.perform(getApplicationContext(), true);
+            }
+        });
+        handler.postDelayed(() -> {
+            if (!KidModeGate.isEscapeUiActive()
+                    && (Prefs.hasChosenLauncher(getApplicationContext()) || Prefs.isKidModeEnabled(getApplicationContext()))) {
+                HomePress.warmTarget(getApplicationContext());
+            }
+        }, 1500);
     }
 
     @Override
     public void onDestroy() {
         serviceConnected = false;
+        handler.removeCallbacks(backHoldRunnable);
         if (homeWatcher != null) {
             homeWatcher.stopWatch();
             homeWatcher = null;

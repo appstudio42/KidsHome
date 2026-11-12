@@ -1,10 +1,15 @@
 package io.github.marcelsavegnago.kidshome;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -23,6 +28,9 @@ public class KidModeActivity extends AppCompatActivity {
     private RadioButton lockApp;
     private TextView kidAppLabel;
     private TextView limitsNote;
+    private TextView escapeHelp;
+    private CheckBox escapeCorner;
+    private CheckBox escapeBackHold;
     private Button pickAppButton;
     private Button changePinButton;
     private Button saveButton;
@@ -60,16 +68,22 @@ public class KidModeActivity extends AppCompatActivity {
         lockApp = findViewById(R.id.lockApp);
         kidAppLabel = findViewById(R.id.kidAppLabel);
         limitsNote = findViewById(R.id.limitsNote);
+        escapeHelp = findViewById(R.id.escapeHelp);
+        escapeCorner = findViewById(R.id.escapeCornerCB);
+        escapeBackHold = findViewById(R.id.escapeBackHoldCB);
         pickAppButton = findViewById(R.id.pickAppButton);
         changePinButton = findViewById(R.id.changePinButton);
         saveButton = findViewById(R.id.saveKidModeButton);
 
         limitsNote.setText(R.string.kid_mode_limits);
+        escapeHelp.setText(R.string.kid_mode_escape_help);
 
         kidModeSwitch.setChecked(Prefs.isKidModeEnabled(this));
         boolean lockToApp = Prefs.isKidLockToApp(this);
         lockLauncher.setChecked(!lockToApp);
         lockApp.setChecked(lockToApp);
+        escapeCorner.setChecked(Prefs.isEscapeCornerEnabled(this));
+        escapeBackHold.setChecked(Prefs.isEscapeBackHoldEnabled(this));
         pendingAppPackage = Prefs.getKidAppPackage(this);
         pendingAppActivity = Prefs.getKidAppActivity(this);
         refreshKidAppLabel();
@@ -156,6 +170,8 @@ public class KidModeActivity extends AppCompatActivity {
         lockLauncher.setEnabled(enabled);
         lockApp.setEnabled(enabled);
         pickAppButton.setEnabled(enabled && lockApp.isChecked());
+        escapeCorner.setEnabled(enabled);
+        escapeBackHold.setEnabled(enabled);
         changePinButton.setEnabled(true);
     }
 
@@ -187,14 +203,52 @@ public class KidModeActivity extends AppCompatActivity {
                 .show();
     }
 
+    private boolean ensureOverlayIfNeeded() {
+        if (!escapeCorner.isChecked()) {
+            return true;
+        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return true;
+        }
+        if (Settings.canDrawOverlays(this)) {
+            return true;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.overlay_permission_title)
+                .setMessage(R.string.overlay_permission_message)
+                .setPositiveButton(R.string.open_settings, (d, w) -> {
+                    try {
+                        startActivity(new Intent(
+                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                Uri.parse("package:" + getPackageName())
+                        ));
+                    } catch (Exception e) {
+                        Toast.makeText(this, R.string.overlay_permission_adb, Toast.LENGTH_LONG).show();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+        return false;
+    }
+
     private void save() {
         boolean enable = kidModeSwitch.isChecked();
+        boolean corner = escapeCorner.isChecked();
+        boolean backHold = escapeBackHold.isChecked();
+
+        if (enable && !corner && !backHold) {
+            Toast.makeText(this, R.string.escape_option_required, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        Prefs.setEscapeOptions(this, corner, backHold);
+
         if (enable) {
             if (!Prefs.hasKidPin(this)) {
                 Toast.makeText(this, R.string.pin_required, Toast.LENGTH_LONG).show();
                 return;
             }
-            if (!Prefs.hasChosenLauncher(this)) {
+            if (!Prefs.hasChosenLauncher(this) && !lockApp.isChecked()) {
                 Toast.makeText(this, R.string.please_select_launcher, Toast.LENGTH_LONG).show();
                 return;
             }
@@ -209,11 +263,21 @@ public class KidModeActivity extends AppCompatActivity {
             } else {
                 Prefs.setKidLockToApp(this, false);
             }
+            if (corner && !ensureOverlayIfNeeded()) {
+                // Still allow enabling; Back-hold remains as escape. Corner will activate once overlay is granted.
+                Toast.makeText(this, R.string.overlay_permission_later, Toast.LENGTH_LONG).show();
+            }
             Prefs.setKidModeEnabled(this, true);
+            EscapeOverlayNotifier.requestRefresh(this);
             Toast.makeText(this, R.string.kid_mode_enabled, Toast.LENGTH_LONG).show();
             HomePress.perform(this, true);
         } else {
+            // Synchronous disable before any service bounce can re-read prefs.
             Prefs.setKidModeEnabled(this, false);
+            SessionAuth.markUnlocked();
+            PinAttemptTracker.reset();
+            KidModeGate.markEscapeUiClosed();
+            EscapeOverlayNotifier.requestRefresh(this);
             Toast.makeText(this, R.string.kid_mode_disabled, Toast.LENGTH_SHORT).show();
         }
         finish();

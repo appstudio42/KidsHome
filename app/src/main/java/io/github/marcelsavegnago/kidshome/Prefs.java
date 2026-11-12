@@ -27,6 +27,8 @@ public final class Prefs {
     public static final String KEY_KID_LOCK_TO_APP = "KidLockToApp";
     public static final String KEY_KID_APP_PACKAGE = "KidAppPackage";
     public static final String KEY_KID_APP_ACTIVITY = "KidAppActivity";
+    public static final String KEY_ESCAPE_CORNER = "EscapeCornerEnabled";
+    public static final String KEY_ESCAPE_BACK_HOLD = "EscapeBackHoldEnabled";
 
     /** Lock target: use the chosen home launcher. */
     public static final int LOCK_TARGET_LAUNCHER = 0;
@@ -87,8 +89,29 @@ public final class Prefs {
         return get(context).getBoolean(KEY_KID_MODE, false);
     }
 
+    /**
+     * Persists kid-mode state synchronously ({@code commit}) so a service restart
+     * cannot re-read a stale "enabled" value after the parent disables it.
+     */
     public static void setKidModeEnabled(Context context, boolean enabled) {
-        get(context).edit().putBoolean(KEY_KID_MODE, enabled).apply();
+        SharedPreferences.Editor editor = get(context).edit().putBoolean(KEY_KID_MODE, enabled);
+        // commit() blocks until written to disk — intentional for disable/enable.
+        editor.commit();
+    }
+
+    public static boolean isEscapeCornerEnabled(Context context) {
+        return get(context).getBoolean(KEY_ESCAPE_CORNER, true);
+    }
+
+    public static boolean isEscapeBackHoldEnabled(Context context) {
+        return get(context).getBoolean(KEY_ESCAPE_BACK_HOLD, true);
+    }
+
+    public static void setEscapeOptions(Context context, boolean corner, boolean backHold) {
+        get(context).edit()
+                .putBoolean(KEY_ESCAPE_CORNER, corner)
+                .putBoolean(KEY_ESCAPE_BACK_HOLD, backHold)
+                .commit();
     }
 
     public static boolean hasKidPin(Context context) {
@@ -127,14 +150,14 @@ public final class Prefs {
     }
 
     public static void setKidLockToApp(Context context, boolean lockToApp) {
-        get(context).edit().putBoolean(KEY_KID_LOCK_TO_APP, lockToApp).apply();
+        get(context).edit().putBoolean(KEY_KID_LOCK_TO_APP, lockToApp).commit();
     }
 
     public static void setKidApp(Context context, String packageName, String activityName) {
         get(context).edit()
                 .putString(KEY_KID_APP_PACKAGE, packageName)
                 .putString(KEY_KID_APP_ACTIVITY, activityName)
-                .apply();
+                .commit();
     }
 
     public static String getKidAppPackage(Context context) {

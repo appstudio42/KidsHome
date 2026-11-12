@@ -62,11 +62,27 @@ adb uninstall io.github.marcelsavegnago.kidshome
 4. Save. Home / Recents will keep returning to that target.
 5. Opening KidsHome settings or disabling kid mode requires the PIN.
 
+#### Emergency exit (when locked to a single app)
+You may not be able to open KidsHome from the locked app. Use one of these parent escapes:
+
+1. **5 quick taps** in the **top-right corner** of the screen (needs overlay permission), or
+2. **Hold Back for ~3 seconds**.
+
+Enter the parent PIN. Then choose **Disable kid mode**, **Open KidsHome settings**, or stay locked.
+
+Grant overlay permission (for corner taps) via Settings → Apps → KidsHome → Display over other apps, or:
+```bash
+adb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allow
+```
+Back-hold works even without overlay permission. Escape options are configurable on the Kid mode screen.
+
+Wrong PINs trigger a progressive delay (1s → 30s). Disabling kid mode is written synchronously to storage so a service restart cannot re-enable a stale lock.
+
 ### Known limitations on Fire OS
 - `com.amazon.firelauncher` cannot be disabled on many firmwares; hijack is the only option.
 - The original `com.baronkiko.launcherhijack` package is denylisted by Amazon — KidsHome uses a new application id.
 - After the process is killed (low memory), the **first** Home press can be slow (~cold start). KidsHome warms the target on boot/service connect; if needed, press Home again.
-- Overlay detection needs “Display over other apps” and is off by default on newer Fire OS.
+- Overlay / “Display over other apps” is required for the corner-tap escape (and for optional overlay Home detection).
 - Not a parental-control MDM solution.
 
 ### Build
@@ -138,6 +154,17 @@ adb uninstall io.github.marcelsavegnago.kidshome
 3. Trave no launcher escolhido **ou** em um único app.
 4. Salvar. Home / Recentes voltam para esse destino.
 5. Abrir configurações ou desativar o modo exige o PIN.
+
+#### Saída de emergência (travado em um único app)
+1. **5 toques rápidos** no **canto superior direito**, ou
+2. **Segurar Voltar ~3 segundos**.
+
+Digite o PIN. Depois escolha desativar o modo, abrir o KidsHome, ou continuar travado.
+
+```bash
+adb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allow
+```
+Segurar Voltar funciona sem overlay. PIN errado aplica atraso progressivo. Desativar o modo é gravado de forma síncrona para não “voltar a travar” após reinício do serviço.
 
 **Limite:** baseado em acessibilidade — **não** é bloqueio de dono do dispositivo. ADB ou forçar parada ainda podem contornar.
 

@@ -60,6 +60,7 @@
 
     <string name="kid_mode_enable">Ativar modo criança</string>
     <string name="kid_mode_limits">Limites: o KidsHome usa acessibilidade — não é um bloqueio real de dono do dispositivo / MDM. Uma criança avançada, ADB ou forçar a parada do app ainda podem contornar. Use como ajuda de conveniência, não como barreira de segurança.</string>
+    <string name="kid_mode_escape_help">Saída de emergência (funciona mesmo travado em um único app):\n• Toque 5 vezes rápido no canto superior direito da tela, ou\n• Segure o botão Voltar por cerca de 3 segundos.\nDepois digite o PIN dos responsáveis. O gesto do canto precisa da permissão “Exibir sobre outros apps”.</string>
     <string name="lock_to_launcher">Travar no launcher escolhido</string>
     <string name="lock_to_app">Travar em um único app</string>
     <string name="pick_kid_app">Escolher app infantil</string>
@@ -69,6 +70,25 @@
     <string name="kid_app_required">Selecione um app infantil ou escolha travar no launcher</string>
     <string name="kid_mode_enabled">Modo criança ativado</string>
     <string name="kid_mode_disabled">Modo criança desativado</string>
+
+    <string name="escape_options_title">Opções de saída de emergência</string>
+    <string name="escape_option_corner">5 toques rápidos no canto superior direito (precisa de permissão de overlay)</string>
+    <string name="escape_option_back_hold">Segurar Voltar ~3 segundos</string>
+    <string name="escape_option_required">Ative pelo menos uma opção de saída de emergência</string>
+    <string name="escape_pin_title">Desbloqueio dos responsáveis</string>
+    <string name="escape_pin_message">Digite o PIN dos responsáveis para sair do modo criança ou abrir o KidsHome.</string>
+    <string name="escape_pin_wrong_wait">PIN incorreto. Aguarde %1$d s antes de tentar de novo.</string>
+    <string name="escape_pin_locked_out">Muitas tentativas. Aguarde %1$d s.</string>
+    <string name="escape_pin_try_again">PIN incorreto (%1$d tentativas falhas). Tente de novo.</string>
+    <string name="escape_unlocked_title">Desbloqueado</string>
+    <string name="escape_unlocked_message">O que deseja fazer?</string>
+    <string name="escape_disable_kid_mode">Desativar modo criança</string>
+    <string name="escape_open_settings">Abrir configurações do KidsHome</string>
+    <string name="escape_stay_locked">Continuar no modo criança</string>
+    <string name="overlay_permission_title">Permissão de overlay necessária</string>
+    <string name="overlay_permission_message">A saída por toques no canto precisa de “Exibir sobre outros apps”. Você pode conceder agora ou usar segurar Voltar. No Fire OS também pode rodar:\nadb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allow</string>
+    <string name="overlay_permission_adb">Conceda overlay em Configurações ou:\nadb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allow</string>
+    <string name="overlay_permission_later">O modo criança será ativado. Conceda overlay depois para os toques no canto; segurar Voltar continua funcionando.</string>
 
     <string name="about_title">Sobre o KidsHome</string>
     <string name="about_version">Versão %1$s</string>
