@@ -1,69 +1,118 @@
-# KidsHome
+🇬🇧 **English** | [🇧🇷 Português](README.pt-BR.md) | [🇪🇸 Español](README.es.md) | [🇫🇷 Français](README.fr.md) | [🇩🇪 Deutsch](README.de.md)
 
-**KidsHome** (v1.2.0) is a lightweight kid-mode home for **Android phones/tablets** and **Amazon Fire OS**. It can enforce kid mode in three ways (auto-detected, with a manual override in parent settings):
+<p align="center">
+  <img src="docs/logo.png" alt="KidsHome logo" width="128" height="128" />
+</p>
+
+<h1 align="center">KidsHome</h1>
+
+<p align="center"><strong>A lightweight kid-mode home for Android phones, tablets, and Amazon Fire OS.</strong></p>
+
+<p align="center">
+  <a href="https://github.com/marcelsavegnago/KidsHome/releases/latest"><img src="https://img.shields.io/github/v/release/marcelsavegnago/KidsHome?label=latest%20release" alt="Latest release" /></a>
+  <a href="https://github.com/marcelsavegnago/KidsHome/releases"><img src="https://img.shields.io/github/downloads/marcelsavegnago/KidsHome/total" alt="Downloads" /></a>
+  <a href="https://github.com/marcelsavegnago/KidsHome/actions/workflows/android.yml"><img src="https://img.shields.io/github/actions/workflow/status/marcelsavegnago/KidsHome/android.yml?branch=master&label=CI" alt="CI status" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/marcelsavegnago/KidsHome" alt="License" /></a>
+  <img src="https://img.shields.io/badge/min%20Android-5.1%20(API%2022)-green" alt="Min Android 5.1 API 22" />
+</p>
+
+<p align="center">
+  <a href="https://github.com/marcelsavegnago/KidsHome/releases/latest"><strong>⬇ Download APK (latest release)</strong></a>
+</p>
+
+KidsHome (v1.2.0) turns a spare phone or tablet into a kid-friendly home screen: only the apps and sites you allow, with daily screen-time limits, bedtime lock, and a parent PIN escape. It picks the best enforcement mode for the device (or you override it in **Device setup**).
+
+<p align="center">
+  <img src="docs/media/setup.gif" alt="KidsHome setup: create PIN, choose apps, set screen time, enter kid mode" width="720" />
+</p>
+
+<p align="center"><em>Setup flow — create PIN → choose allowed apps → set screen time → enter kid mode</em></p>
+
+## Screenshots
+
+Real captures from an Android tablet emulator (1280×800) with demo child name **Theo**.
+
+| Kid home | Time's up | Parent PIN |
+|:---:|:---:|:---:|
+| ![Kid home](docs/screenshots/01-kid-home.png) | ![Time's up](docs/screenshots/02-time-up.png) | ![PIN entry](docs/screenshots/03-pin-entry.png) |
+| Kid home grid | Screen-time lock | Emergency PIN exit |
+
+| Kid mode | Screen time | Device setup |
+|:---:|:---:|:---:|
+| ![Kid mode](docs/screenshots/04-parent-kid-mode.png) | ![Screen time](docs/screenshots/05-screen-time-settings.png) | ![Device setup](docs/screenshots/06-device-setup.png) |
+| Parent kid-mode settings | Limits & bedtime | Mode checklist |
+
+| Allowed apps | Parent hub |
+|:---:|:---:|
+| ![Allowed apps](docs/screenshots/07-allowed-apps.png) | ![Main hub](docs/screenshots/08-main-hub.png) |
+| Pick apps for the grid | Main KidsHome screen |
+
+## Features
+
+- **Three enforcement modes** (auto-detected, with manual override):
+  - Accessibility Home hijack — Amazon Fire tablets
+  - Default launcher — regular Android
+  - Device Owner + lock task — strongest kiosk
+- **Kid home** — large-icon grid of allowed apps + website shortcuts, or lock to a single app
+- **Screen time** — daily limit, bedtime window, warning, friendly lock screen, PIN to add time / disable for today
+- **Emergency PIN exit** — 5 taps top-right (overlay) or hold Back ~3s; Device Owner path calls `stopLockTask` cleanly
+- Survives reboot; warns if accessibility is off when that mode needs it
+- Optional accessibility blocking of non-allowed apps as an **extra layer** in launcher / Device Owner modes
+
+## Supported devices
 
 | Mode | Best for | How it works |
 |------|----------|--------------|
-| **Accessibility Home hijack** | Amazon Fire tablets | AccessibilityService redirects Home / Fire launcher (same approach as v1.1) |
-| **Default launcher** | Regular Android | KidsHome registers as `CATEGORY_HOME` and is set as the default Home app |
+| **Accessibility Home hijack** | Amazon Fire tablets | AccessibilityService redirects Home / Fire launcher |
+| **Default launcher** | Regular Android phones & tablets | KidsHome registers as `CATEGORY_HOME` and is set as the default Home app |
 | **Device Owner + lock task** | Strongest kiosk | One-time `dpm set-device-owner`, then native lock-task whitelist |
 
-Optional accessibility blocking of non-allowed apps can still run as an **extra layer** in launcher / Device Owner modes.
+> Primary low-end test device: Amazon Fire 7 (9th gen, `mustang`), Fire OS 7.3.x = Android 9 (SDK 28). **iOS is out of scope.**
 
-This project is a GPL-3 fork of [Meems33/LauncherHijack](https://github.com/Meems33/LauncherHijack) (Launcher Replacer), itself based on [BaronKiko/LauncherHijack](https://github.com/BaronKiko/LauncherHijack).
+GPL-3 fork of [Meems33/LauncherHijack](https://github.com/Meems33/LauncherHijack) (Launcher Replacer), based on [BaronKiko/LauncherHijack](https://github.com/BaronKiko/LauncherHijack).
 
-> Primary low-end test device: Amazon Fire 7 (9th gen, `mustang`), Fire OS 7.3.x = Android 9 (SDK 28), armeabi-v7a, 1 GB RAM. Regular Android phones/tablets are also supported. **iOS is out of scope.**
+## Quick start
 
----
-
-## English
-
-### What it does
-- Detects the device at runtime and picks the best enforcement mode (override in **Device setup**).
-- **Kid home**: large-icon grid of allowed apps + website shortcuts, or lock to a single app.
-- **Screen time**: daily limit + bedtime window, warning, friendly lock screen, PIN to add time / disable for today.
-- **Emergency PIN exit**: 5 taps top-right (overlay) or hold Back ~3s — works in all modes; Device Owner path calls `stopLockTask` cleanly.
-- Survives reboot; warns if accessibility is off when that mode needs it.
-
-### Install (ADB)
-1. Download the APK from [Releases](https://github.com/marcelsavegnago/KidsHome/releases) or the GitHub Actions artifact `KidsHome-release-apk`.
+1. Download the APK from the [latest release](https://github.com/marcelsavegnago/KidsHome/releases/latest) (or the GitHub Actions artifact `KidsHome-release-apk`).
 2. Install (same CI test signature across builds → upgrades keep data):
+
    ```bash
    adb install -r KidsHome-release.apk
    ```
+
 3. Open KidsHome → menu → **Device setup** and finish the checklist for your mode.
 4. Menu → **Kid mode** → create PIN, configure apps / screen time, enable.
 
----
+### A) Amazon Fire OS (accessibility hijack)
 
-### Setup by device
-
-#### A) Amazon Fire OS (accessibility hijack)
 Fire OS does **not** allow replacing the default launcher. KidsHome keeps the classic AccServ Home hijack.
 
 1. Enable accessibility (UI **or** ADB).
 
-##### UI
-Settings → Accessibility → **KidsHome home detection** → enable.
+   **UI:** Settings → Accessibility → **KidsHome home detection** → enable.
 
-##### ADB
-```text
-io.github.marcelsavegnago.kidshome/io.github.marcelsavegnago.kidshome.AccServ
-```
+   **ADB component:**
 
-```bash
-adb shell settings put secure enabled_accessibility_services io.github.marcelsavegnago.kidshome/io.github.marcelsavegnago.kidshome.AccServ
-adb shell settings put secure accessibility_enabled 1
-```
+   ```text
+   io.github.marcelsavegnago.kidshome/io.github.marcelsavegnago.kidshome.AccServ
+   ```
+
+   ```bash
+   adb shell settings put secure enabled_accessibility_services io.github.marcelsavegnago.kidshome/io.github.marcelsavegnago.kidshome.AccServ
+   adb shell settings put secure accessibility_enabled 1
+   ```
 
 2. (Optional, for corner-tap escape)
-```bash
-adb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allow
-```
-3. In KidsHome, pick a fallback launcher if you use non-kid Home hijack, or go straight to **Kid mode**.
+
+   ```bash
+   adb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allow
+   ```
+
+3. In KidsHome, go to **Kid mode** (or pick a fallback launcher if you use non-kid Home hijack).
 4. Reboot once. Press Home — kid home / chosen target should open (a brief Fire launcher flash may appear).
 
-#### B) Regular Android (default launcher mode)
+### B) Regular Android (default launcher)
+
 1. Open **Device setup** → mode **Automatic** or **Default launcher**.
 2. Tap **Set as default Home** (uses `RoleManager.ROLE_HOME` on Android 10+, otherwise Home settings).
 3. Choose **KidsHome** in the system picker.
@@ -71,15 +120,19 @@ adb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allo
 5. Optionally enable accessibility as an **extra layer** to bounce non-allowed apps.
 6. Enable **Kid mode**. Home should open the kid grid.
 
-#### C) Device Owner mode (strongest)
+### C) Device Owner (strongest)
+
 Device Owner can only be set when the device has **no accounts** (remove Google/Amazon accounts) or after a **factory reset**, and typically before other device admins are active.
 
 1. Install KidsHome.
 2. Provision Device Owner (component must match exactly):
+
    ```bash
    adb shell dpm set-device-owner io.github.marcelsavegnago.kidshome/.KidsHomeDeviceAdminReceiver
    ```
+
    The same command is shown / copyable in **Device setup**.
+
 3. In **Device setup**, confirm Device Owner = yes. Optionally disable status bar / keyguard while locked.
 4. Enable **Kid mode**. KidsHome will:
    - `setLockTaskPackages` for allowed apps + browser + itself
@@ -87,39 +140,81 @@ Device Owner can only be set when the device has **no accounts** (remove Google/
    - `startLockTask` from kid home (kiosk)
 5. Emergency PIN exit calls `stopLockTask` and can disable kid mode.
 
-##### Remove Device Owner (required before uninstall)
+## Screen time & bedtime
+
+In **Kid mode** settings you can enable:
+
+- **Daily screen-time limit** (minutes) — kid home shows time left; when the limit is reached, a friendly “Time's up” lock appears.
+- **Bedtime block** — sleep window (e.g. 20:00–07:00); during bedtime the lock says “It's bedtime”.
+
+A parent unlocks with the PIN to add 15/30 minutes, disable the limit for today, or disable bedtime for tonight.
+
+## Emergency PIN exit
+
+Works in **all** enforcement modes:
+
+- Tap the **top-right corner** 5 times quickly (needs “Display over other apps”), or
+- **Hold Back** for about 3 seconds
+
+Then enter the parent PIN to disable kid mode, open KidsHome settings, or stay in kid mode.
+
+## FAQ & troubleshooting
+
+### How do I exit kid mode via ADB?
+
+```bash
+adb shell am force-stop io.github.marcelsavegnago.kidshome
+# Or clear kid-mode prefs (resets settings):
+adb shell pm clear io.github.marcelsavegnago.kidshome
+```
+
+If Device Owner lock-task is active, clear Device Owner first (see below), or unlock with the PIN in the UI.
+
+### Upgrading without losing settings
+
+Use the same signing key (CI test keystore by default) and reinstall with replace:
+
+```bash
+adb install -r KidsHome-release.apk
+```
+
+Switching to a different signing key requires one uninstall first.
+
+### How do I remove Device Owner?
+
 In **Device setup** → **Remove Device Owner** (PIN if kid mode is on), or the app calls `clearDeviceOwnerApp`. Then:
+
 ```bash
 adb uninstall io.github.marcelsavegnago.kidshome
 ```
 
 If you skip clearing Device Owner, Android will refuse to uninstall the app.
 
----
-
 ### Undo / uninstall (non–Device Owner)
+
 ```bash
 adb shell settings put secure enabled_accessibility_services ''
 adb shell settings put secure accessibility_enabled 0
 adb uninstall io.github.marcelsavegnago.kidshome
 ```
 
-### Kid mode & emergency exit
-Same as v1.1: kid home grid or single app; screen time / bedtime; PIN exit via corner taps or hold Back. All of these work in every enforcement mode.
-
 ### Known limitations
+
 - Fire: `com.amazon.firelauncher` often cannot be disabled; hijack is the only Home option.
 - Accessibility / launcher modes are **not** full MDM — ADB / force-stop can bypass.
 - Device Owner is strong but needs a clean device and ADB once; clearing owner is required to uninstall.
 - After low-memory kills on Fire, the first Home press can be slow — press again if needed.
 
-### Build
+## Building from source
+
 ```bash
 ./gradlew assembleRelease
 ```
-Requires JDK 17+ and Android SDK (`compileSdk` / `targetSdk` 34). `minSdk 22` (Fire 7 / SDK 28 fully supported).
+
+Requires **JDK 17+** and Android SDK (`compileSdk` / `targetSdk` 34). `minSdk 22` (Fire 7 / SDK 28 fully supported).
 
 ### CI signing
+
 | Mode | When | Signature |
 |------|------|-----------|
 | **Stable CI test key** | No `SIGNING_*` secrets | `keystore/debug.keystore` (committed) — same across CI runs, so `adb install -r` upgrades keep settings |
@@ -132,80 +227,28 @@ Requires JDK 17+ and Android SDK (`compileSdk` / `targetSdk` 34). `minSdk 22` (F
 | `SIGNING_KEY_STORE_PASSWORD` | Keystore password |
 | `SIGNING_KEY_PASSWORD` | Key password |
 
-Switching signing keys requires one uninstall. See `keystore/README.md`.
+See `keystore/README.md`.
 
-### Credits & license
-- BaronKiko — original LauncherHijack
-- Meems33 / WhiteRaven777 — Launcher Replacer fork
-- KidsHome — GPL-3 (see [LICENSE](LICENSE))
+## Releasing
 
----
+1. Bump `versionName` / `versionCode` in `app/build.gradle`.
+2. Push a tag matching `vX.Y.Z`:
 
-## Português (pt-BR)
-
-### O que é
-O **KidsHome** (v1.2.0) é um home infantil leve para **celulares/tablets Android** e **Amazon Fire OS**. Escolhe automaticamente o melhor modo de enforcement (com override nas configurações):
-
-| Modo | Melhor para | Como funciona |
-|------|-------------|---------------|
-| **Sequestro de Home por acessibilidade** | Tablets Amazon Fire | AccServ redireciona Home / launcher da Fire |
-| **Launcher padrão** | Android comum | KidsHome como app Home (`CATEGORY_HOME`) |
-| **Device Owner + lock task** | Kiosk mais forte | `dpm set-device-owner` uma vez + whitelist nativa |
-
-Bloqueio por acessibilidade de apps não permitidos pode continuar como **camada extra** nos modos launcher / Device Owner.
-
-Fork GPL-3 de [Meems33/LauncherHijack](https://github.com/Meems33/LauncherHijack), baseado em [BaronKiko/LauncherHijack](https://github.com/BaronKiko/LauncherHijack). **iOS fora do escopo.**
-
-### Instalação (ADB)
-```bash
-adb install -r KidsHome-release.apk
-```
-Abra o KidsHome → menu → **Configuração do dispositivo** e conclua o checklist. Depois **Modo criança**.
-
-### Por tipo de aparelho
-
-#### A) Amazon Fire OS
-1. Ative a acessibilidade (UI ou ADB — mesmo componente da seção em inglês).
-2. Overlay opcional para saída pelo canto:
    ```bash
-   adb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allow
+   git tag v1.2.0
+   git push origin v1.2.0
    ```
-3. Ative o modo criança e reinicie uma vez.
 
-#### B) Android comum (launcher)
-1. **Configuração do dispositivo** → Automatic / Launcher padrão.
-2. **Definir como Home padrão** e escolha KidsHome.
-3. Conceda overlay / isenção de bateria.
-4. Acessibilidade opcional como camada extra.
-5. Ative o modo criança.
+3. GitHub Actions (`.github/workflows/android.yml`) builds the release APK and attaches it to the GitHub Release.
 
-#### C) Device Owner (mais forte)
-Exige aparelho **sem contas** ou após **reset de fábrica**.
+## Contributing
 
-```bash
-adb shell dpm set-device-owner io.github.marcelsavegnago.kidshome/.KidsHomeDeviceAdminReceiver
-```
+Issues and pull requests are welcome. Please keep changes focused, test on a real Fire tablet or emulator when touching enforcement / accessibility, and prefer English for code and comments.
 
-Com o modo criança ativo: lock task, HOME persistente, whitelist de apps. A saída com PIN chama `stopLockTask`.
+Screenshot / GIF regeneration (optional): see [`.github/workflows/screenshots.yml`](.github/workflows/screenshots.yml) and [`docs/capture-screenshots.sh`](docs/capture-screenshots.sh).
 
-##### Remover Device Owner (obrigatório antes de desinstalar)
-Em **Configuração do dispositivo** → **Remover Device Owner**, depois:
-```bash
-adb uninstall io.github.marcelsavegnago.kidshome
-```
+## License
 
-### Desfazer (sem Device Owner)
-```bash
-adb shell settings put secure enabled_accessibility_services ''
-adb shell settings put secure accessibility_enabled 0
-adb uninstall io.github.marcelsavegnago.kidshome
-```
+KidsHome is licensed under the **GNU GPL v3** — see [LICENSE](LICENSE).
 
-### Modo criança
-Home infantil ou app único; tempo de tela / hora de dormir; saída de emergência (5 toques no canto ou segurar Voltar) — funciona em todos os modos.
-
-### Assinatura do CI
-Sem secrets `SIGNING_*`, o CI assina com `keystore/debug.keystore` (chave de teste fixa — `adb install -r` preserva dados). Com secrets, usa a chave de release. Trocar de chave exige desinstalar uma vez.
-
-### Créditos e licença
-BaronKiko, Meems33 / WhiteRaven777. KidsHome — GPL-3 ([LICENSE](LICENSE)).
+Credits: BaronKiko (LauncherHijack), Meems33 / WhiteRaven777 (Launcher Replacer).
