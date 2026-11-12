@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -41,7 +40,7 @@ public class EscapePinActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         KidModeGate.markEscapeUiOpen();
 
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        // Do not keep the screen on — PIN / lock UI must follow the system timeout.
         setContentView(R.layout.activity_escape_pin);
         ImmersiveHelper.enter(this);
         View root = findViewById(R.id.escapePinRoot);

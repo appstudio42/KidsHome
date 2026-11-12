@@ -29,6 +29,43 @@ public final class ScreenTimeState {
         return cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
     }
 
+    /** Local midnight (00:00:00.000) for the calendar day that contains {@code epochMs}. */
+    public static long startOfDayMillis(long epochMs) {
+        Calendar cal = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
+        cal.setTimeInMillis(epochMs);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTimeInMillis();
+    }
+
+    /**
+     * Portion of {@code [lastTickMs, nowMs]} that belongs to the calendar day of {@code nowMs}.
+     * Time before midnight from a previous day is never charged to the new day.
+     */
+    public static long millisChargedToCurrentDay(long lastTickMs, long nowMs) {
+        if (nowMs <= lastTickMs || lastTickMs <= 0L) {
+            return 0L;
+        }
+        long startOfToday = startOfDayMillis(nowMs);
+        long from = Math.max(lastTickMs, startOfToday);
+        return Math.max(0L, nowMs - from);
+    }
+
+    /**
+     * Whether a screen-time tick should add to daily / per-app usage.
+     * Blocked states (daily limit, bedtime, schedule bedtime, remote lock) and
+     * KidsHome lock/PIN UI must never accrue.
+     */
+    public static boolean shouldAccrueUsage(
+            boolean screenOn,
+            boolean deviceBlocked,
+            boolean kidsHomeLockOrPinUiVisible
+    ) {
+        return screenOn && !deviceBlocked && !kidsHomeLockOrPinUiVisible;
+    }
+
     /** True if now is inside [start, end) allowing overnight windows (e.g. 20:00–07:00). */
     public static boolean isInBedtimeWindow(int nowMinutes, int startMinutes, int endMinutes) {
         if (startMinutes == endMinutes) {

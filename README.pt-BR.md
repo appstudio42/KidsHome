@@ -20,7 +20,7 @@
   <a href="https://github.com/appstudio42/KidsHome/releases/latest"><strong>⬇ Baixar APK (última versão)</strong></a>
 </p>
 
-O KidsHome (v1.5.0) transforma um celular ou tablet reserva em uma tela inicial amigável para crianças: só os apps e sites que você permitir, com limite diário de tempo de tela, bloqueio na hora de dormir, saída de emergência com PIN dos pais e controle remoto opcional na rede local pelo navegador do celular. Ele escolhe o melhor modo de enforcement para o aparelho (ou você redefine em **Configuração do dispositivo**). Mantido pelo [App Studio 42](https://appstudio42.github.io).
+O KidsHome (v1.5.1) transforma um celular ou tablet reserva em uma tela inicial amigável para crianças: só os apps e sites que você permitir, com limite diário de tempo de tela, bloqueio na hora de dormir, saída de emergência com PIN dos pais e controle remoto opcional na rede local pelo navegador do celular. Ele escolhe o melhor modo de enforcement para o aparelho (ou você redefine em **Configuração do dispositivo**). Mantido pelo [App Studio 42](https://appstudio42.github.io).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="Configuração do KidsHome: criar PIN, escolher apps, definir tempo de tela, entrar no modo criança" width="720" />
@@ -272,8 +272,8 @@ Veja `keystore/README.md`.
 2. Envie uma tag `vX.Y.Z`:
 
    ```bash
-   git tag v1.5.0
-   git push origin v1.5.0
+   git tag v1.5.1
+   git push origin v1.5.1
    ```
 
 3. O GitHub Actions (`.github/workflows/android.yml`) gera o APK de release e anexa ao GitHub Release.
@@ -292,4 +292,4 @@ Créditos: BaronKiko (LauncherHijack), Meems33 / WhiteRaven777 (Launcher Replace
 
 ## Changelog
 
-Veja [CHANGELOG.md](CHANGELOG.md) para as notas da versão (atual: **1.5.0**).
+Veja [CHANGELOG.md](CHANGELOG.md) para as notas da versão (atual: **1.5.1**).

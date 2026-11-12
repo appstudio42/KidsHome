@@ -36,17 +36,25 @@ public final class ScreenTimeTracker {
         boolean screenOn = isScreenOn(app);
         long now = System.currentTimeMillis();
         long last = Prefs.getLastScreenTickMs(app);
+        // Evaluate block / lock-UI before accruing so overnight lock screens and
+        // remote/bedtime blocks never burn today's allowance.
+        boolean blocked = isBlocked(app);
+        boolean lockOrPinUi = KidModeGate.isLockOrPinUiVisible();
 
-        if (screenOn && last > 0L) {
+        if (ScreenTimeState.shouldAccrueUsage(screenOn, blocked, lockOrPinUi) && last > 0L) {
             long delta = now - last;
             if (delta > 0L && delta <= MAX_DELTA_MS) {
-                if (Prefs.isScreenTimeEnabled(app) && !Prefs.isScreenTimeDisabledToday(app)) {
-                    Prefs.addUsedMillisToday(app, delta);
-                }
-                String fg = resolveForegroundPackage(app);
-                if (fg != null && !fg.isEmpty() && !fg.equals(app.getPackageName())) {
-                    Prefs.addAppUsedMillisToday(app, fg, delta);
-                    Prefs.setForegroundTrackPackage(app, fg);
+                // Cap/split at midnight: pre-midnight time must not charge the new day.
+                long chargeable = ScreenTimeState.millisChargedToCurrentDay(last, now);
+                if (chargeable > 0L) {
+                    if (Prefs.isScreenTimeEnabled(app) && !Prefs.isScreenTimeDisabledToday(app)) {
+                        Prefs.addUsedMillisToday(app, chargeable);
+                    }
+                    String fg = resolveForegroundPackage(app);
+                    if (fg != null && !fg.isEmpty() && !fg.equals(app.getPackageName())) {
+                        Prefs.addAppUsedMillisToday(app, fg, chargeable);
+                        Prefs.setForegroundTrackPackage(app, fg);
+                    }
                 }
             }
         }

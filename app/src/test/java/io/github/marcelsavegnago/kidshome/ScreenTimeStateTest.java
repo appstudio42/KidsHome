@@ -2,6 +2,10 @@ package io.github.marcelsavegnago.kidshome;
 
 import org.junit.Test;
 
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.TimeZone;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -36,5 +40,38 @@ public class ScreenTimeStateTest {
         long rem = ScreenTimeState.remainingMillis(25 * 60_000L, 30 * 60_000L, 60 * 60_000L);
         assertEquals(65 * 60_000L, rem);
         assertFalse(ScreenTimeState.isDailyLimitReached(25 * 60_000L, 30 * 60_000L, 60 * 60_000L));
+    }
+
+    @Test
+    public void noUsageAccruesWhileBlockedOrOnLockUi() {
+        assertFalse(ScreenTimeState.shouldAccrueUsage(true, true, false));
+        assertFalse(ScreenTimeState.shouldAccrueUsage(true, false, true));
+        assertFalse(ScreenTimeState.shouldAccrueUsage(true, true, true));
+        assertFalse(ScreenTimeState.shouldAccrueUsage(false, false, false));
+        assertTrue(ScreenTimeState.shouldAccrueUsage(true, false, false));
+    }
+
+    @Test
+    public void midnightCrossingDoesNotChargePreviousDayIntoNewDay() {
+        Calendar cal = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        long midnight = cal.getTimeInMillis();
+
+        long lastBeforeMidnight = midnight - 40_000L; // 23:59:20
+        long nowAfterMidnight = midnight + 20_000L;   // 00:00:20
+        // Only the 20s after midnight belong to the new day.
+        assertEquals(20_000L,
+                ScreenTimeState.millisChargedToCurrentDay(lastBeforeMidnight, nowAfterMidnight));
+
+        // Same-day tick still charges the full delta.
+        assertEquals(15_000L,
+                ScreenTimeState.millisChargedToCurrentDay(midnight + 5_000L, midnight + 20_000L));
+
+        // Invalid / empty last tick charges nothing.
+        assertEquals(0L, ScreenTimeState.millisChargedToCurrentDay(0L, nowAfterMidnight));
+        assertEquals(0L, ScreenTimeState.millisChargedToCurrentDay(nowAfterMidnight, lastBeforeMidnight));
     }
 }

@@ -20,7 +20,7 @@
   <a href="https://github.com/appstudio42/KidsHome/releases/latest"><strong>⬇ Download APK (latest release)</strong></a>
 </p>
 
-KidsHome (v1.5.0) turns a spare phone or tablet into a kid-friendly home screen: only the apps and sites you allow, with daily screen-time limits, bedtime lock, a parent PIN escape, and optional LAN remote control from a phone browser. It picks the best enforcement mode for the device (or you override it in **Device setup**). Maintained by [App Studio 42](https://appstudio42.github.io).
+KidsHome (v1.5.1) turns a spare phone or tablet into a kid-friendly home screen: only the apps and sites you allow, with daily screen-time limits, bedtime lock, a parent PIN escape, and optional LAN remote control from a phone browser. It picks the best enforcement mode for the device (or you override it in **Device setup**). Maintained by [App Studio 42](https://appstudio42.github.io).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="KidsHome setup: create PIN, choose apps, set screen time, enter kid mode" width="720" />
@@ -291,4 +291,4 @@ Credits: BaronKiko (LauncherHijack), Meems33 / WhiteRaven777 (Launcher Replacer)
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for release notes (current: **1.5.0**).
+See [CHANGELOG.md](CHANGELOG.md) for release notes (current: **1.5.1**).
