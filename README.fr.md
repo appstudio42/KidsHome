@@ -20,7 +20,7 @@
   <a href="https://github.com/appstudio42/KidsHome/releases/latest"><strong>⬇ Télécharger l’APK (dernière version)</strong></a>
 </p>
 
-KidsHome (v1.5.0) transforme un téléphone ou une tablette de rechange en écran d’accueil adapté aux enfants : uniquement les apps et sites que vous autorisez, avec limite quotidienne de temps d’écran, verrouillage au coucher, sortie d’urgence par PIN parental et contrôle distant optionnel sur le réseau local depuis le navigateur du téléphone. Il choisit le meilleur mode d’application pour l’appareil (ou vous le définissez dans **Configuration de l’appareil**). Maintenu par [App Studio 42](https://appstudio42.github.io).
+KidsHome (v1.5.1) transforme un téléphone ou une tablette de rechange en écran d’accueil adapté aux enfants : uniquement les apps et sites que vous autorisez, avec limite quotidienne de temps d’écran, verrouillage au coucher, sortie d’urgence par PIN parental et contrôle distant optionnel sur le réseau local depuis le navigateur du téléphone. Il choisit le meilleur mode d’application pour l’appareil (ou vous le définissez dans **Configuration de l’appareil**). Maintenu par [App Studio 42](https://appstudio42.github.io).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="Configuration KidsHome : créer un PIN, choisir les apps, définir le temps d’écran, entrer en mode enfant" width="720" />
@@ -262,8 +262,8 @@ Voir `keystore/README.md`.
 2. Poussez une étiquette `vX.Y.Z` :
 
    ```bash
-   git tag v1.5.0
-   git push origin v1.5.0
+   git tag v1.5.1
+   git push origin v1.5.1
    ```
 
 3. GitHub Actions (`.github/workflows/android.yml`) construit l’APK de release et l’attache à la GitHub Release.
@@ -282,4 +282,4 @@ Crédits : BaronKiko (LauncherHijack), Meems33 / WhiteRaven777 (Launcher Replace
 
 ## Changelog
 
-Voir [CHANGELOG.md](CHANGELOG.md) pour les notes de version (actuel : **1.5.0**).
+Voir [CHANGELOG.md](CHANGELOG.md) pour les notes de version (actuel : **1.5.1**).

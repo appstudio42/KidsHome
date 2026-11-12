@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -41,7 +40,8 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         KidModeGate.markScreenLockUiOpen();
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        // Do not keep the screen on — overnight lock must follow the system timeout
+        // so screen-on time does not burn the next day's allowance.
         setContentView(R.layout.activity_screen_time_lock);
         ImmersiveHelper.enter(this);
         // Inset the ScrollView so the unlock button stays reachable when bars peek.

@@ -47,6 +47,15 @@ public final class KidModeGate {
         return screenLockUiVisible;
     }
 
+    /**
+     * True while the screen-time lock or escape PIN activity is actually visible.
+     * Unlike {@link #isEscapeUiActive()}, this ignores the short post-close grace window
+     * so kid-home time right after unlock can still accrue.
+     */
+    public static boolean isLockOrPinUiVisible() {
+        return escapeUiVisible || screenLockUiVisible;
+    }
+
     public static long openedAtMs() {
         return escapeUiOpenedAtMs;
     }

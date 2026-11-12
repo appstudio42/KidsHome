@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.5.1
+
+Bugfix: overnight lock screens no longer keep the display awake or burn the next day's screen-time allowance.
+
+### Fixed
+- Removed `FLAG_KEEP_SCREEN_ON` from the screen-time lock and escape PIN activities so the tablet follows its normal screen timeout.
+- Screen-time ticks no longer accrue daily or per-app usage while blocked (daily limit, bedtime, schedule bedtime, remote lock) or while KidsHome lock/PIN UI is visible.
+- Usage deltas that cross midnight are split so pre-midnight time is not charged to the new day.
+
+### Changed
+- Version **1.5.1** (`versionCode` 151).
+
 ## 1.5.0
 
 Parent remote control over the local Wi‑Fi — tiny embedded HTTP page on the tablet, no cloud / accounts / phone app.
