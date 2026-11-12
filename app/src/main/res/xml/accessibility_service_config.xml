@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accessibilityEventTypes="typeContextClicked|typeViewClicked|typeWindowStateChanged"
-    android:accessibilityFlags="flagRequestFilterKeyEvents"
-    android:accessibilityFeedbackType="feedbackAllMask"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged|typeViewClicked|typeContextClicked"
+    android:accessibilityFlags="flagRequestFilterKeyEvents|flagReportViewIds"
+    android:accessibilityFeedbackType="feedbackGeneric"
     android:canRetrieveWindowContent="true"
     android:canRequestFilterKeyEvents="true"
-    android:notificationTimeout="50"
-    />
+    android:description="@string/accessibility_service_description"
+    android:notificationTimeout="20"
+    android:settingsActivity="io.github.marcelsavegnago.kidshome.MainActivity" />

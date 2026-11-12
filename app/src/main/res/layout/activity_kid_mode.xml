@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/limitsNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/bannerBackground"
+            android:padding="12dp"
+            android:text="@string/kid_mode_limits"
+            android:textColor="@color/bannerText"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/escapeHelp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#E8F5E9"
+            android:padding="12dp"
+            android:text="@string/kid_mode_escape_help"
+            android:textColor="#1B5E20"
+            android:textSize="13sp" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:text="@string/kid_mode_enable"
+                android:textSize="16sp" />
+
+            <Switch
+                android:id="@+id/kidModeSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true" />
+        </RelativeLayout>
+
+        <EditText
+            android:id="@+id/childNameInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/child_name_hint"
+            android:inputType="textPersonName"
+            android:maxLines="1" />
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+
+            <RadioButton
+                android:id="@+id/lockKidHome"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/lock_to_kid_home" />
+
+            <RadioButton
+                android:id="@+id/lockApp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/lock_to_app" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/kidAppLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/kid_app_none" />
+
+        <Button
+            android:id="@+id/pickAppButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/pick_kid_app" />
+
+        <Button
+            android:id="@+id/manageAllowedApps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/manage_allowed_apps" />
+
+        <Button
+            android:id="@+id/manageSites"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/manage_site_shortcuts" />
+
+        <Button
+            android:id="@+id/pickBrowser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/pick_browser" />
+
+        <TextView
+            android:id="@+id/browserLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/browser_default" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/screen_time_section"
+            android:textStyle="bold"
+            android:textSize="15sp" />
+
+        <CheckBox
+            android:id="@+id/screenTimeEnabled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/screen_time_enable" />
+
+        <EditText
+            android:id="@+id/dailyLimitInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/daily_limit_hint"
+            android:inputType="number"
+            android:maxLines="1" />
+
+        <CheckBox
+            android:id="@+id/bedtimeEnabled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/bedtime_enable" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/bedtimeStartButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/bedtime_start" />
+
+            <Button
+                android:id="@+id/bedtimeEndButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/bedtime_end" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/escape_options_title"
+            android:textStyle="bold"
+            android:textSize="15sp" />
+
+        <CheckBox
+            android:id="@+id/escapeCornerCB"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/escape_option_corner" />
+
+        <CheckBox
+            android:id="@+id/escapeBackHoldCB"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/escape_option_back_hold" />
+
+        <Button
+            android:id="@+id/changePinButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/change_pin" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/cancelKidModeButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:text="@string/cancel" />
+
+            <Button
+                android:id="@+id/saveKidModeButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="@string/save" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
