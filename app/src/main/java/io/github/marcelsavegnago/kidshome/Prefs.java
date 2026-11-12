@@ -36,10 +36,16 @@ public final class Prefs {
     public static final String KEY_ESCAPE_BACK_HOLD = "EscapeBackHoldEnabled";
 
     public static final String KEY_CHILD_NAME = "ChildName";
+    public static final String KEY_CHILD_AVATAR = "ChildAvatar";
     public static final String KEY_ALLOWED_PACKAGES = "AllowedPackages";
     public static final String KEY_SITE_SHORTCUTS = "SiteShortcutsJson";
     public static final String KEY_BROWSER_PACKAGE = "BrowserPackage";
     public static final String KEY_BROWSER_ACTIVITY = "BrowserActivity";
+    public static final String KEY_ONBOARDING_DONE = "OnboardingDone";
+    public static final String KEY_TOUCH_SOUNDS = "KidTouchSounds";
+    public static final String KEY_PREFS_VERSION = "PrefsVersion";
+    /** Schema version for forward-compatible migrations. Existing installs stay at v0 until migrate. */
+    public static final int CURRENT_PREFS_VERSION = 1;
 
     public static final String KEY_SCREEN_TIME_ENABLED = "ScreenTimeEnabled";
     public static final String KEY_DAILY_LIMIT_MINUTES = "DailyLimitMinutes";
@@ -101,6 +107,57 @@ public final class Prefs {
 
     public static SharedPreferences get(Context context) {
         return context.getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+    }
+
+    /**
+     * Migrates prefs forward without wiping PIN / settings. Safe to call on every launch.
+     */
+    public static void migrateIfNeeded(Context context) {
+        SharedPreferences prefs = get(context);
+        int version = prefs.getInt(KEY_PREFS_VERSION, 0);
+        if (version >= CURRENT_PREFS_VERSION) {
+            return;
+        }
+        SharedPreferences.Editor editor = prefs.edit();
+        // v1: ensure avatar + onboarding defaults exist; keep all prior keys untouched.
+        if (!prefs.contains(KEY_CHILD_AVATAR)) {
+            editor.putString(KEY_CHILD_AVATAR, ChildAvatars.DEFAULT);
+        }
+        if (!prefs.contains(KEY_ONBOARDING_DONE)) {
+            // Existing installs that already have a PIN or kid mode skip the wizard.
+            boolean skip = prefs.getBoolean(KEY_KID_MODE, false) || hasKidPin(context);
+            editor.putBoolean(KEY_ONBOARDING_DONE, skip);
+        }
+        if (!prefs.contains(KEY_TOUCH_SOUNDS)) {
+            editor.putBoolean(KEY_TOUCH_SOUNDS, false);
+        }
+        editor.putInt(KEY_PREFS_VERSION, CURRENT_PREFS_VERSION);
+        editor.commit();
+    }
+
+    public static boolean isOnboardingDone(Context context) {
+        migrateIfNeeded(context);
+        return get(context).getBoolean(KEY_ONBOARDING_DONE, false);
+    }
+
+    public static void setOnboardingDone(Context context, boolean done) {
+        get(context).edit().putBoolean(KEY_ONBOARDING_DONE, done).commit();
+    }
+
+    public static boolean isTouchSoundsEnabled(Context context) {
+        return get(context).getBoolean(KEY_TOUCH_SOUNDS, false);
+    }
+
+    public static void setTouchSoundsEnabled(Context context, boolean enabled) {
+        get(context).edit().putBoolean(KEY_TOUCH_SOUNDS, enabled).commit();
+    }
+
+    public static String getChildAvatar(Context context) {
+        return ChildAvatars.sanitize(get(context).getString(KEY_CHILD_AVATAR, ChildAvatars.DEFAULT));
+    }
+
+    public static void setChildAvatar(Context context, String avatar) {
+        get(context).edit().putString(KEY_CHILD_AVATAR, ChildAvatars.sanitize(avatar)).commit();
     }
 
     public static boolean isDefaultsLoaded(Context context) {
@@ -222,6 +279,13 @@ public final class Prefs {
 
     public static void setChildName(Context context, String name) {
         get(context).edit().putString(KEY_CHILD_NAME, name == null ? "" : name.trim()).commit();
+    }
+
+    public static void setChildProfile(Context context, String name, String avatar) {
+        get(context).edit()
+                .putString(KEY_CHILD_NAME, name == null ? "" : name.trim())
+                .putString(KEY_CHILD_AVATAR, ChildAvatars.sanitize(avatar))
+                .commit();
     }
 
     public static Set<String> getAllowedPackages(Context context) {

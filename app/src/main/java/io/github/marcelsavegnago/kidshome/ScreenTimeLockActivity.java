@@ -5,12 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 /**
  * Friendly full-screen block when daily limit or bedtime is reached.
@@ -18,7 +19,6 @@ import androidx.appcompat.app.AppCompatActivity;
 public class ScreenTimeLockActivity extends AppCompatActivity {
     public static void launch(Context context) {
         if (KidModeGate.isEscapeUiActive() && !KidModeGate.isScreenLockUiActive()) {
-            // Prefer leaving an open emergency PIN alone.
             if (KidModeGate.openedAtMs() > 0) {
                 return;
             }
@@ -46,14 +46,26 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
 
         TextView title = findViewById(R.id.lockTitle);
         TextView message = findViewById(R.id.lockMessage);
+        ImageView illustration = findViewById(R.id.lockIllustration);
+        android.view.View root = findViewById(R.id.lockRoot);
+
         ScreenTimeTracker.BlockReason reason = ScreenTimeTracker.currentBlockReason(this);
         if (reason == ScreenTimeTracker.BlockReason.BEDTIME) {
             title.setText(R.string.bedtime_lock_title);
             message.setText(R.string.bedtime_lock_message);
+            illustration.setImageResource(R.drawable.illust_bedtime);
+            root.setBackgroundColor(ContextCompat.getColor(this, R.color.lock_bg_bedtime));
+            getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.lock_bg_bedtime));
+            getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.lock_bg_bedtime));
         } else {
             title.setText(R.string.screen_time_lock_title);
             message.setText(R.string.screen_time_lock_message);
+            illustration.setImageResource(R.drawable.illust_time_up);
+            root.setBackgroundColor(ContextCompat.getColor(this, R.color.lock_bg_timeup));
         }
+
+        MotionHelper.fadeInUp(illustration, this);
+        MotionHelper.fadeInUp(title, this);
 
         findViewById(R.id.lockParentUnlock).setOnClickListener(v -> promptPin(reason));
     }
@@ -83,6 +95,7 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
                 .setPositiveButton(R.string.ok, (d, w) -> {
                     String pin = input.getText() != null ? input.getText().toString() : "";
                     if (!Prefs.verifyKidPin(this, pin)) {
+                        HapticHelper.error(this);
                         Toast.makeText(this, R.string.pin_wrong, Toast.LENGTH_SHORT).show();
                         return;
                     }

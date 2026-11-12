@@ -1,9 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#0B6E4F</color>
-    <color name="colorPrimaryDark">#084C37</color>
-    <color name="colorAccent">#F4A261</color>
-    <color name="colorAccentSoft">#33F4A261</color>
-    <color name="bannerBackground">#FFF3CD</color>
-    <color name="bannerText">#856404</color>
+    <!-- Cheerful brand seed (teal/coral) — used when dynamic color is unavailable. -->
+    <color name="md_seed">#0F766E</color>
+    <color name="md_primary">#0F766E</color>
+    <color name="md_on_primary">#FFFFFF</color>
+    <color name="md_primary_container">#CCFBF1</color>
+    <color name="md_on_primary_container">#134E4A</color>
+
+    <color name="md_secondary">#EA580C</color>
+    <color name="md_on_secondary">#FFFFFF</color>
+    <color name="md_secondary_container">#FFEDD5</color>
+    <color name="md_on_secondary_container">#7C2D12</color>
+
+    <color name="md_tertiary">#0284C7</color>
+    <color name="md_on_tertiary">#FFFFFF</color>
+    <color name="md_tertiary_container">#E0F2FE</color>
+    <color name="md_on_tertiary_container">#0C4A6E</color>
+
+    <color name="md_error">#DC2626</color>
+    <color name="md_on_error">#FFFFFF</color>
+    <color name="md_error_container">#FEE2E2</color>
+    <color name="md_on_error_container">#7F1D1D</color>
+
+    <color name="md_background">#F8FAFC</color>
+    <color name="md_on_background">#0F172A</color>
+    <color name="md_surface">#FFFFFF</color>
+    <color name="md_on_surface">#0F172A</color>
+    <color name="md_surface_variant">#E2E8F0</color>
+    <color name="md_on_surface_variant">#475569</color>
+    <color name="md_outline">#94A3B8</color>
+    <color name="md_outline_variant">#CBD5E1</color>
+
+    <!-- Kid-facing accents -->
+    <color name="kid_scrim_top">#990F172A</color>
+    <color name="kid_scrim_bottom">#660F172A</color>
+    <color name="kid_tile_bg">#E6FFFFFF</color>
+    <color name="kid_label">#FFFFFF</color>
+    <color name="time_ring_track">#40FFFFFF</color>
+    <color name="time_ring_good">#22C55E</color>
+    <color name="time_ring_warn">#EAB308</color>
+    <color name="time_ring_low">#EF4444</color>
+
+    <color name="lock_bg_timeup">#0F766E</color>
+    <color name="lock_bg_bedtime">#1E3A5F</color>
+    <color name="lock_on_bg">#FFFFFF</color>
+    <color name="lock_on_bg_muted">#CCE7F5</color>
+
+    <color name="pin_dot_empty">#94A3B8</color>
+    <color name="pin_dot_filled">#0F766E</color>
+
+    <color name="bannerBackground">#FEF3C7</color>
+    <color name="bannerText">#92400E</color>
+
+    <!-- Legacy aliases kept for any residual references -->
+    <color name="colorPrimary">@color/md_primary</color>
+    <color name="colorPrimaryDark">#0D5C56</color>
+    <color name="colorAccent">@color/md_secondary</color>
+    <color name="colorAccentSoft">#33EA580C</color>
 </resources>

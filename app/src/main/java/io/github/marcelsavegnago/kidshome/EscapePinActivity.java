@@ -5,31 +5,41 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.InputType;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.button.MaterialButton;
+
 /**
- * Emergency parent PIN screen shown above the locked kid app / launcher.
+ * Emergency parent PIN screen with modern keypad, dots, shake, and lockout.
  */
 public class EscapePinActivity extends AppCompatActivity {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private EditText pinInput;
     private TextView statusText;
-    private Button submitButton;
+    private MaterialButton submitButton;
+    private ViewShakeTarget shakeTarget;
+    private PinKeypadController keypad;
     private boolean finishingToKidApp;
+
+    private static final class ViewShakeTarget {
+        final android.view.View view;
+
+        ViewShakeTarget(android.view.View view) {
+            this.view = view;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         KidModeGate.markEscapeUiOpen();
 
-        // Keep soft keyboard and activity above the locked app.
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_escape_pin);
         setTitle(R.string.escape_pin_title);
@@ -37,15 +47,18 @@ public class EscapePinActivity extends AppCompatActivity {
         pinInput = findViewById(R.id.escapePinInput);
         statusText = findViewById(R.id.escapeStatus);
         submitButton = findViewById(R.id.escapeSubmit);
-        Button cancelButton = findViewById(R.id.escapeCancel);
+        MaterialButton cancelButton = findViewById(R.id.escapeCancel);
+        LinearLayout dots = findViewById(R.id.pinDots);
+        shakeTarget = new ViewShakeTarget(findViewById(R.id.pinDots));
 
-        pinInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        keypad = new PinKeypadController(findViewById(android.R.id.content), pinInput, dots, 8);
+
         statusText.setText(R.string.escape_pin_message);
-
         submitButton.setOnClickListener(v -> attemptPin());
         cancelButton.setOnClickListener(v -> returnToLockedTarget());
 
         refreshLockoutState();
+        MotionHelper.fadeInUp(statusText, this);
     }
 
     @Override
@@ -63,7 +76,6 @@ public class EscapePinActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        // Back should not dismiss without going through cancel / return-to-kid-app.
         returnToLockedTarget();
     }
 
@@ -88,7 +100,7 @@ public class EscapePinActivity extends AppCompatActivity {
             refreshLockoutState();
             return;
         }
-        String pin = pinInput.getText() != null ? pinInput.getText().toString() : "";
+        String pin = keypad != null ? keypad.getPin() : "";
         if (Prefs.verifyKidPin(this, pin)) {
             PinAttemptTracker.reset();
             SessionAuth.markUnlocked();
@@ -96,8 +108,16 @@ public class EscapePinActivity extends AppCompatActivity {
             return;
         }
 
-        pinInput.setText("");
+        if (keypad != null) {
+            keypad.clear();
+        } else {
+            pinInput.setText("");
+        }
         long delay = PinAttemptTracker.registerFailure();
+        HapticHelper.error(this);
+        if (shakeTarget != null) {
+            MotionHelper.shake(shakeTarget.view, this);
+        }
         Toast.makeText(this, R.string.pin_wrong, Toast.LENGTH_SHORT).show();
         statusText.setText(getString(R.string.escape_pin_wrong_wait, (int) Math.ceil(delay / 1000.0)));
         submitButton.setEnabled(false);
@@ -119,9 +139,7 @@ public class EscapePinActivity extends AppCompatActivity {
     }
 
     private void disableKidMode() {
-        // Leave lock-task cleanly before clearing kid mode (Device Owner / kiosk).
         EnforcementController.onKidModeDisabled(this);
-        // Synchronous write so a service restart cannot re-read the old "enabled" value.
         Prefs.setKidModeEnabled(this, false);
         SessionAuth.markUnlocked();
         PinAttemptTracker.reset();
@@ -136,9 +154,7 @@ public class EscapePinActivity extends AppCompatActivity {
     }
 
     private void openKidsHome() {
-        // Temporarily leave lock-task so the parent can navigate settings; kid mode stays on.
         DeviceOwnerHelper.stopLockTaskQuietly(this);
-        // Keep kid mode on; SessionAuth lets the parent use KidsHome without being yanked.
         SessionAuth.markUnlocked();
         PinAttemptTracker.reset();
         finishingToKidApp = false;
@@ -161,7 +177,6 @@ public class EscapePinActivity extends AppCompatActivity {
     protected void onDestroy() {
         handler.removeCallbacksAndMessages(null);
         if (!isChangingConfigurations()) {
-            // If the activity is dying unexpectedly, release the gate after a short grace.
             if (!finishingToKidApp && Prefs.isKidModeEnabled(this) && !SessionAuth.isUnlocked()) {
                 KidModeGate.markEscapeUiClosed();
             }

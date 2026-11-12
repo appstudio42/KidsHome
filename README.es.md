@@ -20,7 +20,7 @@
   <a href="https://github.com/marcelsavegnago/KidsHome/releases/latest"><strong>⬇ Descargar APK (última versión)</strong></a>
 </p>
 
-KidsHome (v1.2.0) convierte un móvil o tablet de repuesto en una pantalla de inicio pensada para niños: solo las apps y sitios que tú permitas, con límite diario de tiempo de uso, bloqueo a la hora de dormir y salida de emergencia con PIN parental. Elige el mejor modo de aplicación para el dispositivo (o lo defines en **Configuración del dispositivo**).
+KidsHome (v1.3.0) convierte un móvil o tablet de repuesto en una pantalla de inicio pensada para niños: solo las apps y sitios que tú permitas, con límite diario de tiempo de uso, bloqueo a la hora de dormir y salida de emergencia con PIN parental. Elige el mejor modo de aplicación para el dispositivo (o lo defines en **Configuración del dispositivo**).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="Configuración de KidsHome: crear PIN, elegir apps, definir tiempo de pantalla, entrar en modo niño" width="720" />
@@ -235,8 +235,8 @@ Consulta `keystore/README.md`.
 2. Sube una etiqueta `vX.Y.Z`:
 
    ```bash
-   git tag v1.2.0
-   git push origin v1.2.0
+   git tag v1.3.0
+   git push origin v1.3.0
    ```
 
 3. GitHub Actions (`.github/workflows/android.yml`) genera el APK de release y lo adjunta al GitHub Release.

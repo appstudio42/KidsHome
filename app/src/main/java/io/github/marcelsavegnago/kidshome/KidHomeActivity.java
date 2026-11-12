@@ -9,10 +9,13 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.TextView;
@@ -25,19 +28,21 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Simple kid launcher: large icons, allowed apps + site shortcuts, no app drawer.
+ * Kid launcher: rounded tiles, friendly header, remaining-time ring, soft motion.
  */
 public class KidHomeActivity extends AppCompatActivity {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private TextView greeting;
     private TextView timeLeft;
+    private TextView avatar;
+    private RemainingTimeRing timeRing;
     private KidHomeAdapter adapter;
+    private ToneGenerator toneGenerator;
+    private boolean entryAnimated;
     private final Runnable refreshTime = new Runnable() {
         @Override
         public void run() {
-            if (timeLeft != null) {
-                timeLeft.setText(ScreenTimeTracker.formatRemaining(KidHomeActivity.this));
-            }
+            refreshHeader();
             if (ScreenTimeTracker.isBlocked(KidHomeActivity.this)) {
                 ScreenTimeLockActivity.launch(KidHomeActivity.this);
             }
@@ -49,7 +54,6 @@ public class KidHomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // KidHome is also registered as CATEGORY_HOME. When kid mode is off, open parent UI.
         if (!Prefs.isKidModeEnabled(this)) {
             Intent main = new Intent(this, MainActivity.class);
             main.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -65,10 +69,16 @@ public class KidHomeActivity extends AppCompatActivity {
 
         greeting = findViewById(R.id.kidHomeGreeting);
         timeLeft = findViewById(R.id.kidHomeTimeLeft);
+        avatar = findViewById(R.id.kidHomeAvatar);
+        timeRing = findViewById(R.id.kidHomeTimeRing);
         GridView grid = findViewById(R.id.kidHomeGrid);
         adapter = new KidHomeAdapter(this);
         grid.setAdapter(adapter);
-        grid.setOnItemClickListener((parent, view, position, id) -> onItemClicked(adapter.getItem(position)));
+        grid.setOnItemClickListener((parent, view, position, id) -> {
+            MotionHelper.bouncePress(view, this);
+            playSoftClick();
+            onItemClicked(adapter.getItem(position));
+        });
 
         Prefs.ensureDefaultSiteSuggestions(this);
         refreshHeader();
@@ -92,6 +102,7 @@ public class KidHomeActivity extends AppCompatActivity {
         DeviceOwnerHelper.startLockTaskIfNeeded(this);
         refreshHeader();
         refreshGrid();
+        maybeAnimateEntry();
         handler.removeCallbacks(refreshTime);
         handler.post(refreshTime);
         ScreenTimeTracker.tick(this);
@@ -105,8 +116,36 @@ public class KidHomeActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        if (toneGenerator != null) {
+            toneGenerator.release();
+            toneGenerator = null;
+        }
+        super.onDestroy();
+    }
+
+    @Override
     public void onBackPressed() {
         // Kid home is the root — ignore Back (escape is hold-Back / corner taps).
+    }
+
+    private void maybeAnimateEntry() {
+        if (entryAnimated) {
+            return;
+        }
+        entryAnimated = true;
+        View header = findViewById(R.id.kidHomeHeader);
+        MotionHelper.fadeInUp(header, this);
+        GridView grid = findViewById(R.id.kidHomeGrid);
+        if (grid == null || !MotionHelper.animationsEnabled(this)) {
+            return;
+        }
+        grid.post(() -> {
+            int count = Math.min(grid.getChildCount(), 9);
+            for (int i = 0; i < count; i++) {
+                MotionHelper.popIn(grid.getChildAt(i), this, i * 40L);
+            }
+        });
     }
 
     private void refreshHeader() {
@@ -116,19 +155,36 @@ public class KidHomeActivity extends AppCompatActivity {
         } else {
             greeting.setText(getString(R.string.kid_home_hello_name, name.trim()));
         }
+        avatar.setText(Prefs.getChildAvatar(this));
+        avatar.setContentDescription(getString(R.string.cd_child_avatar, Prefs.getChildAvatar(this)));
         timeLeft.setText(ScreenTimeTracker.formatRemaining(this));
+        updateTimeRing();
+    }
+
+    private void updateTimeRing() {
+        if (timeRing == null) {
+            return;
+        }
+        if (!Prefs.isScreenTimeEnabled(this) || Prefs.isScreenTimeDisabledToday(this)) {
+            timeRing.setProgress(1f);
+            timeRing.setContentDescription(getString(R.string.screen_time_off));
+            return;
+        }
+        long limit = Prefs.getDailyLimitMinutes(this) * 60L * 1000L;
+        long remaining = ScreenTimeTracker.remainingMillis(this);
+        float fraction = limit <= 0L ? 0f : Math.max(0f, Math.min(1f, remaining / (float) limit));
+        timeRing.setProgress(fraction);
+        timeRing.setContentDescription(ScreenTimeTracker.formatRemaining(this));
     }
 
     private void refreshGrid() {
         List<KidHomeItem> items = new ArrayList<>();
         PackageManager pm = getPackageManager();
         Set<String> allowed = Prefs.getAllowedPackages(this);
-        String browser = Prefs.getBrowserPackage(this);
         for (String pkg : allowed) {
             if (pkg == null || pkg.isEmpty()) {
                 continue;
             }
-            // Browser still allowed for sites, but only show once if also an allowed app.
             try {
                 ApplicationInfo info = pm.getApplicationInfo(pkg, 0);
                 CharSequence label = info.loadLabel(pm);
@@ -180,7 +236,6 @@ public class KidHomeActivity extends AppCompatActivity {
         try {
             startActivity(view);
         } catch (ActivityNotFoundException e) {
-            // Fall back to default handler.
             view.setComponent(null);
             view.setPackage(null);
             try {
@@ -191,15 +246,24 @@ public class KidHomeActivity extends AppCompatActivity {
         }
     }
 
+    private void playSoftClick() {
+        if (!Prefs.isTouchSoundsEnabled(this)) {
+            return;
+        }
+        try {
+            if (toneGenerator == null) {
+                toneGenerator = new ToneGenerator(AudioManager.STREAM_MUSIC, 40);
+            }
+            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 40);
+        } catch (Exception ignored) {
+        }
+    }
+
     public static List<ResolveInfo> queryBrowsers(PackageManager pm) {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://example.com"));
         return pm.queryIntentActivities(intent, 0);
     }
 
-    /**
-     * Best-effort system wallpaper. Some firmwares require storage/wallpaper permissions;
-     * we never request those — fall back to a solid brand color.
-     */
     @SuppressLint("MissingPermission")
     private Drawable loadWallpaperDrawable() {
         try {
@@ -213,6 +277,6 @@ public class KidHomeActivity extends AppCompatActivity {
             }
         } catch (Exception ignored) {
         }
-        return new android.graphics.drawable.ColorDrawable(0xFF0B6E4F);
+        return new android.graphics.drawable.ColorDrawable(0xFF0F766E);
     }
 }

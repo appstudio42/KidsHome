@@ -57,6 +57,7 @@ public class KidHomeAdapter extends BaseAdapter {
         TextView label = view.findViewById(R.id.kidLabel);
         KidHomeItem item = items.get(position);
         label.setText(item.label);
+        view.setContentDescription(item.label);
 
         if (item.type == KidHomeItem.Type.APP) {
             try {

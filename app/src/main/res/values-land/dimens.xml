@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Compact controls so kid / PIN UIs fit gesture-nav tablets (short height). -->
+    <dimen name="pin_key_size">52dp</dimen>
+    <dimen name="space_lg">16dp</dimen>
+    <dimen name="space_xl">20dp</dimen>
+    <dimen name="kid_tile_min">96dp</dimen>
+    <dimen name="kid_icon_size">56dp</dimen>
+</resources>

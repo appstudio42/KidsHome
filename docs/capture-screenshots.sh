@@ -13,15 +13,14 @@ RAW="/tmp/kidshome-raw"
 PIN_SALT="0123456789abcdef0123456789abcdef"
 PIN_HASH="ae60819222c8c4c5e7a63dd250d88f4913926c0ca96d4fcd0accb1b14b34fc7e"
 TODAY="$(adb shell date +%Y%m%d | tr -d '\r')"
+APP_UID="$(adb shell stat -c %u /data/data/$PKG 2>/dev/null | tr -d '\r')"
 
 mkdir -p "$SHOT" "$MEDIA" "$RAW"
 
 write_prefs() {
   local extra="${1:-}"
   adb shell am force-stop "$PKG"
-  adb shell am start -n "$PKG/$CLS.MainActivity" >/dev/null
-  sleep 1
-  adb shell am force-stop "$PKG"
+  sleep 0.4
   adb shell "mkdir -p /data/data/$PKG/shared_prefs"
   adb shell "cat > /data/data/$PKG/shared_prefs/KidsHome.xml" <<EOF
 <?xml version='1.0' encoding='utf-8' standalone='yes' ?>
@@ -30,11 +29,14 @@ write_prefs() {
   <string name="KidPinSalt">${PIN_SALT}</string>
   <string name="KidPinHash">${PIN_HASH}</string>
   <string name="ChildName">Theo</string>
+  <string name="ChildAvatar">🦊</string>
+  <boolean name="OnboardingDone" value="true" />
+  <int name="PrefsVersion" value="1" />
   <boolean name="KidLockToApp" value="false" />
   <set name="AllowedPackages">
+    <string>com.android.settings</string>
     <string>com.android.chrome</string>
     <string>com.android.camera2</string>
-    <string>com.google.android.apps.youtube.music</string>
     <string>com.google.android.apps.photos</string>
     <string>com.google.android.deskclock</string>
     <string>com.google.android.calendar</string>
@@ -57,14 +59,18 @@ write_prefs() {
   ${extra}
 </map>
 EOF
+  if [ -n "${APP_UID}" ]; then
+    adb shell "chown ${APP_UID}:${APP_UID} /data/data/$PKG/shared_prefs/KidsHome.xml; chmod 660 /data/data/$PKG/shared_prefs/KidsHome.xml"
+  fi
 }
 
 optimize_png() {
   local src="$1" dest="$2"
-  convert "$src" -gravity North -crop 1280x700+0+0 +repage -strip "PNG32:/tmp/kh-crop.png" 2>/dev/null \
-    || convert "$src" -strip "PNG32:/tmp/kh-crop.png"
+  # Keep the full landscape frame (status bar + content). Avoid North crops that
+  # clip the PIN keypad / bottom actions on 1280x800 tablets.
+  convert "$src" -strip "PNG32:/tmp/kh-crop.png"
   if command -v pngquant >/dev/null; then
-    pngquant --force --quality=70-90 --output "$dest" /tmp/kh-crop.png
+    pngquant --force --quality=70-95 --output "$dest" /tmp/kh-crop.png || cp /tmp/kh-crop.png "$dest"
   else
     cp /tmp/kh-crop.png "$dest"
   fi
@@ -72,14 +78,21 @@ optimize_png() {
 
 screencap() {
   local name="$1"
-  sleep 1.8
+  local wait_s="${2:-2.4}"
+  sleep "$wait_s"
   adb exec-out screencap -p > "${RAW}/${name}.png"
   optimize_png "${RAW}/${name}.png" "${SHOT}/${name}.png"
-  echo "Wrote ${SHOT}/${name}.png"
+  echo "Wrote ${SHOT}/${name}.png ($(identify -format '%wx%h %b' "${SHOT}/${name}.png"))"
 }
 
 echo "Capturing screenshots for $PKG …"
 adb shell appops set "$PKG" SYSTEM_ALERT_WINDOW allow || true
+adb shell settings put global window_animation_scale 0 || true
+adb shell settings put global transition_animation_scale 0 || true
+adb shell settings put global animator_duration_scale 0 || true
+# Hide gesture/taskbar chrome on API 34 tablets so content fills the frame.
+adb shell settings put global policy_control immersive.navigation=* || true
+trap 'adb shell settings delete global policy_control >/dev/null 2>&1 || true' EXIT
 
 write_prefs ""
 adb shell am start -n "$PKG/$CLS.KidHomeActivity"
@@ -92,7 +105,7 @@ screencap "02-time-up"
 write_prefs ""
 adb shell am force-stop "$PKG"
 adb shell am start -n "$PKG/$CLS.EscapePinActivity"
-screencap "03-pin-entry"
+screencap "03-pin-entry" 2.8
 
 write_prefs '<boolean name="KidModeEnabled" value="false" />
   <boolean name="BedtimeEnabled" value="true" />
@@ -100,7 +113,9 @@ write_prefs '<boolean name="KidModeEnabled" value="false" />
 adb shell am force-stop "$PKG"
 adb shell am start -n "$PKG/$CLS.KidModeActivity"
 screencap "04-parent-kid-mode"
-adb shell input swipe 640 700 640 150 400
+adb shell input swipe 640 620 640 80 300
+sleep 0.4
+adb shell input swipe 640 620 640 80 300
 screencap "05-screen-time-settings"
 
 adb shell am force-stop "$PKG"
@@ -109,10 +124,12 @@ screencap "06-device-setup"
 
 adb shell am force-stop "$PKG"
 adb shell am start -n "$PKG/$CLS.AllowedAppsActivity"
-screencap "07-allowed-apps"
+screencap "07-allowed-apps" 3.5
 
 adb shell am force-stop "$PKG"
 adb shell am start -n "$PKG/$CLS.MainActivity"
-screencap "08-main-hub"
+sleep 3.5
+adb shell input tap 20 20 >/dev/null 2>&1 || true
+screencap "08-main-hub" 1.2
 
 echo "Done. Optional: record docs/media/setup.gif with adb screenrecord + ffmpeg (see README)."

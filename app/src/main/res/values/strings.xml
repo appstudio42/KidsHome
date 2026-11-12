@@ -196,4 +196,43 @@
     <string name="setup_device_owner_remove_failed">Could not remove Device Owner</string>
     <string name="device_admin_label">KidsHome device admin</string>
     <string name="device_admin_description">Allows KidsHome to run lock-task (kiosk) kid mode when provisioned as Device Owner.</string>
+
+    <!-- v1.3.0 UX -->
+    <string name="parent_hub_subtitle">Parent controls — pick a section to configure kid mode</string>
+    <string name="section_child_profile">Child profile</string>
+    <string name="section_child_profile_sub">Name, avatar, and kid home mode</string>
+    <string name="section_allowed_apps">Allowed apps</string>
+    <string name="section_allowed_apps_sub">Search, toggle, and pick apps for the grid</string>
+    <string name="section_websites">Websites</string>
+    <string name="section_websites_sub">Kid-friendly site shortcuts</string>
+    <string name="section_screen_time">Screen time &amp; bedtime</string>
+    <string name="section_screen_time_sub">Daily limits and sleep window</string>
+    <string name="section_device_setup">Device setup / mode</string>
+    <string name="section_device_setup_sub">Fire, launcher, or Device Owner checklist</string>
+    <string name="section_security">Security / PIN</string>
+    <string name="section_security_sub">Parent PIN and emergency exit</string>
+    <string name="section_about_sub">Version, license, and source</string>
+    <string name="section_allowed_content">Allowed apps &amp; websites</string>
+    <string name="pick_avatar">Choose avatar</string>
+    <string name="daily_limit_slider_fmt">Daily limit: %1$d minutes</string>
+    <string name="touch_sounds_optional">Playful tap sounds on kid home (off by default)</string>
+    <string name="allowed_apps_search">Search apps</string>
+    <string name="select_all">Select all</string>
+    <string name="clear_all">Clear</string>
+    <string name="back">Back</string>
+    <string name="next">Next</string>
+    <string name="done">Done</string>
+    <string name="onboarding_step_fmt">Step %1$d of %2$d</string>
+    <string name="onboarding_welcome_title">Welcome to KidsHome</string>
+    <string name="onboarding_welcome_body">A playful, focused home screen for kids — with parent controls for apps, websites, and screen time. This quick setup takes about a minute.</string>
+    <string name="onboarding_apps_body">Choose which apps appear on the kid home grid. You can change this anytime from the parent hub.</string>
+    <string name="onboarding_setup_title">Almost done</string>
+    <string name="onboarding_setup_body">Next, finish the device checklist for your phone, tablet, or Fire tablet (accessibility, default Home, or Device Owner). Then enable kid mode when you are ready.</string>
+    <string name="onboarding_done_toast">Setup saved — finish the device checklist</string>
+    <string name="cd_time_remaining">Remaining screen time</string>
+    <string name="cd_lock_illustration">Friendly lock illustration</string>
+    <string name="cd_pin_dots">PIN progress</string>
+    <string name="cd_pin_backspace">Delete last digit</string>
+    <string name="cd_child_avatar">Child avatar %1$s</string>
+    <string name="cd_allowed_app_row">Allow app %1$s</string>
 </resources>

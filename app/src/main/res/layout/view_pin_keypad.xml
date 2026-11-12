@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:alignmentMode="alignBounds"
+    android:columnCount="3"
+    android:rowCount="4"
+    android:useDefaultMargins="true">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey1"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="1" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey2"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="2" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey3"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="3" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey4"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="4" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey5"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="5" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey6"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="6" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey7"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="7" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey8"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="8" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey9"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="9" />
+
+    <View
+        android:layout_width="@dimen/pin_key_size"
+        android:layout_height="@dimen/pin_key_size" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKey0"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="0" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pinKeyBack"
+        style="@style/Widget.KidsHome.PinKey"
+        android:contentDescription="@string/cd_pin_backspace"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
+        android:padding="0dp"
+        android:text="" />
+</GridLayout>

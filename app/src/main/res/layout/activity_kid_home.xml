@@ -1,46 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/kidHomeRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <View
+        android:id="@+id/kidHomeScrim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_kid_scrim"
+        android:importantForAccessibility="no" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingStart="@dimen/space_md"
+        android:paddingTop="@dimen/space_lg"
+        android:paddingEnd="@dimen/space_md"
+        android:paddingBottom="@dimen/space_md">
 
-        <TextView
-            android:id="@+id/kidHomeGreeting"
+        <LinearLayout
+            android:id="@+id/kidHomeHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="#FFFFFF"
-            android:shadowColor="#80000000"
-            android:shadowRadius="3"
-            android:textSize="28sp"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:minHeight="@dimen/touch_min"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/kidHomeTimeLeft"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="#FFFFFF"
-            android:shadowColor="#80000000"
-            android:shadowRadius="2"
-            android:textSize="18sp" />
+            <TextView
+                android:id="@+id/kidHomeAvatar"
+                android:layout_width="@dimen/kid_header_avatar"
+                android:layout_height="@dimen/kid_header_avatar"
+                android:background="@drawable/bg_avatar_circle"
+                android:gravity="center"
+                android:importantForAccessibility="no"
+                android:text="🙂"
+                android:textSize="28sp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_md"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/kidHomeGreeting"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:shadowColor="#80000000"
+                    android:shadowRadius="3"
+                    android:textColor="@color/kid_label"
+                    android:textSize="26sp"
+                    android:textStyle="bold"
+                    tools:text="Hi, Theo!" />
+
+                <TextView
+                    android:id="@+id/kidHomeTimeLeft"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:shadowColor="#80000000"
+                    android:shadowRadius="2"
+                    android:textColor="@color/kid_label"
+                    android:textSize="15sp"
+                    tools:text="Time left: 45 min" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="@dimen/time_ring_size"
+                android:layout_height="@dimen/time_ring_size"
+                android:contentDescription="@string/cd_time_remaining">
+
+                <io.github.marcelsavegnago.kidshome.RemainingTimeRing
+                    android:id="@+id/kidHomeTimeRing"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </FrameLayout>
+        </LinearLayout>
 
         <GridView
             android:id="@+id/kidHomeGrid"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="@dimen/space_md"
             android:layout_weight="1"
             android:clipToPadding="false"
             android:gravity="center"
-            android:horizontalSpacing="8dp"
+            android:horizontalSpacing="@dimen/space_sm"
+            android:listSelector="@android:color/transparent"
             android:numColumns="3"
             android:stretchMode="columnWidth"
-            android:verticalSpacing="12dp" />
+            android:verticalSpacing="@dimen/space_sm" />
     </LinearLayout>
 </FrameLayout>

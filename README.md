@@ -20,7 +20,7 @@
   <a href="https://github.com/marcelsavegnago/KidsHome/releases/latest"><strong>⬇ Download APK (latest release)</strong></a>
 </p>
 
-KidsHome (v1.2.0) turns a spare phone or tablet into a kid-friendly home screen: only the apps and sites you allow, with daily screen-time limits, bedtime lock, and a parent PIN escape. It picks the best enforcement mode for the device (or you override it in **Device setup**).
+KidsHome (v1.3.0) turns a spare phone or tablet into a kid-friendly home screen: only the apps and sites you allow, with daily screen-time limits, bedtime lock, and a parent PIN escape. It picks the best enforcement mode for the device (or you override it in **Device setup**).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="KidsHome setup: create PIN, choose apps, set screen time, enter kid mode" width="720" />
@@ -53,11 +53,14 @@ Real captures from an Android tablet emulator (1280×800) with demo child name *
   - Accessibility Home hijack — Amazon Fire tablets
   - Default launcher — regular Android
   - Device Owner + lock task — strongest kiosk
-- **Kid home** — large-icon grid of allowed apps + website shortcuts, or lock to a single app
-- **Screen time** — daily limit, bedtime window, warning, friendly lock screen, PIN to add time / disable for today
-- **Emergency PIN exit** — 5 taps top-right (overlay) or hold Back ~3s; Device Owner path calls `stopLockTask` cleanly
+- **Modern Material 3 UI** — cheerful seed palette (dynamic color on Android 12+), light/dark parent themes, first-run onboarding
+- **Kid home** — large rounded app/site tiles, child avatar, remaining-time ring, soft motion (respects reduce-motion)
+- **Screen time** — daily limit slider, bedtime window, friendly lock illustrations, PIN to add time / disable for today
+- **Emergency PIN exit** — modern keypad with dots, shake + haptics, lockout; 5 taps top-right or hold Back ~3s
+- **Parent hub** — section cards for profile, apps (search/toggles), websites, screen time, device setup, security, about
 - Survives reboot; warns if accessibility is off when that mode needs it
 - Optional accessibility blocking of non-allowed apps as an **extra layer** in launcher / Device Owner modes
+- UI strings in **en / pt-BR / es / fr / de**
 
 ## Supported devices
 
@@ -235,8 +238,8 @@ See `keystore/README.md`.
 2. Push a tag matching `vX.Y.Z`:
 
    ```bash
-   git tag v1.2.0
-   git push origin v1.2.0
+   git tag v1.3.0
+   git push origin v1.3.0
    ```
 
 3. GitHub Actions (`.github/workflows/android.yml`) builds the release APK and attaches it to the GitHub Release.

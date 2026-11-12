@@ -196,4 +196,43 @@
     <string name="setup_device_owner_remove_failed">Não foi possível remover o Device Owner</string>
     <string name="device_admin_label">Admin do dispositivo KidsHome</string>
     <string name="device_admin_description">Permite ao KidsHome rodar modo criança em lock task (kiosk) quando provisionado como Device Owner.</string>
+
+    <!-- v1.3.0 UX -->
+    <string name="parent_hub_subtitle">Controles dos responsáveis — escolha uma seção para configurar o modo criança</string>
+    <string name="section_child_profile">Perfil da criança</string>
+    <string name="section_child_profile_sub">Nome, avatar e modo da home infantil</string>
+    <string name="section_allowed_apps">Apps permitidos</string>
+    <string name="section_allowed_apps_sub">Busque, alterne e escolha apps para a grade</string>
+    <string name="section_websites">Sites</string>
+    <string name="section_websites_sub">Atalhos de sites amigáveis</string>
+    <string name="section_screen_time">Tempo de tela e hora de dormir</string>
+    <string name="section_screen_time_sub">Limites diários e janela de sono</string>
+    <string name="section_device_setup">Configuração do dispositivo / modo</string>
+    <string name="section_device_setup_sub">Checklist Fire, launcher ou Device Owner</string>
+    <string name="section_security">Segurança / PIN</string>
+    <string name="section_security_sub">PIN dos responsáveis e saída de emergência</string>
+    <string name="section_about_sub">Versão, licença e código-fonte</string>
+    <string name="section_allowed_content">Apps e sites permitidos</string>
+    <string name="pick_avatar">Escolher avatar</string>
+    <string name="daily_limit_slider_fmt">Limite diário: %1$d minutos</string>
+    <string name="touch_sounds_optional">Sons divertidos ao tocar na home (desligado por padrão)</string>
+    <string name="allowed_apps_search">Buscar apps</string>
+    <string name="select_all">Selecionar todos</string>
+    <string name="clear_all">Limpar</string>
+    <string name="back">Voltar</string>
+    <string name="next">Próximo</string>
+    <string name="done">Concluir</string>
+    <string name="onboarding_step_fmt">Passo %1$d de %2$d</string>
+    <string name="onboarding_welcome_title">Bem-vindo ao KidsHome</string>
+    <string name="onboarding_welcome_body">Uma tela inicial divertida e focada para crianças — com controles dos responsáveis para apps, sites e tempo de tela. Esta configuração rápida leva cerca de um minuto.</string>
+    <string name="onboarding_apps_body">Escolha quais apps aparecem na grade da home infantil. Você pode mudar isso a qualquer momento no hub dos responsáveis.</string>
+    <string name="onboarding_setup_title">Quase pronto</string>
+    <string name="onboarding_setup_body">Em seguida, conclua o checklist do dispositivo para seu celular, tablet ou tablet Fire (acessibilidade, Home padrão ou Device Owner). Depois ative o modo criança quando estiver pronto.</string>
+    <string name="onboarding_done_toast">Configuração salva — conclua o checklist do dispositivo</string>
+    <string name="cd_time_remaining">Tempo de tela restante</string>
+    <string name="cd_lock_illustration">Ilustração amigável de bloqueio</string>
+    <string name="cd_pin_dots">Progresso do PIN</string>
+    <string name="cd_pin_backspace">Apagar último dígito</string>
+    <string name="cd_child_avatar">Avatar da criança %1$s</string>
+    <string name="cd_allowed_app_row">Permitir app %1$s</string>
 </resources>

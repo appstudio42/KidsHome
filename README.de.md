@@ -20,7 +20,7 @@
   <a href="https://github.com/marcelsavegnago/KidsHome/releases/latest"><strong>⬇ APK herunterladen (neueste Version)</strong></a>
 </p>
 
-KidsHome (v1.2.0) macht aus einem Ersatzhandy oder -tablet einen kinderfreundlichen Startbildschirm: nur erlaubte Apps und Websites, mit täglichem Bildschirmzeitlimit, Bettzeit-Sperre und Notausstieg per Eltern-PIN. Es wählt den besten Enforcement-Modus für das Gerät (oder Sie überschreiben ihn unter **Geräteeinrichtung**).
+KidsHome (v1.3.0) macht aus einem Ersatzhandy oder -tablet einen kinderfreundlichen Startbildschirm: nur erlaubte Apps und Websites, mit täglichem Bildschirmzeitlimit, Bettzeit-Sperre und Notausstieg per Eltern-PIN. Es wählt den besten Enforcement-Modus für das Gerät (oder Sie überschreiben ihn unter **Geräteeinrichtung**).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="KidsHome-Einrichtung: PIN erstellen, Apps wählen, Bildschirmzeit setzen, Kindermodus starten" width="720" />
@@ -235,8 +235,8 @@ Siehe `keystore/README.md`.
 2. Tag `vX.Y.Z` pushen:
 
    ```bash
-   git tag v1.2.0
-   git push origin v1.2.0
+   git tag v1.3.0
+   git push origin v1.3.0
    ```
 
 3. GitHub Actions (`.github/workflows/android.yml`) baut die Release-APK und hängt sie an die GitHub Release.
