@@ -45,14 +45,23 @@ public class BootReceiver extends BroadcastReceiver {
         StatusNotifier.ensureChannel(context);
         EscapeOverlayNotifier.requestRefresh(context);
 
-        if (!AccessibilityHelper.isAccessibilityEnabled(context)) {
+        if (EnforcementController.needsAccessibilityService(context)
+                && !AccessibilityHelper.isAccessibilityEnabled(context)) {
             StatusNotifier.notifyAccessibilityDisabled(context);
+        }
+
+        if (Prefs.isKidModeEnabled(context) && DeviceOwnerHelper.isDeviceOwner(context)) {
+            DeviceOwnerHelper.applyKidModePolicies(context);
         }
 
         // Warm the chosen launcher / kid home a few seconds after boot.
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             ScreenTimeTracker.tick(context);
-            if (Prefs.hasChosenLauncher(context) || Prefs.isKidModeEnabled(context)) {
+            EnforcementMode mode = EnforcementController.getEffectiveMode(context);
+            if (mode == EnforcementMode.ACCESSIBILITY
+                    && (Prefs.hasChosenLauncher(context) || Prefs.isKidModeEnabled(context))) {
+                HomePress.perform(context, true);
+            } else if (Prefs.isKidModeEnabled(context)) {
                 HomePress.perform(context, true);
             }
         }, 2500);

@@ -68,8 +68,10 @@ public class AccServ extends AccessibilityService {
 
         String packageName = lastApp;
 
-        // React as early as possible when Fire launcher (or another stock launcher) appears.
-        if (Prefs.applicationOpenDetection(this) && shouldHijackPackage(packageName)) {
+        // Fire / accessibility mode: react as early as possible when a stock launcher appears.
+        if (EnforcementController.shouldHijackHome(this)
+                && Prefs.applicationOpenDetection(this)
+                && shouldHijackPackage(packageName)) {
             HomePress.perform(this);
             return;
         }
@@ -83,6 +85,9 @@ public class AccServ extends AccessibilityService {
         }
         if (ScreenTimeTracker.isBlocked(this)) {
             HomePress.perform(this);
+            return;
+        }
+        if (!EnforcementController.shouldBlockNonAllowedApps(this)) {
             return;
         }
         String packageName = lastApp;
@@ -152,7 +157,7 @@ public class AccServ extends AccessibilityService {
             return handleBackEscape(event);
         }
 
-        if (!Prefs.hardwareDetection(this)) {
+        if (!Prefs.hardwareDetection(this) || !EnforcementController.shouldHijackHome(this)) {
             return false;
         }
 
@@ -231,6 +236,10 @@ public class AccServ extends AccessibilityService {
                 if (KidModeGate.isEscapeUiActive()) {
                     return;
                 }
+                // In launcher / device-owner modes the system already routes Home to KidHome.
+                if (!EnforcementController.shouldHijackHome(AccServ.this)) {
+                    return;
+                }
                 if (!Prefs.broadcastDetection(AccServ.this) || homePressCanceled) {
                     return;
                 }
@@ -248,13 +257,19 @@ public class AccServ extends AccessibilityService {
                 if (KidModeGate.isEscapeUiActive()) {
                     return;
                 }
-                if (Prefs.isKidModeEnabled(AccServ.this)) {
-                    handler.postDelayed(() -> {
-                        if (!KidModeGate.isEscapeUiActive()) {
-                            HomePress.perform(AccServ.this);
-                        }
-                    }, 80);
+                if (!Prefs.isKidModeEnabled(AccServ.this)) {
+                    return;
                 }
+                // Recents: always bounce back when hijacking or when extra a11y blocking is on.
+                if (!EnforcementController.shouldHijackHome(AccServ.this)
+                        && !EnforcementController.shouldBlockNonAllowedApps(AccServ.this)) {
+                    return;
+                }
+                handler.postDelayed(() -> {
+                    if (!KidModeGate.isEscapeUiActive()) {
+                        HomePress.perform(AccServ.this);
+                    }
+                }, 80);
             }
         });
         homeWatcher.startWatch();
@@ -264,11 +279,15 @@ public class AccServ extends AccessibilityService {
         StatusNotifier.ensureChannel(this);
 
         Log.i(TAG, "KidsHome accessibility service connected on " + android.os.Build.MODEL
-                + " kidMode=" + Prefs.isKidModeEnabled(this));
+                + " kidMode=" + Prefs.isKidModeEnabled(this)
+                + " mode=" + EnforcementController.getEffectiveMode(this));
 
         // Re-read prefs after connect (kid-mode disable uses commit()) before forcing a launch.
         handler.post(() -> {
             if (KidModeGate.isEscapeUiActive()) {
+                return;
+            }
+            if (!EnforcementController.shouldHijackHome(getApplicationContext())) {
                 return;
             }
             if (Prefs.hasChosenLauncher(getApplicationContext()) || Prefs.isKidModeEnabled(getApplicationContext())) {
@@ -276,8 +295,11 @@ public class AccServ extends AccessibilityService {
             }
         });
         handler.postDelayed(() -> {
-            if (!KidModeGate.isEscapeUiActive()
-                    && (Prefs.hasChosenLauncher(getApplicationContext()) || Prefs.isKidModeEnabled(getApplicationContext()))) {
+            if (KidModeGate.isEscapeUiActive()
+                    || !EnforcementController.shouldHijackHome(getApplicationContext())) {
+                return;
+            }
+            if (Prefs.hasChosenLauncher(getApplicationContext()) || Prefs.isKidModeEnabled(getApplicationContext())) {
                 HomePress.warmTarget(getApplicationContext());
             }
         }, 1500);

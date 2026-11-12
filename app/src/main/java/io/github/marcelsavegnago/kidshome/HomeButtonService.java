@@ -139,6 +139,10 @@ public class HomeButtonService extends Service {
     }
 
     private void checkAccessibility() {
+        if (!EnforcementController.needsAccessibilityService(this)) {
+            StatusNotifier.cancelAccessibilityDisabled(this);
+            return;
+        }
         boolean enabled = AccessibilityHelper.isAccessibilityEnabled(this);
         if (!enabled) {
             StatusNotifier.notifyAccessibilityDisabled(this);

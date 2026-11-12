@@ -72,6 +72,7 @@ public class AllowedAppsActivity extends AppCompatActivity {
                 selected.add(browser);
             }
             Prefs.setAllowedPackages(this, selected);
+            DeviceOwnerHelper.refreshLockTaskPackages(this);
             Toast.makeText(this, R.string.allowed_apps_saved, Toast.LENGTH_SHORT).show();
             finish();
         });

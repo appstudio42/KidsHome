@@ -158,6 +158,8 @@ public class KidModeActivity extends AppCompatActivity {
         bedtimeStartButton.setOnClickListener(v -> pickTime(true));
         bedtimeEndButton.setOnClickListener(v -> pickTime(false));
 
+        findViewById(R.id.openSetupButton).setOnClickListener(v ->
+                startActivity(new Intent(this, SetupActivity.class)));
         findViewById(R.id.changePinButton).setOnClickListener(v -> changePin());
         findViewById(R.id.saveKidModeButton).setOnClickListener(v -> save());
         findViewById(R.id.cancelKidModeButton).setOnClickListener(v -> finish());
@@ -374,10 +376,16 @@ public class KidModeActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.overlay_permission_later, Toast.LENGTH_LONG).show();
             }
             Prefs.setKidModeEnabled(this, true);
+            EnforcementController.onKidModeEnabled(this);
             EscapeOverlayNotifier.requestRefresh(this);
             Toast.makeText(this, R.string.kid_mode_enabled, Toast.LENGTH_LONG).show();
+            // Guide parent through missing setup steps when needed.
+            if (SetupChecklist.countMissingRequired(this) > 0) {
+                startActivity(new Intent(this, SetupActivity.class));
+            }
             HomePress.perform(this, true);
         } else {
+            EnforcementController.onKidModeDisabled(this);
             Prefs.setKidModeEnabled(this, false);
             SessionAuth.markUnlocked();
             PinAttemptTracker.reset();

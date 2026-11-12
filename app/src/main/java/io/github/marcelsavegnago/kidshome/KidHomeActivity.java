@@ -48,6 +48,16 @@ public class KidHomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // KidHome is also registered as CATEGORY_HOME. When kid mode is off, open parent UI.
+        if (!Prefs.isKidModeEnabled(this)) {
+            Intent main = new Intent(this, MainActivity.class);
+            main.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(main);
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_kid_home);
 
         FrameLayout root = findViewById(R.id.kidHomeRoot);
@@ -69,6 +79,9 @@ public class KidHomeActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (!Prefs.isKidModeEnabled(this)) {
+            Intent main = new Intent(this, MainActivity.class);
+            main.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(main);
             finish();
             return;
         }
@@ -76,6 +89,7 @@ public class KidHomeActivity extends AppCompatActivity {
             ScreenTimeLockActivity.launch(this);
             return;
         }
+        DeviceOwnerHelper.startLockTaskIfNeeded(this);
         refreshHeader();
         refreshGrid();
         handler.removeCallbacks(refreshTime);

@@ -102,10 +102,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        if (!AccessibilityHelper.isAccessibilityEnabled(this)) {
+        EnforcementMode mode = EnforcementController.getEffectiveMode(this);
+        if (EnforcementController.needsAccessibilityService(this)
+                && !AccessibilityHelper.isAccessibilityEnabled(this)) {
             showAccessibilityDialog();
-        } else if (!Prefs.hasChosenLauncher(this)) {
+        } else if (mode == EnforcementMode.ACCESSIBILITY && !Prefs.hasChosenLauncher(this)) {
             Toast.makeText(this, R.string.please_select_launcher, Toast.LENGTH_LONG).show();
+        } else if (SetupChecklist.countMissingRequired(this) > 0) {
+            Toast.makeText(this, R.string.setup_incomplete_hint, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -113,15 +117,27 @@ public class MainActivity extends AppCompatActivity {
         if (statusBanner == null) {
             return;
         }
-        if (!AccessibilityHelper.isAccessibilityEnabled(this)) {
+        EnforcementMode mode = EnforcementController.getEffectiveMode(this);
+        int missing = SetupChecklist.countMissingRequired(this);
+        if (missing > 0) {
+            statusBanner.setVisibility(View.VISIBLE);
+            statusBanner.setText(getString(R.string.banner_setup_incomplete, missing));
+            statusBanner.setOnClickListener(v -> startActivity(new Intent(this, SetupActivity.class)));
+        } else if (EnforcementController.needsAccessibilityService(this)
+                && !AccessibilityHelper.isAccessibilityEnabled(this)) {
             statusBanner.setVisibility(View.VISIBLE);
             statusBanner.setText(R.string.banner_a11y_disabled);
             statusBanner.setOnClickListener(v -> AccessibilityHelper.openAccessibilitySettings(this));
-        } else if (!Prefs.hasChosenLauncher(this)
-                || !PackageUtils.isPackageInstalled(this, Prefs.getChosenLauncherPackage(this))) {
+        } else if (mode == EnforcementMode.ACCESSIBILITY
+                && (!Prefs.hasChosenLauncher(this)
+                || !PackageUtils.isPackageInstalled(this, Prefs.getChosenLauncherPackage(this)))) {
             statusBanner.setVisibility(View.VISIBLE);
             statusBanner.setText(R.string.banner_no_launcher);
             statusBanner.setOnClickListener(null);
+        } else if (mode == EnforcementMode.LAUNCHER && !LauncherHelper.isDefaultHome(this)) {
+            statusBanner.setVisibility(View.VISIBLE);
+            statusBanner.setText(R.string.banner_not_default_home);
+            statusBanner.setOnClickListener(v -> LauncherHelper.openDefaultHomePicker(this));
         } else if (Prefs.isKidModeEnabled(this)) {
             statusBanner.setVisibility(View.VISIBLE);
             statusBanner.setText(R.string.banner_kid_mode_on);
@@ -137,7 +153,8 @@ public class MainActivity extends AppCompatActivity {
                 .setMessage(R.string.a11y_disabled_message)
                 .setCancelable(true)
                 .setNegativeButton(R.string.close, null)
-                .setPositiveButton(R.string.help, (d, w) -> openHelp());
+                .setPositiveButton(R.string.setup_title, (d, w) ->
+                        startActivity(new Intent(this, SetupActivity.class)));
 
         if (!getPackageManager().hasSystemFeature("android.software.leanback")) {
             builder.setNeutralButton(R.string.open_settings,
@@ -202,6 +219,10 @@ public class MainActivity extends AppCompatActivity {
         }
         if (id == R.id.kidMode) {
             startActivity(new Intent(this, KidModeActivity.class));
+            return true;
+        }
+        if (id == R.id.setup) {
+            startActivity(new Intent(this, SetupActivity.class));
             return true;
         }
         if (id == R.id.about) {

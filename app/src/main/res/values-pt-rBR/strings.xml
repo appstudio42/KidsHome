@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">KidsHome</string>
     <string name="accessibility_service_label">Detecção de Home do KidsHome</string>
-    <string name="accessibility_service_description">Detecta o botão Home / launcher da Fire e abre o launcher ou o app infantil escolhido. Necessário para o KidsHome funcionar em tablets Fire onde o launcher padrão não pode ser alterado.</string>
+    <string name="accessibility_service_description">Detecta o botão Home / launcher da Fire e pode bloquear apps não permitidos. Obrigatório em tablets Fire onde o launcher padrão não pode ser alterado; camada extra opcional no Android comum.</string>
 
     <string name="launchers_only">Somente launchers</string>
     <string name="hide_system_apps">Ocultar apps do sistema</string>
@@ -36,6 +36,9 @@
     <string name="banner_a11y_disabled">Serviço de acessibilidade DESLIGADO — toque para abrir as configurações</string>
     <string name="banner_no_launcher">Nenhum launcher selecionado (ou foi desinstalado). Escolha um abaixo.</string>
     <string name="banner_kid_mode_on">Modo criança ATIVO. PIN necessário para alterar configurações.</string>
+    <string name="banner_not_default_home">O KidsHome não é o app Home padrão — toque para definir</string>
+    <string name="banner_setup_incomplete">Configuração incompleta (%1$d passos obrigatórios) — toque para concluir</string>
+    <string name="setup_incomplete_hint">Abra Configuração do dispositivo para concluir as permissões</string>
 
     <string name="notification_channel_name">Status do KidsHome</string>
     <string name="notification_channel_desc">Alertas quando o KidsHome precisa de atenção</string>
@@ -59,7 +62,7 @@
     <string name="pin_gate_message">O modo criança está bloqueando este tablet. Digite o PIN dos responsáveis para abrir o KidsHome.</string>
 
     <string name="kid_mode_enable">Ativar modo criança</string>
-    <string name="kid_mode_limits">Limites: o KidsHome usa acessibilidade — não é um bloqueio real de dono do dispositivo / MDM. Uma criança avançada, ADB ou forçar a parada do app ainda podem contornar. Use como ajuda de conveniência, não como barreira de segurança.</string>
+    <string name="kid_mode_limits">Os limites dependem do modo de enforcement. Acessibilidade / launcher são ajuda de conveniência (ADB ou forçar parada podem contornar). Device Owner + lock task é bem mais forte, mas exige provisionamento ADB único em aparelho sem contas (ou após reset de fábrica).</string>
     <string name="kid_mode_escape_help">Saída de emergência (funciona mesmo travado em um único app):\n• Toque 5 vezes rápido no canto superior direito da tela, ou\n• Segure o botão Voltar por cerca de 3 segundos.\nDepois digite o PIN dos responsáveis. O gesto do canto precisa da permissão “Exibir sobre outros apps”.</string>
     <string name="lock_to_launcher">Travar no launcher escolhido</string>
     <string name="lock_to_kid_home">Home infantil (grade de apps permitidos)</string>
@@ -139,10 +142,58 @@
 
     <string name="about_title">Sobre o KidsHome</string>
     <string name="about_version">Versão %1$s</string>
-    <string name="about_body">KidsHome é um auxiliar GPL-3 do botão Home para tablets Amazon Fire onde o launcher padrão não pode ser alterado.\n\nÉ baseado no LauncherHijack de BaronKiko e no Launcher Replacer de Meems33 / WhiteRaven777.</string>
+    <string name="about_body">KidsHome é um home infantil GPL-3 para celulares/tablets Android e Amazon Fire OS.\n\nPode rodar como sequestro de Home por acessibilidade (Fire), launcher padrão real, ou kiosk Device Owner com lock task.\n\nBaseado no LauncherHijack de BaronKiko e no Launcher Replacer de Meems33 / WhiteRaven777.</string>
     <string name="about_license">Licença: GNU GPL v3</string>
     <string name="about_source">Código no GitHub</string>
     <string name="about_baron">BaronKiko / LauncherHijack</string>
     <string name="about_meems">Meems33 / WhiteRaven777 / Launcher Replacer</string>
-    <string name="main_subtitle">Escolha o launcher que o Home deve abrir</string>
+    <string name="main_subtitle">Escolha o launcher que o Home deve abrir (modo Fire / acessibilidade)</string>
+
+    <string name="setup_title">Configuração do dispositivo</string>
+    <string name="setup_device_info">Dispositivo: %1$s\nFire OS / Amazon: %2$s\nDevice Owner: %3$s</string>
+    <string name="setup_yes">sim</string>
+    <string name="setup_no">não</string>
+    <string name="setup_mode_active_fmt">Preferido: %1$s\nAtivo agora: %2$s</string>
+    <string name="setup_mode_override">Modo de enforcement (override manual)</string>
+    <string name="setup_mode_auto">Automático (recomendado)</string>
+    <string name="setup_mode_accessibility">Sequestro de Home por acessibilidade (Fire OS)</string>
+    <string name="setup_mode_launcher">Launcher padrão (Android comum)</string>
+    <string name="setup_mode_device_owner">Device Owner + lock task (mais forte)</string>
+    <string name="setup_mode_auto_short">Automático</string>
+    <string name="setup_mode_accessibility_short">Acessibilidade</string>
+    <string name="setup_mode_launcher_short">Launcher</string>
+    <string name="setup_mode_device_owner_short">Device Owner</string>
+    <string name="setup_extra_blocking">Também usar acessibilidade para bloquear apps não permitidos (camada extra)</string>
+    <string name="setup_disable_status_bar">Device Owner: desativar barra de status enquanto travado</string>
+    <string name="setup_disable_keyguard">Device Owner: desativar keyguard enquanto travado</string>
+    <string name="setup_checklist_title">Checklist</string>
+    <string name="setup_step_done">Concluído</string>
+    <string name="setup_step_a11y_title">Serviço de acessibilidade</string>
+    <string name="setup_step_a11y_detail">Ative “Detecção de Home do KidsHome” em Acessibilidade (obrigatório no Fire; camada extra opcional em outros).</string>
+    <string name="setup_step_overlay_title">Exibir sobre outros apps</string>
+    <string name="setup_step_overlay_detail">Necessário para a saída de emergência por toques no canto.</string>
+    <string name="setup_step_battery_title">Isenção de bateria</string>
+    <string name="setup_step_battery_detail">Permita bateria sem restrições para o KidsHome ser menos morto pelo sistema.</string>
+    <string name="setup_step_home_title">Home / launcher padrão</string>
+    <string name="setup_step_home_detail">Defina o KidsHome como app Home padrão (seletor do sistema / RoleManager).</string>
+    <string name="setup_step_owner_title">Device Owner</string>
+    <string name="setup_step_owner_detail">Exige aparelho sem contas (ou reset de fábrica). Execute:\n%1$s</string>
+    <string name="setup_step_owner_done">Este app é Device Owner</string>
+    <string name="setup_step_notif_title">Notificações</string>
+    <string name="setup_step_notif_detail">Opcional: permitir notificações para o KidsHome avisar se a acessibilidade for desligada.</string>
+    <string name="setup_action_a11y">Abrir Acessibilidade</string>
+    <string name="setup_action_overlay">Abrir configuração de overlay</string>
+    <string name="setup_action_battery">Pedir isenção de bateria</string>
+    <string name="setup_action_home">Definir como Home padrão</string>
+    <string name="setup_action_notif">Permitir notificações</string>
+    <string name="setup_copy_owner_command">Copiar comando ADB de Device Owner</string>
+    <string name="setup_command_copied">Comando copiado</string>
+    <string name="setup_pick_home">Escolher app Home</string>
+    <string name="setup_remove_device_owner">Remover Device Owner</string>
+    <string name="setup_remove_device_owner_message">Isso remove o Device Owner para poder desinstalar o KidsHome. As políticas de lock task também são limpas. Continuar?</string>
+    <string name="setup_not_device_owner">O KidsHome não é Device Owner</string>
+    <string name="setup_device_owner_removed">Device Owner removido — você já pode desinstalar o app</string>
+    <string name="setup_device_owner_remove_failed">Não foi possível remover o Device Owner</string>
+    <string name="device_admin_label">Admin do dispositivo KidsHome</string>
+    <string name="device_admin_description">Permite ao KidsHome rodar modo criança em lock task (kiosk) quando provisionado como Device Owner.</string>
 </resources>

@@ -19,6 +19,13 @@
             android:textColor="@color/bannerText"
             android:textSize="13sp" />
 
+        <Button
+            android:id="@+id/openSetupButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/setup_title" />
+
         <TextView
             android:id="@+id/escapeHelp"
             android:layout_width="match_parent"

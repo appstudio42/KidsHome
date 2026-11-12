@@ -17,9 +17,9 @@ android {
     defaultConfig {
         applicationId "io.github.marcelsavegnago.kidshome"
         minSdk 22
-        targetSdk 28
-        versionCode 111
-        versionName "1.1.1"
+        targetSdk 34
+        versionCode 120
+        versionName "1.2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // Keep the APK lean for 1 GB Fire tablets.
@@ -83,8 +83,7 @@ android {
     lint {
         abortOnError true
         checkReleaseBuilds true
-        // targetSdk 28 is intentional for Fire OS 7 sideloading compatibility.
-        disable 'GoogleAppIndexingWarning', 'MissingTranslation', 'ExpiredTargetSdkVersion'
+        disable 'GoogleAppIndexingWarning', 'MissingTranslation'
     }
 }
 
