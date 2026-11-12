@@ -12,6 +12,9 @@
         android:id="@+id/kidMode"
         android:title="@string/kid_mode" />
     <item
+        android:id="@+id/setup"
+        android:title="@string/setup_title" />
+    <item
         android:id="@+id/settings"
         android:title="@string/settings" />
     <item

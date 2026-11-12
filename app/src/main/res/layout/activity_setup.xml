@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/setupDeviceInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/bannerBackground"
+            android:padding="12dp"
+            android:textColor="@color/bannerText"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/setupModeActive"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/setup_mode_override"
+            android:textStyle="bold"
+            android:textSize="15sp" />
+
+        <RadioGroup
+            android:id="@+id/setupModeGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/modeAuto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/setup_mode_auto" />
+
+            <RadioButton
+                android:id="@+id/modeAccessibility"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/setup_mode_accessibility" />
+
+            <RadioButton
+                android:id="@+id/modeLauncher"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/setup_mode_launcher" />
+
+            <RadioButton
+                android:id="@+id/modeDeviceOwner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/setup_mode_device_owner" />
+        </RadioGroup>
+
+        <CheckBox
+            android:id="@+id/extraBlockingCB"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/setup_extra_blocking" />
+
+        <CheckBox
+            android:id="@+id/disableStatusBarCB"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/setup_disable_status_bar" />
+
+        <CheckBox
+            android:id="@+id/disableKeyguardCB"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/setup_disable_keyguard" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/setup_checklist_title"
+            android:textStyle="bold"
+            android:textSize="15sp" />
+
+        <LinearLayout
+            android:id="@+id/setupStepsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <TextView
+            android:id="@+id/deviceOwnerCommand"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#FFF3E0"
+            android:padding="12dp"
+            android:textIsSelectable="true"
+            android:textSize="12sp"
+            android:typeface="monospace" />
+
+        <Button
+            android:id="@+id/copyOwnerCommand"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/setup_copy_owner_command" />
+
+        <Button
+            android:id="@+id/removeDeviceOwner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/setup_remove_device_owner" />
+
+        <Button
+            android:id="@+id/saveSetupButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/save" />
+    </LinearLayout>
+</ScrollView>

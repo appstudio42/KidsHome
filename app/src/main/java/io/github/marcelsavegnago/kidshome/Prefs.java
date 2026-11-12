@@ -54,7 +54,49 @@ public final class Prefs {
     public static final String KEY_ST_DISABLED_DAY = "ScreenTimeDisabledDay";
     public static final String KEY_BT_DISABLED_DAY = "BedtimeDisabledDay";
 
+    public static final String KEY_ENFORCEMENT_MODE = "EnforcementMode";
+    public static final String KEY_A11Y_EXTRA_BLOCKING = "AccessibilityExtraBlocking";
+    public static final String KEY_LOCK_TASK_DISABLE_STATUS_BAR = "LockTaskDisableStatusBar";
+    public static final String KEY_LOCK_TASK_DISABLE_KEYGUARD = "LockTaskDisableKeyguard";
+
     private Prefs() {
+    }
+
+    public static EnforcementMode getEnforcementModePreference(Context context) {
+        return EnforcementMode.fromPrefsValue(get(context).getString(KEY_ENFORCEMENT_MODE, "auto"));
+    }
+
+    public static void setEnforcementModePreference(Context context, EnforcementMode mode) {
+        EnforcementMode value = mode == null ? EnforcementMode.AUTO : mode;
+        get(context).edit().putString(KEY_ENFORCEMENT_MODE, value.toPrefsValue()).commit();
+    }
+
+    /**
+     * When true, accessibility still blocks non-allowed apps in Launcher / Device Owner modes.
+     * Always implied for Accessibility (Fire) mode.
+     */
+    public static boolean isAccessibilityExtraBlocking(Context context) {
+        return get(context).getBoolean(KEY_A11Y_EXTRA_BLOCKING, true);
+    }
+
+    public static void setAccessibilityExtraBlocking(Context context, boolean enabled) {
+        get(context).edit().putBoolean(KEY_A11Y_EXTRA_BLOCKING, enabled).commit();
+    }
+
+    public static boolean isLockTaskDisableStatusBar(Context context) {
+        return get(context).getBoolean(KEY_LOCK_TASK_DISABLE_STATUS_BAR, false);
+    }
+
+    public static void setLockTaskDisableStatusBar(Context context, boolean disable) {
+        get(context).edit().putBoolean(KEY_LOCK_TASK_DISABLE_STATUS_BAR, disable).commit();
+    }
+
+    public static boolean isLockTaskDisableKeyguard(Context context) {
+        return get(context).getBoolean(KEY_LOCK_TASK_DISABLE_KEYGUARD, false);
+    }
+
+    public static void setLockTaskDisableKeyguard(Context context, boolean disable) {
+        get(context).edit().putBoolean(KEY_LOCK_TASK_DISABLE_KEYGUARD, disable).commit();
     }
 
     public static SharedPreferences get(Context context) {
@@ -229,6 +271,7 @@ public final class Prefs {
             allowed.add(packageName);
             setAllowedPackages(context, allowed);
         }
+        DeviceOwnerHelper.refreshLockTaskPackages(context);
     }
 
     public static boolean isScreenTimeEnabled(Context context) {

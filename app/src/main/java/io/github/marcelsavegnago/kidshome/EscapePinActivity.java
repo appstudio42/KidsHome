@@ -119,6 +119,8 @@ public class EscapePinActivity extends AppCompatActivity {
     }
 
     private void disableKidMode() {
+        // Leave lock-task cleanly before clearing kid mode (Device Owner / kiosk).
+        EnforcementController.onKidModeDisabled(this);
         // Synchronous write so a service restart cannot re-read the old "enabled" value.
         Prefs.setKidModeEnabled(this, false);
         SessionAuth.markUnlocked();
@@ -134,6 +136,8 @@ public class EscapePinActivity extends AppCompatActivity {
     }
 
     private void openKidsHome() {
+        // Temporarily leave lock-task so the parent can navigate settings; kid mode stays on.
+        DeviceOwnerHelper.stopLockTaskQuietly(this);
         // Keep kid mode on; SessionAuth lets the parent use KidsHome without being yanked.
         SessionAuth.markUnlocked();
         PinAttemptTracker.reset();
