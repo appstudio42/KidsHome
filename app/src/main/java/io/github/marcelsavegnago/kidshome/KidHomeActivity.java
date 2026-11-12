@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
@@ -15,6 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -75,8 +77,7 @@ public class KidHomeActivity extends AppCompatActivity {
         timeRing = findViewById(R.id.kidHomeTimeRing);
         GridView grid = findViewById(R.id.kidHomeGrid);
         adapter = new KidHomeAdapter(this);
-        // Prefer 3 columns; on very short/wide Fire 7 landscape keep tiles readable.
-        grid.setNumColumns(3);
+        applyAdaptiveColumns(grid);
         grid.setAdapter(adapter);
         grid.setOnItemClickListener((parent, view, position, id) -> {
             MotionHelper.bouncePress(view, this);
@@ -87,6 +88,23 @@ public class KidHomeActivity extends AppCompatActivity {
         Prefs.ensureDefaultSiteSuggestions(this);
         refreshHeader();
         refreshGrid();
+    }
+
+    /** 4 columns on wide landscape (Fire 7 / tablets), 3 on portrait/phone, 2 on narrow phones. */
+    private void applyAdaptiveColumns(GridView grid) {
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        float widthDp = metrics.widthPixels / metrics.density;
+        boolean landscape = getResources().getConfiguration().orientation
+                == Configuration.ORIENTATION_LANDSCAPE;
+        int columns;
+        if (landscape && widthDp >= 560f) {
+            columns = 4;
+        } else if (widthDp >= 360f) {
+            columns = 3;
+        } else {
+            columns = 2;
+        }
+        grid.setNumColumns(columns);
     }
 
     @Override

@@ -35,7 +35,15 @@
     <color name="kid_scrim_top">#990F172A</color>
     <color name="kid_scrim_bottom">#660F172A</color>
     <color name="kid_tile_bg">#E6FFFFFF</color>
+    <color name="kid_tile_pastel_1">#FFE4E6</color>
+    <color name="kid_tile_pastel_2">#FEF3C7</color>
+    <color name="kid_tile_pastel_3">#D1FAE5</color>
+    <color name="kid_tile_pastel_4">#DBEAFE</color>
+    <color name="kid_tile_pastel_5">#E9D5FF</color>
+    <color name="kid_tile_pastel_6">#FFEDD5</color>
+    <color name="kid_tile_label">#1E293B</color>
     <color name="kid_label">#FFFFFF</color>
+    <color name="pin_card_bg">#FFFFFFFF</color>
     <color name="time_ring_track">#40FFFFFF</color>
     <color name="time_ring_good">#22C55E</color>
     <color name="time_ring_warn">#EAB308</color>

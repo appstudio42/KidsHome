@@ -27,8 +27,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:minHeight="@dimen/touch_min"
-            android:orientation="horizontal">
+            android:minHeight="72dp"
+            android:orientation="horizontal"
+            android:paddingBottom="@dimen/space_sm">
 
             <TextView
                 android:id="@+id/kidHomeAvatar"
@@ -38,7 +39,7 @@
                 android:gravity="center"
                 android:importantForAccessibility="no"
                 android:text="🙂"
-                android:textSize="28sp" />
+                android:textSize="34sp" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -52,9 +53,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:shadowColor="#80000000"
-                    android:shadowRadius="3"
+                    android:shadowRadius="4"
                     android:textColor="@color/kid_label"
-                    android:textSize="26sp"
+                    android:textSize="@dimen/kid_greeting_text"
                     android:textStyle="bold"
                     tools:text="Hi, Theo!" />
 
@@ -66,7 +67,7 @@
                     android:shadowColor="#80000000"
                     android:shadowRadius="2"
                     android:textColor="@color/kid_label"
-                    android:textSize="15sp"
+                    android:textSize="@dimen/kid_subtitle_text"
                     tools:text="Time left: 45 min" />
             </LinearLayout>
 
@@ -85,15 +86,17 @@
             android:layout_weight="1"
             android:clipChildren="false"
             android:clipToPadding="false"
-            android:fadeScrollbars="false"
+            android:fadeScrollbars="true"
             android:gravity="center"
-            android:horizontalSpacing="@dimen/space_sm"
+            android:horizontalSpacing="@dimen/kid_tile_gap"
             android:listSelector="@android:color/transparent"
             android:numColumns="3"
+            android:paddingStart="@dimen/space_xs"
+            android:paddingEnd="@dimen/space_xs"
             android:paddingBottom="@dimen/space_md"
             android:scrollbarStyle="outsideOverlay"
             android:scrollbars="vertical"
             android:stretchMode="columnWidth"
-            android:verticalSpacing="@dimen/space_sm" />
+            android:verticalSpacing="@dimen/kid_tile_gap" />
     </LinearLayout>
 </FrameLayout>

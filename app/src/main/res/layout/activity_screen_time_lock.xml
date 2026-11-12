@@ -11,11 +11,11 @@
     <LinearLayout
         android:id="@+id/lockContent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
+        android:layout_height="match_parent"
+        android:gravity="center"
         android:orientation="vertical"
         android:paddingStart="@dimen/space_lg"
-        android:paddingTop="@dimen/space_md"
+        android:paddingTop="@dimen/space_lg"
         android:paddingEnd="@dimen/space_lg"
         android:paddingBottom="@dimen/space_lg">
 
@@ -30,7 +30,7 @@
             android:id="@+id/lockTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_md"
+            android:layout_marginTop="@dimen/space_lg"
             android:gravity="center"
             android:text="@string/screen_time_lock_title"
             android:textColor="@color/lock_on_bg"
@@ -43,6 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/space_sm"
             android:gravity="center"
+            android:lineSpacingMultiplier="1.15"
             android:text="@string/screen_time_lock_message"
             android:textColor="@color/lock_on_bg_muted"
             android:textSize="@dimen/lock_message_text" />
@@ -52,9 +53,11 @@
             style="@style/Widget.KidsHome.Button.Tonal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_lg"
-            android:layout_marginBottom="@dimen/space_md"
+            android:layout_marginTop="@dimen/space_xl"
             android:minHeight="@dimen/touch_min"
+            android:minWidth="200dp"
+            android:paddingStart="@dimen/space_xl"
+            android:paddingEnd="@dimen/space_xl"
             android:text="@string/parent_unlock"
             tools:ignore="TouchTargetSizeCheck" />
     </LinearLayout>

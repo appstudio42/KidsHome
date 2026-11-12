@@ -1,78 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/escapePinRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
-    android:gravity="center"
-    android:orientation="horizontal"
-    android:padding="@dimen/space_md">
+    android:background="?attr/colorSurfaceVariant">
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingEnd="@dimen/space_md">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/app_name"
-            android:textAppearance="@style/TextAppearance.KidsHome.Display"
-            android:textColor="?attr/colorPrimary" />
-
-        <TextView
-            android:id="@+id/escapeStatus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_sm"
-            android:gravity="center"
-            android:text="@string/escape_pin_message"
-            android:textAppearance="@style/TextAppearance.KidsHome.Body"
-            android:textColor="?attr/colorOnSurfaceVariant" />
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/pinCard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/space_md"
+        android:maxWidth="@dimen/pin_card_max_width"
+        app:cardBackgroundColor="@android:color/white"
+        app:cardCornerRadius="@dimen/corner_xl"
+        app:cardElevation="6dp"
+        app:strokeColor="?attr/colorOutlineVariant"
+        app:strokeWidth="1dp">
 
         <LinearLayout
-            android:id="@+id/pinDots"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_md"
-            android:contentDescription="@string/cd_pin_dots"
-            android:gravity="center"
-            android:orientation="horizontal" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="@dimen/pin_card_padding">
 
-        <EditText
-            android:id="@+id/escapePinInput"
-            android:layout_width="1dp"
-            android:layout_height="1dp"
-            android:importantForAutofill="no"
-            android:inputType="numberPassword"
-            android:maxLength="8"
-            android:visibility="invisible" />
+            <LinearLayout
+                android:layout_width="260dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingEnd="@dimen/space_lg">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/escapeSubmit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_md"
-            android:minHeight="@dimen/touch_min"
-            android:text="@string/unlock"
-            app:cornerRadius="@dimen/corner_md" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/app_name"
+                    android:textAppearance="@style/TextAppearance.KidsHome.Display"
+                    android:textColor="?attr/colorPrimary" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/escapeCancel"
-            style="@style/Widget.KidsHome.Button.Text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="@dimen/touch_min"
-            android:text="@string/back_to_kid_app" />
-    </LinearLayout>
+                <TextView
+                    android:id="@+id/escapeStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_sm"
+                    android:gravity="center"
+                    android:text="@string/escape_pin_message"
+                    android:textAppearance="@style/TextAppearance.KidsHome.Body"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
 
-    <include
-        android:id="@+id/pinKeypad"
-        layout="@layout/view_pin_keypad"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-</LinearLayout>
+                <LinearLayout
+                    android:id="@+id/pinDots"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_md"
+                    android:contentDescription="@string/cd_pin_dots"
+                    android:gravity="center"
+                    android:orientation="horizontal" />
+
+                <EditText
+                    android:id="@+id/escapePinInput"
+                    android:layout_width="1dp"
+                    android:layout_height="1dp"
+                    android:importantForAutofill="no"
+                    android:inputType="numberPassword"
+                    android:maxLength="8"
+                    android:visibility="invisible" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/escapeSubmit"
+                    android:layout_width="@dimen/pin_unlock_max_width"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_md"
+                    android:minHeight="@dimen/touch_min"
+                    android:text="@string/unlock"
+                    app:cornerRadius="@dimen/corner_md" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/escapeCancel"
+                    style="@style/Widget.KidsHome.Button.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/touch_min"
+                    android:text="@string/back_to_kid_app" />
+            </LinearLayout>
+
+            <include
+                android:id="@+id/pinKeypad"
+                layout="@layout/view_pin_keypad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</FrameLayout>

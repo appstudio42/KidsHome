@@ -3,7 +3,10 @@ package io.github.marcelsavegnago.kidshome;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.RippleDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,17 +14,32 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class KidHomeAdapter extends BaseAdapter {
+    private static final int[] PASTEL_COLORS = {
+            R.color.kid_tile_pastel_1,
+            R.color.kid_tile_pastel_2,
+            R.color.kid_tile_pastel_3,
+            R.color.kid_tile_pastel_4,
+            R.color.kid_tile_pastel_5,
+            R.color.kid_tile_pastel_6,
+    };
+
     private final Context context;
     private final PackageManager pm;
+    private final LayoutInflater inflater;
     private final List<KidHomeItem> items = new ArrayList<>();
+    private final float cornerRadiusPx;
 
     public KidHomeAdapter(Context context) {
         this.context = context;
         this.pm = context.getPackageManager();
+        this.inflater = LayoutInflater.from(context);
+        this.cornerRadiusPx = context.getResources().getDimension(R.dimen.kid_tile_radius);
     }
 
     public void setItems(List<KidHomeItem> next) {
@@ -51,13 +69,15 @@ public class KidHomeAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
         if (view == null) {
-            view = LayoutInflater.from(context).inflate(R.layout.item_kid_home, parent, false);
+            view = inflater.inflate(R.layout.item_kid_home, parent, false);
         }
         ImageView icon = view.findViewById(R.id.kidIcon);
         TextView label = view.findViewById(R.id.kidLabel);
+        View inner = view.findViewById(R.id.kidTileInner);
         KidHomeItem item = items.get(position);
         label.setText(item.label);
         view.setContentDescription(item.label);
+        applyPastel(inner, position);
 
         if (item.type == KidHomeItem.Type.APP) {
             try {
@@ -72,5 +92,22 @@ public class KidHomeAdapter extends BaseAdapter {
             FaviconHelper.loadInto(context, item.url, icon, R.drawable.ic_web_shortcut);
         }
         return view;
+    }
+
+    private void applyPastel(View tile, int position) {
+        if (tile == null) {
+            return;
+        }
+        int color = ContextCompat.getColor(context, PASTEL_COLORS[position % PASTEL_COLORS.length]);
+        GradientDrawable shape = new GradientDrawable();
+        shape.setShape(GradientDrawable.RECTANGLE);
+        shape.setCornerRadius(cornerRadiusPx);
+        shape.setColor(color);
+        RippleDrawable ripple = new RippleDrawable(
+                ColorStateList.valueOf(0x33000000),
+                shape,
+                null
+        );
+        tile.setBackground(ripple);
     }
 }

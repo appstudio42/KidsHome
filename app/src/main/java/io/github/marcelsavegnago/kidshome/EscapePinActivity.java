@@ -2,6 +2,7 @@ package io.github.marcelsavegnago.kidshome;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 
 /**
  * Emergency parent PIN screen with modern keypad, dots, shake, and lockout.
@@ -44,9 +46,9 @@ public class EscapePinActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_escape_pin);
         ImmersiveHelper.enter(this);
-        View content = findViewById(android.R.id.content);
-        if (content instanceof android.view.ViewGroup && ((android.view.ViewGroup) content).getChildCount() > 0) {
-            ImmersiveHelper.applyContentInsets(((android.view.ViewGroup) content).getChildAt(0));
+        View root = findViewById(R.id.escapePinRoot);
+        if (root != null) {
+            ImmersiveHelper.applyContentInsets(root);
         }
         setTitle(R.string.escape_pin_title);
 
@@ -55,6 +57,11 @@ public class EscapePinActivity extends AppCompatActivity {
         submitButton = findViewById(R.id.escapeSubmit);
         MaterialButton cancelButton = findViewById(R.id.escapeCancel);
         LinearLayout dots = findViewById(R.id.pinDots);
+        MaterialCardView pinCard = findViewById(R.id.pinCard);
+        if (pinCard != null) {
+            // Material 3 surface tint otherwise washes the card mint/green.
+            pinCard.setCardBackgroundColor(Color.WHITE);
+        }
         shakeTarget = new ViewShakeTarget(findViewById(R.id.pinDots));
 
         keypad = new PinKeypadController(findViewById(android.R.id.content), pinInput, dots, 8);

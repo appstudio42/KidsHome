@@ -15,3 +15,4 @@ release.keystore
 *.keystore
 !keystore/debug.keystore
 .cxx/
+docs/screenshots-extra/

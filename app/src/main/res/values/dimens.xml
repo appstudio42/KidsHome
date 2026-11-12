@@ -17,17 +17,29 @@
     <dimen name="corner_xl">28dp</dimen>
 
     <dimen name="touch_min">48dp</dimen>
-    <dimen name="kid_tile_min">112dp</dimen>
+
+    <!-- Kid launcher — big playful tiles (phone / portrait baseline). -->
+    <dimen name="kid_tile_min">132dp</dimen>
     <dimen name="kid_icon_size">72dp</dimen>
-    <dimen name="kid_tile_radius">24dp</dimen>
-    <dimen name="kid_header_avatar">56dp</dimen>
-    <dimen name="time_ring_size">56dp</dimen>
+    <dimen name="kid_label_text">16sp</dimen>
+    <dimen name="kid_tile_radius">28dp</dimen>
+    <dimen name="kid_tile_gap">14dp</dimen>
+    <dimen name="kid_header_avatar">72dp</dimen>
+    <dimen name="kid_greeting_text">32sp</dimen>
+    <dimen name="kid_subtitle_text">16sp</dimen>
+    <dimen name="time_ring_size">64dp</dimen>
+
     <dimen name="pin_key_size">72dp</dimen>
-    <dimen name="pin_key_text">22sp</dimen>
+    <dimen name="pin_key_icon_pad">16dp</dimen>
+    <dimen name="pin_key_text">24sp</dimen>
     <dimen name="pin_dot_size">14dp</dimen>
+    <dimen name="pin_card_max_width">400dp</dimen>
+    <dimen name="pin_unlock_max_width">220dp</dimen>
+    <dimen name="pin_card_padding">24dp</dimen>
+
     <dimen name="card_elevation">2dp</dimen>
     <dimen name="section_card_radius">20dp</dimen>
-    <dimen name="lock_illust_size">140dp</dimen>
-    <dimen name="lock_title_text">26sp</dimen>
-    <dimen name="lock_message_text">15sp</dimen>
+    <dimen name="lock_illust_size">200dp</dimen>
+    <dimen name="lock_title_text">34sp</dimen>
+    <dimen name="lock_message_text">17sp</dimen>
 </resources>
