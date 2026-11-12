@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- App Studio 42 coral → yellow → teal -->
+    <gradient
+        android:angle="135"
+        android:centerColor="#E8B84A"
+        android:endColor="#5FA8A0"
+        android:startColor="#E86A5B"
+        android:type="linear" />
+</shape>

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="KidsHome">
+  <!--
+    KidsHome mark — App Studio 42 palette
+    coral #E86A5B · warm yellow #E8B84A · teal #5FA8A0 · cream #FFF8F3
+    Friendly house-as-face: readable at 48px, flat, no fine detail.
+  -->
+  <defs>
+    <linearGradient id="bg" x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#E86A5B"/>
+      <stop offset="0.55" stop-color="#E8B84A"/>
+      <stop offset="1" stop-color="#5FA8A0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded square — matches studio mark language -->
+  <rect width="512" height="512" rx="128" fill="url(#bg)"/>
+
+  <!-- House body (cream) -->
+  <path fill="#FFF8F3" d="
+    M256 96
+    L420 236
+    L420 400
+    Q420 428 392 428
+    L120 428
+    Q92 428 92 400
+    L92 236
+    Z"/>
+
+  <!-- Roof shade accent (subtle coral edge under roof peak) -->
+  <path fill="#E86A5B" opacity="0.22" d="
+    M256 96
+    L420 236
+    L92 236
+    Z"/>
+
+  <!-- Eyes (teal) -->
+  <circle cx="200" cy="268" r="28" fill="#5FA8A0"/>
+  <circle cx="312" cy="268" r="28" fill="#5FA8A0"/>
+
+  <!-- Smile (coral) -->
+  <path d="M188 330 C214 372 298 372 324 330"
+        fill="none"
+        stroke="#E86A5B"
+        stroke-width="28"
+        stroke-linecap="round"/>
+</svg>

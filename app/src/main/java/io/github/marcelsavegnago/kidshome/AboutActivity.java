@@ -20,7 +20,7 @@ public class AboutActivity extends AppCompatActivity {
         findViewById(R.id.aboutLicenseLink).setOnClickListener(v ->
                 openUrl("https://www.gnu.org/licenses/gpl-3.0.html"));
         findViewById(R.id.aboutSourceLink).setOnClickListener(v ->
-                openUrl("https://github.com/marcelsavegnago/KidsHome"));
+                openUrl("https://github.com/appstudio42/KidsHome"));
         findViewById(R.id.aboutBaronLink).setOnClickListener(v ->
                 openUrl("https://github.com/BaronKiko/LauncherHijack"));
         findViewById(R.id.aboutMeemsLink).setOnClickListener(v ->

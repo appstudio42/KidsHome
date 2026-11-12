@@ -4,11 +4,23 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Simple home glyph for KidsHome -->
+    <!-- KidsHome mark: cream house-face (safe zone centered in 108dp). -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M54,28 L78,50 L78,78 L62,78 L62,62 L46,62 L46,78 L30,78 L30,50 Z" />
+        android:fillColor="#FFF8F3"
+        android:pathData="M54,26 L82,50 L82,78 Q82,83 77,83 L31,83 Q26,83 26,78 L26,50 Z" />
     <path
-        android:fillColor="#F4A261"
-        android:pathData="M54,34m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0" />
+        android:fillColor="#47E86A5B"
+        android:pathData="M54,26 L82,50 L26,50 Z" />
+    <path
+        android:fillColor="#5FA8A0"
+        android:pathData="M44,56m-5.5,0a5.5,5.5 0,1 1,11,0a5.5,5.5 0,1 1,-11,0" />
+    <path
+        android:fillColor="#5FA8A0"
+        android:pathData="M64,56m-5.5,0a5.5,5.5 0,1 1,11,0a5.5,5.5 0,1 1,-11,0" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M41,66 C47,74 61,74 67,66"
+        android:strokeWidth="5.5"
+        android:strokeColor="#E86A5B"
+        android:strokeLineCap="round" />
 </vector>

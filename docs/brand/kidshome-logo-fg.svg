@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="108" height="108" role="img" aria-label="KidsHome foreground">
+  <!--
+    Adaptive-icon foreground (safe zone ~66dp centered in 108dp).
+    Transparent outside the house. Pair with teal #5FA8A0 background.
+  -->
+  <!-- House body -->
+  <path fill="#FFF8F3" d="
+    M54 26
+    L82 50
+    L82 78
+    Q82 83 77 83
+    L31 83
+    Q26 83 26 78
+    L26 50
+    Z"/>
+
+  <!-- Roof accent -->
+  <path fill="#E86A5B" opacity="0.28" d="M54 26 L82 50 L26 50 Z"/>
+
+  <!-- Eyes -->
+  <circle cx="44" cy="56" r="5.5" fill="#5FA8A0"/>
+  <circle cx="64" cy="56" r="5.5" fill="#5FA8A0"/>
+
+  <!-- Smile -->
+  <path d="M41 66 C47 74 61 74 67 66"
+        fill="none"
+        stroke="#E86A5B"
+        stroke-width="5.5"
+        stroke-linecap="round"/>
+</svg>

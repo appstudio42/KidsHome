@@ -9,18 +9,18 @@
 <p align="center"><strong>Un écran d’accueil léger pour enfants sur téléphones Android, tablettes et Amazon Fire OS.</strong></p>
 
 <p align="center">
-  <a href="https://github.com/marcelsavegnago/KidsHome/releases/latest"><img src="https://img.shields.io/github/v/release/marcelsavegnago/KidsHome?label=latest%20release" alt="Dernière version" /></a>
-  <a href="https://github.com/marcelsavegnago/KidsHome/releases"><img src="https://img.shields.io/github/downloads/marcelsavegnago/KidsHome/total" alt="Téléchargements" /></a>
-  <a href="https://github.com/marcelsavegnago/KidsHome/actions/workflows/android.yml"><img src="https://img.shields.io/github/actions/workflow/status/marcelsavegnago/KidsHome/android.yml?branch=master&label=CI" alt="Statut CI" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/marcelsavegnago/KidsHome" alt="Licence" /></a>
+  <a href="https://github.com/appstudio42/KidsHome/releases/latest"><img src="https://img.shields.io/github/v/release/appstudio42/KidsHome?label=latest%20release" alt="Dernière version" /></a>
+  <a href="https://github.com/appstudio42/KidsHome/releases"><img src="https://img.shields.io/github/downloads/appstudio42/KidsHome/total" alt="Téléchargements" /></a>
+  <a href="https://github.com/appstudio42/KidsHome/actions/workflows/android.yml"><img src="https://img.shields.io/github/actions/workflow/status/appstudio42/KidsHome/android.yml?branch=master&label=CI" alt="Statut CI" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/appstudio42/KidsHome" alt="Licence" /></a>
   <img src="https://img.shields.io/badge/min%20Android-5.1%20(API%2022)-green" alt="Android minimum 5.1 API 22" />
 </p>
 
 <p align="center">
-  <a href="https://github.com/marcelsavegnago/KidsHome/releases/latest"><strong>⬇ Télécharger l’APK (dernière version)</strong></a>
+  <a href="https://github.com/appstudio42/KidsHome/releases/latest"><strong>⬇ Télécharger l’APK (dernière version)</strong></a>
 </p>
 
-KidsHome (v1.4.0) transforme un téléphone ou une tablette de rechange en écran d’accueil adapté aux enfants : uniquement les apps et sites que vous autorisez, avec limite quotidienne de temps d’écran, verrouillage au coucher et sortie d’urgence par PIN parental. Il choisit le meilleur mode d’application pour l’appareil (ou vous le définissez dans **Configuration de l’appareil**).
+KidsHome (v1.4.0) transforme un téléphone ou une tablette de rechange en écran d’accueil adapté aux enfants : uniquement les apps et sites que vous autorisez, avec limite quotidienne de temps d’écran, verrouillage au coucher et sortie d’urgence par PIN parental. Il choisit le meilleur mode d’application pour l’appareil (ou vous le définissez dans **Configuration de l’appareil**). Maintenu par [App Studio 42](https://appstudio42.github.io).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="Configuration KidsHome : créer un PIN, choisir les apps, définir le temps d’écran, entrer en mode enfant" width="720" />
@@ -87,7 +87,7 @@ Fork GPL-3 de [Meems33/LauncherHijack](https://github.com/Meems33/LauncherHijack
 
 ## Démarrage rapide
 
-1. Téléchargez l’APK de la [dernière version](https://github.com/marcelsavegnago/KidsHome/releases/latest) (ou l’artefact `KidsHome-release-apk` de GitHub Actions).
+1. Téléchargez l’APK de la [dernière version](https://github.com/appstudio42/KidsHome/releases/latest) (ou l’artefact `KidsHome-release-apk` de GitHub Actions).
 2. Installez (la même signature de test CI conserve les données lors des mises à jour) :
 
    ```bash
