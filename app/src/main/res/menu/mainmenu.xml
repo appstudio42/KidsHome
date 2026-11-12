@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <item android:title="@string/hide_system_apps"
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/sysApps"
         android:checkable="true"
-        android:id="@+id/sysApps" />
-    <item android:title="@string/launchers_only"
+        android:title="@string/hide_system_apps" />
+    <item
         android:id="@+id/launcher"
-        android:checkable="true" />
-    <item android:title="@string/help"
-        android:id="@+id/help" />
-    <item android:title="@string/donate"
-        android:id="@+id/donate" />
-    <item android:title="@string/settings"
-        android:id="@+id/settings" />
+        android:checkable="true"
+        android:title="@string/launchers_only" />
+    <item
+        android:id="@+id/kidMode"
+        android:title="@string/kid_mode" />
+    <item
+        android:id="@+id/settings"
+        android:title="@string/settings" />
+    <item
+        android:id="@+id/about"
+        android:title="@string/about" />
+    <item
+        android:id="@+id/help"
+        android:title="@string/help" />
 </menu>

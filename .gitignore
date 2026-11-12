@@ -7,3 +7,10 @@ build/
 captures/
 codeStyleConfig.xml
 app/debug
+*.apk
+!AppIcon/**
+keystore.properties
+release.keystore
+*.jks
+*.keystore
+.cxx/

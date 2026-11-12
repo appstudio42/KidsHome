@@ -1,32 +1,27 @@
 ---
 name: Bug report
-about: Create a report if you are experiencing issues
-
+about: Report a KidsHome issue
 ---
 
-Before submitting any issues please ensure you have read all instructions in the ReadMe and checked your issue hasn't already been submitted in the issues section. Please delete this header and fill out as many sections as possible.
+Before submitting, please read the README and search existing issues.
 
 **Describe the bug**
-A clear and concise description of what the bug is.
+A clear description of what went wrong.
 
 **To Reproduce**
-Steps to reproduce the behaviour:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+1. …
+2. …
 
 **Expected behaviour**
-A clear and concise description of what you expected to happen.
+What you expected to happen.
 
-**Launcher Replacer Version and Device**
-Your device and installed version
+**Device**
+- Model (e.g. Fire 7 9th gen / mustang)
+- Fire OS / Android version
+- KidsHome version
 
 **Logs**
-Any logs associated with the issue
-
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+`adb logcat -s KidsHome.AccServ KidsHome.HomePress KidsHome.Boot`
 
 **Additional context**
-Add any other context about the problem here.
+Anything else that helps.

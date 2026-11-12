@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/about_title"
+            android:textColor="@color/colorPrimary"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/aboutVersion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/about_body"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/aboutLicenseLink"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/about_license" />
+
+        <Button
+            android:id="@+id/aboutSourceLink"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/about_source" />
+
+        <Button
+            android:id="@+id/aboutBaronLink"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/about_baron" />
+
+        <Button
+            android:id="@+id/aboutMeemsLink"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/about_meems" />
+    </LinearLayout>
+</ScrollView>

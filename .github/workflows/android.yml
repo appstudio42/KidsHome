@@ -1,0 +1,115 @@
+name: Android CI
+
+on:
+  push:
+    branches: [master, main]
+    tags: ['v*']
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Unit tests
+        run: ./gradlew testDebugUnitTest --stacktrace
+
+      - name: Prepare release signing (optional)
+        env:
+          SIGNING_KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_STORE_PASSWORD: ${{ secrets.SIGNING_KEY_STORE_PASSWORD }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: |
+          if [ -n "${SIGNING_KEYSTORE_BASE64}" ] && [ -n "${SIGNING_KEY_ALIAS}" ] && [ -n "${SIGNING_KEY_STORE_PASSWORD}" ] && [ -n "${SIGNING_KEY_PASSWORD}" ]; then
+            echo "Release signing secrets found — configuring keystore"
+            echo "${SIGNING_KEYSTORE_BASE64}" | base64 -d > "${GITHUB_WORKSPACE}/release.keystore"
+            {
+              echo "storeFile=release.keystore"
+              echo "storePassword=${SIGNING_KEY_STORE_PASSWORD}"
+              echo "keyAlias=${SIGNING_KEY_ALIAS}"
+              echo "keyPassword=${SIGNING_KEY_PASSWORD}"
+            } > "${GITHUB_WORKSPACE}/keystore.properties"
+            echo "SIGNED=true" >> "$GITHUB_ENV"
+          else
+            echo "Signing secrets not set — will produce a debug-signed fallback APK"
+            echo "SIGNED=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Build release APK
+        run: ./gradlew assembleRelease --stacktrace
+
+      - name: Fallback debug-sign if no release keystore
+        if: env.SIGNED == 'false'
+        run: |
+          set -euo pipefail
+          UNSIGNED=$(find app/build/outputs/apk/release -name '*.apk' | head -n1)
+          if [ -z "${UNSIGNED}" ]; then
+            echo "No release APK found"
+            exit 1
+          fi
+          mkdir -p "${HOME}/.android"
+          DEBUG_KS="${HOME}/.android/debug.keystore"
+          if [ ! -f "${DEBUG_KS}" ]; then
+            keytool -genkeypair -v -keystore "${DEBUG_KS}" -storepass android -alias androiddebugkey \
+              -keypass android -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+          OUT="app/build/outputs/apk/release/KidsHome-release.apk"
+          BUILD_TOOLS=$(ls -d "${ANDROID_SDK_ROOT}/build-tools/"* | sort -V | tail -n1)
+          "${BUILD_TOOLS}/zipalign" -f 4 "${UNSIGNED}" "${OUT}.aligned"
+          "${BUILD_TOOLS}/apksigner" sign --ks "${DEBUG_KS}" --ks-pass pass:android --key-pass pass:android \
+            --out "${OUT}" "${OUT}.aligned"
+          rm -f "${OUT}.aligned"
+          echo "Fallback debug-signed APK at ${OUT}"
+
+      - name: Name release artifact
+        if: env.SIGNED == 'true'
+        run: |
+          SRC=$(find app/build/outputs/apk/release -name '*.apk' | head -n1)
+          cp "${SRC}" "app/build/outputs/apk/release/KidsHome-release.apk"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: KidsHome-release-apk
+          path: app/build/outputs/apk/release/KidsHome-release.apk
+          if-no-files-found: error
+
+      - name: Create GitHub Release on tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: app/build/outputs/apk/release/KidsHome-release.apk
+          generate_release_notes: true
+          body: |
+            KidsHome release artifact.
+
+            If repository signing secrets were not configured, this APK is **debug-signed** (installable for testing).
+
+            ## Install
+            ```bash
+            adb install -r KidsHome-release.apk
+            ```
+
+            See README for enabling the accessibility service.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

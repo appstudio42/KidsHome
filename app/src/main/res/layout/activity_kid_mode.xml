@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/limitsNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/bannerBackground"
+            android:padding="12dp"
+            android:text="@string/kid_mode_limits"
+            android:textColor="@color/bannerText"
+            android:textSize="13sp" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:text="@string/kid_mode_enable"
+                android:textSize="16sp" />
+
+            <Switch
+                android:id="@+id/kidModeSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true" />
+        </RelativeLayout>
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+
+            <RadioButton
+                android:id="@+id/lockLauncher"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/lock_to_launcher" />
+
+            <RadioButton
+                android:id="@+id/lockApp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/lock_to_app" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/kidAppLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/kid_app_none" />
+
+        <Button
+            android:id="@+id/pickAppButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/pick_kid_app" />
+
+        <Button
+            android:id="@+id/changePinButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/change_pin" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/cancelKidModeButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:text="@string/cancel" />
+
+            <Button
+                android:id="@+id/saveKidModeButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="@string/save" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
