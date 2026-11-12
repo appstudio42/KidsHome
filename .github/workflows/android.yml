@@ -22,9 +22,20 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+          cache: gradle
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Install Android SDK packages
+        run: |
+          set -euo pipefail
+          export ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME}}"
+          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}"
+          # Accept licenses non-interactively; ignore leftover prompts.
+          yes | sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" --licenses >/tmp/sdk-licenses.log || true
+          # Do not install the deprecated 'tools' package (removed from current repos).
+          sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" \
+            "platform-tools" \
+            "platforms;android-34" \
+            "build-tools;34.0.0"
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
