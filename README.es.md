@@ -20,7 +20,7 @@
   <a href="https://github.com/marcelsavegnago/KidsHome/releases/latest"><strong>⬇ Descargar APK (última versión)</strong></a>
 </p>
 
-KidsHome (v1.3.0) convierte un móvil o tablet de repuesto en una pantalla de inicio pensada para niños: solo las apps y sitios que tú permitas, con límite diario de tiempo de uso, bloqueo a la hora de dormir y salida de emergencia con PIN parental. Elige el mejor modo de aplicación para el dispositivo (o lo defines en **Configuración del dispositivo**).
+KidsHome (v1.4.0) convierte un móvil o tablet de repuesto en una pantalla de inicio pensada para niños: solo las apps y sitios que tú permitas, con límite diario de tiempo de uso, bloqueo a la hora de dormir y salida de emergencia con PIN parental. Elige el mejor modo de aplicación para el dispositivo (o lo defines en **Configuración del dispositivo**).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="Configuración de KidsHome: crear PIN, elegir apps, definir tiempo de pantalla, entrar en modo niño" width="720" />
@@ -47,6 +47,16 @@ Capturas reales de un emulador Android tablet (1280×800) con el nombre de ejemp
 | ![Apps permitidas](docs/screenshots/07-allowed-apps.png) | ![Panel](docs/screenshots/08-main-hub.png) |
 | Elegir apps de la cuadrícula | Pantalla principal de KidsHome |
 
+| Horarios | Límites por app | Ganar tiempo |
+|:---:|:---:|:---:|
+| ![Schedules](docs/screenshots/09-schedules.png) | ![App limits](docs/screenshots/10-app-limits.png) | ![Earn time](docs/screenshots/11-earn-time.png) |
+| Rutinas y categorías | Minutos diarios por app | Tareas y minutos extra |
+
+| Informe semanal | Celebración | Hora de dormir |
+|:---:|:---:|:---:|
+| ![Report](docs/screenshots/12-weekly-report.png) | ![Celebration](docs/screenshots/13-star-celebration.png) | ![Bedtime](docs/screenshots/14-bedtime.png) |
+| Gráfico de uso local | Estrella ganada | Bloqueo amable |
+
 ## Funciones
 
 - **Tres modos de aplicación** (detección automática, con anulación manual):
@@ -55,6 +65,10 @@ Capturas reales de un emulador Android tablet (1280×800) con el nombre de ejemp
   - Device Owner + lock task — quiosco más fuerte
 - **Inicio infantil** — cuadrícula de iconos grandes de apps y accesos a sitios, o bloquear en una sola app
 - **Tiempo de pantalla** — límite diario, franja de sueño, aviso, bloqueo amable, PIN para añadir tiempo / desactivar por hoy
+- **Horarios / rutinas** — ventanas por día (colegio, lectura, dormir) con categorías de apps
+- **Límites por app** — minutos diarios por app permitida además del límite total; mosaicos bloqueados al agotarse
+- **Ganar tiempo / estrellas** — minutos extra con PIN y lista de tareas con celebración + contador de estrellas
+- **Informe semanal** — historial local por app/día (~4 semanas), gráfico Canvas, borrar / exportar CSV
 - **Salida de emergencia con PIN** — 5 toques en la esquina superior derecha (overlay) o mantener Atrás ~3 s; en Device Owner llama a `stopLockTask` correctamente
 - Sobrevive al reinicio; avisa si la accesibilidad está desactivada cuando el modo la necesita
 - Bloqueo opcional por accesibilidad de apps no permitidas como **capa extra** en modos lanzador / Device Owner
@@ -140,14 +154,18 @@ Device Owner solo se puede configurar si el dispositivo **no tiene cuentas** (qu
    - `startLockTask` desde el inicio infantil (quiosco)
 5. La salida de emergencia con PIN llama a `stopLockTask` y puede desactivar el modo niño.
 
-## Tiempo de pantalla y hora de dormir
+## Tiempo de pantalla, horarios y ganar tiempo
 
-En los ajustes de **Modo niño** puedes activar:
+En el **panel parental** (protegido con PIN) puedes configurar:
 
 - **Límite diario de tiempo de pantalla** (minutos) — el inicio muestra el tiempo restante; al agotarse aparece el bloqueo “Tiempo agotado”.
 - **Bloqueo a la hora de dormir** — franja de sueño (p. ej. 20:00–07:00); durante ese periodo el mensaje es “Es hora de dormir”.
+- **Horarios / rutinas** — ventanas por día que muestran solo ciertas categorías o bloquean todo hasta la mañana.
+- **Límites por app** — p. ej. 30 min/día para vídeo, ilimitado para educación.
+- **Ganar tiempo** — conceder minutos extra (total o por app) o marcar tareas de la lista para dar estrellas.
+- **Informe semanal** — uso local por día/app, totales vs límites, borrar historial, CSV opcional.
 
-Los padres desbloquean con el PIN para añadir 15/30 minutos, desactivar el límite por hoy o la hora de dormir esta noche.
+Los padres desbloquean con el PIN para añadir 15/30 minutos, desactivar el límite por hoy o la hora de dormir esta noche. Todo queda en el dispositivo (sin red / analytics / nube).
 
 ## Salida de emergencia con PIN
 
@@ -235,8 +253,8 @@ Consulta `keystore/README.md`.
 2. Sube una etiqueta `vX.Y.Z`:
 
    ```bash
-   git tag v1.3.0
-   git push origin v1.3.0
+   git tag v1.4.0
+   git push origin v1.4.0
    ```
 
 3. GitHub Actions (`.github/workflows/android.yml`) genera el APK de release y lo adjunta al GitHub Release.
@@ -252,3 +270,7 @@ Regeneración de capturas / GIF (opcional): ver [`.github/workflows/screenshots.
 KidsHome se publica bajo la **GNU GPL v3** — ver [LICENSE](LICENSE).
 
 Créditos: BaronKiko (LauncherHijack), Meems33 / WhiteRaven777 (Launcher Replacer).
+
+## Changelog
+
+Ver [CHANGELOG.md](CHANGELOG.md) para notas de la versión (actual: **1.4.0**).

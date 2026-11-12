@@ -10,7 +10,7 @@ import android.os.PowerManager;
 import android.util.Log;
 
 /**
- * Tracks kid-mode screen-on usage, bedtime windows, warnings, and lock screen.
+ * Tracks kid-mode screen-on usage, bedtime windows, per-app usage, warnings, and lock screen.
  * Persists frequently so reboot / process death do not lose the count.
  */
 public final class ScreenTimeTracker {
@@ -24,10 +24,12 @@ public final class ScreenTimeTracker {
 
     public static void tick(Context context) {
         Context app = context.getApplicationContext();
+        Prefs.migrateIfNeeded(app);
         Prefs.ensureScreenTimeDay(app);
 
         if (!Prefs.isKidModeEnabled(app)) {
             Prefs.setLastScreenTickMs(app, 0L);
+            Prefs.setForegroundTrackPackage(app, "");
             return;
         }
 
@@ -35,16 +37,20 @@ public final class ScreenTimeTracker {
         long now = System.currentTimeMillis();
         long last = Prefs.getLastScreenTickMs(app);
 
-        if (screenOn && Prefs.isScreenTimeEnabled(app) && !Prefs.isScreenTimeDisabledToday(app)) {
-            if (last > 0L) {
-                long delta = now - last;
-                if (delta > 0L && delta <= MAX_DELTA_MS) {
+        if (screenOn && last > 0L) {
+            long delta = now - last;
+            if (delta > 0L && delta <= MAX_DELTA_MS) {
+                if (Prefs.isScreenTimeEnabled(app) && !Prefs.isScreenTimeDisabledToday(app)) {
                     Prefs.addUsedMillisToday(app, delta);
+                }
+                String fg = resolveForegroundPackage(app);
+                if (fg != null && !fg.isEmpty() && !fg.equals(app.getPackageName())) {
+                    Prefs.addAppUsedMillisToday(app, fg, delta);
+                    Prefs.setForegroundTrackPackage(app, fg);
                 }
             }
         }
         Prefs.setLastScreenTickMs(app, now);
-        // Persist often so kills lose at most ~one tick.
         Prefs.flushScreenTime(app);
 
         if (isBlocked(app)) {
@@ -55,27 +61,20 @@ public final class ScreenTimeTracker {
         maybeWarn(app);
     }
 
+    private static String resolveForegroundPackage(Context context) {
+        String tracked = Prefs.getForegroundTrackPackage(context);
+        String last = AccServ.lastApp;
+        if (last != null && !last.isEmpty()
+                && !last.equals(context.getPackageName())
+                && !"com.android.systemui".equals(last)
+                && !"android".equals(last)) {
+            return last;
+        }
+        return tracked;
+    }
+
     public static boolean isBlocked(Context context) {
-        if (!Prefs.isKidModeEnabled(context)) {
-            return false;
-        }
-        if (Prefs.isBedtimeEnabled(context)
-                && !Prefs.isBedtimeDisabledToday(context)
-                && ScreenTimeState.isInBedtimeWindow(
-                ScreenTimeState.minutesOfDayNow(),
-                Prefs.getBedtimeStartMinutes(context),
-                Prefs.getBedtimeEndMinutes(context))) {
-            return true;
-        }
-        if (Prefs.isScreenTimeEnabled(context) && !Prefs.isScreenTimeDisabledToday(context)) {
-            long limit = Prefs.getDailyLimitMinutes(context) * 60L * 1000L;
-            return ScreenTimeState.isDailyLimitReached(
-                    Prefs.getUsedMillisToday(context),
-                    Prefs.getBonusMillisToday(context),
-                    limit
-            );
-        }
-        return false;
+        return currentBlockReason(context) != BlockReason.NONE;
     }
 
     public static long remainingMillis(Context context) {
@@ -102,6 +101,13 @@ public final class ScreenTimeTracker {
         if (rem == Long.MAX_VALUE) {
             return context.getString(R.string.screen_time_off);
         }
+        return formatMillis(context, rem);
+    }
+
+    public static String formatMillis(Context context, long rem) {
+        if (rem == Long.MAX_VALUE) {
+            return context.getString(R.string.app_time_unlimited);
+        }
         long totalSec = rem / 1000L;
         long h = totalSec / 3600L;
         long m = (totalSec % 3600L) / 60L;
@@ -111,16 +117,34 @@ public final class ScreenTimeTracker {
         return context.getString(R.string.screen_time_remaining_m, m);
     }
 
+    public static String formatAppRemainingShort(Context context, String packageName) {
+        if (packageName == null || packageName.isEmpty()) {
+            return "";
+        }
+        int limit = Prefs.getAppLimitMinutes(context, packageName);
+        if (limit < 0) {
+            return "";
+        }
+        long rem = Prefs.remainingAppMillis(context, packageName);
+        if (rem <= 0L) {
+            return context.getString(R.string.app_time_zero);
+        }
+        long minutes = Math.max(1L, (rem + 59_999L) / 60_000L);
+        return context.getString(R.string.app_time_left_short, minutes);
+    }
+
     public static BlockReason currentBlockReason(Context context) {
         if (!Prefs.isKidModeEnabled(context)) {
             return BlockReason.NONE;
         }
-        if (Prefs.isBedtimeEnabled(context)
-                && !Prefs.isBedtimeDisabledToday(context)
-                && ScreenTimeState.isInBedtimeWindow(
-                ScreenTimeState.minutesOfDayNow(),
+        RuleEngine.ScheduleDecision schedule = Prefs.currentScheduleDecision(context);
+        if (RuleEngine.isAnyBedtimeActive(
+                Prefs.isBedtimeEnabled(context),
+                Prefs.isBedtimeDisabledToday(context),
                 Prefs.getBedtimeStartMinutes(context),
-                Prefs.getBedtimeEndMinutes(context))) {
+                Prefs.getBedtimeEndMinutes(context),
+                ScreenTimeState.minutesOfDayNow(),
+                schedule)) {
             return BlockReason.BEDTIME;
         }
         if (Prefs.isScreenTimeEnabled(context)
@@ -132,6 +156,25 @@ public final class ScreenTimeTracker {
             return BlockReason.DAILY_LIMIT;
         }
         return BlockReason.NONE;
+    }
+
+    /**
+     * Whether a specific allowed package may be launched right now.
+     * Considers schedule category filters and per-app limits.
+     */
+    public static boolean canLaunchApp(Context context, String packageName) {
+        if (packageName == null || packageName.isEmpty()) {
+            return false;
+        }
+        if (isBlocked(context)) {
+            return false;
+        }
+        RuleEngine.ScheduleDecision schedule = Prefs.currentScheduleDecision(context);
+        AppCategory category = Prefs.getAppCategory(context, packageName);
+        if (!RuleEngine.isAllowedBySchedule(schedule, category)) {
+            return false;
+        }
+        return !Prefs.isAppLimitReached(context, packageName);
     }
 
     private static void maybeWarn(Context context) {

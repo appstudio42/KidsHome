@@ -98,6 +98,18 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra(KidModeActivity.EXTRA_SCROLL_TO_TIME, true);
                     startActivity(intent);
                 });
+        bindHubCard(R.id.cardSchedules, R.drawable.ic_section_schedule,
+                R.string.section_schedules, R.string.section_schedules_sub,
+                v -> startActivity(new Intent(this, SchedulesActivity.class)));
+        bindHubCard(R.id.cardAppLimits, R.drawable.ic_section_limits,
+                R.string.section_app_limits, R.string.section_app_limits_sub,
+                v -> startActivity(new Intent(this, AppLimitsActivity.class)));
+        bindHubCard(R.id.cardEarn, R.drawable.ic_section_stars,
+                R.string.section_earn_time, R.string.section_earn_time_sub,
+                v -> startActivity(new Intent(this, EarnTimeActivity.class)));
+        bindHubCard(R.id.cardReport, R.drawable.ic_section_report,
+                R.string.section_weekly_report, R.string.section_weekly_report_sub,
+                v -> startActivity(new Intent(this, WeeklyReportActivity.class)));
         bindHubCard(R.id.cardDevice, R.drawable.ic_section_device,
                 R.string.section_device_setup, R.string.section_device_setup_sub,
                 v -> startActivity(new Intent(this, SetupActivity.class)));

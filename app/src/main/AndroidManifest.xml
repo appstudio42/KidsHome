@@ -123,6 +123,26 @@
             android:exported="false"
             android:parentActivityName=".KidModeActivity" />
 
+        <activity
+            android:name=".SchedulesActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".AppLimitsActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".EarnTimeActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".WeeklyReportActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
         <service
             android:name=".AccServ"
             android:exported="true"

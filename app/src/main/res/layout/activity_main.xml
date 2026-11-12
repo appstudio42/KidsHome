@@ -66,6 +66,22 @@
                 layout="@layout/item_hub_card" />
 
             <include
+                android:id="@+id/cardSchedules"
+                layout="@layout/item_hub_card" />
+
+            <include
+                android:id="@+id/cardAppLimits"
+                layout="@layout/item_hub_card" />
+
+            <include
+                android:id="@+id/cardEarn"
+                layout="@layout/item_hub_card" />
+
+            <include
+                android:id="@+id/cardReport"
+                layout="@layout/item_hub_card" />
+
+            <include
                 android:id="@+id/cardDevice"
                 layout="@layout/item_hub_card" />
 

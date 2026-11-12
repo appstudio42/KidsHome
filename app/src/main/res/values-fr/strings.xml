@@ -223,4 +223,108 @@
     <string name="cd_pin_backspace">Effacer le dernier chiffre</string>
     <string name="cd_child_avatar">Avatar de l’enfant %1$s</string>
     <string name="cd_allowed_app_row">Autoriser l’app %1$s</string>
+    <!-- v1.4.0 -->
+    <string name="section_schedules">Horaires / routines</string>
+    <string name="section_schedules_sub">Créneaux par jour et catégories d’apps</string>
+    <string name="section_app_limits">Limites par app</string>
+    <string name="section_app_limits_sub">Minutes quotidiennes pour chaque app autorisée</string>
+    <string name="section_earn_time">Gagner du temps / étoiles</string>
+    <string name="section_earn_time_sub">Minutes bonus et liste de tâches</string>
+    <string name="section_weekly_report">Rapport hebdomadaire</string>
+    <string name="section_weekly_report_sub">Historique local, graphiques et export CSV</string>
+    <string name="schedules_title">Horaires</string>
+    <string name="schedules_help">Définissez des créneaux pour les matins d’école, la lecture ou le coucher. Hors créneau, la liste autorisée et les limites normales s’appliquent.</string>
+    <string name="schedules_enable">Activer les horaires</string>
+    <string name="schedules_add">Ajouter un créneau</string>
+    <string name="schedules_edit">Modifier l’horaire</string>
+    <string name="schedules_saved">Horaires enregistrés</string>
+    <string name="schedule_name_hint">Nom (ex. Matin d’école)</string>
+    <string name="schedule_name_required">Saisissez un nom pour ce créneau</string>
+    <string name="schedule_pick_days">Quels jours ?</string>
+    <string name="schedule_pick_times">Choisir les heures</string>
+    <string name="schedule_pick_mode">Que doit-il se passer ?</string>
+    <string name="schedule_pick_categories">Catégories autorisées</string>
+    <string name="schedule_mode_categories">Catégories sélectionnées uniquement</string>
+    <string name="schedule_mode_bedtime">Tout bloquer (coucher)</string>
+    <string name="schedule_summary_filter">%1$s · %2$s–%3$s · %4$s</string>
+    <string name="schedule_summary_bedtime">%1$s · %2$s–%3$s · coucher</string>
+    <string name="schedule_active_banner">Routine : %1$s</string>
+    <string name="categories_section">Catégories d’apps</string>
+    <string name="categories_help">Classez les apps autorisées pour que les règles affichent Jeux, Éducation, Vidéo ou Autre.</string>
+    <string name="categories_empty">Ajoutez d’abord des apps autorisées, puis assignez des catégories ici.</string>
+    <string name="category_games">Jeux</string>
+    <string name="category_education">Éducation / Lecture</string>
+    <string name="category_video">Vidéo</string>
+    <string name="category_other">Autre</string>
+    <string name="app_limits_title">Limites par app</string>
+    <string name="app_limits_help">Définissez une limite quotidienne en minutes pour chaque app autorisée. Les apps illimitées ne sont jamais verrouillées par cette règle. Les limites s’ajoutent à la limite totale.</string>
+    <string name="app_limits_saved">Limites par app enregistrées</string>
+    <string name="app_limit_hint">Minutes par jour</string>
+    <string name="app_limit_dialog_message">Saisissez les minutes par jour, ou choisissez Illimité.</string>
+    <string name="app_limit_unlimited">Illimité</string>
+    <string name="app_limit_invalid">Saisissez un nombre de minutes valide</string>
+    <string name="app_limit_summary_fmt">%1$d min / jour · %2$d min restantes</string>
+    <string name="app_limit_minutes_fmt">%1$d min / jour</string>
+    <string name="app_limit_preset_15">15</string>
+    <string name="app_limit_preset_30">30</string>
+    <string name="app_limit_preset_60">60</string>
+    <string name="app_time_unlimited">Illimité</string>
+    <string name="app_time_zero">0 min</string>
+    <string name="app_time_left_short">%1$d min</string>
+    <string name="app_limit_reached_toast">Le temps de cette app est écoulé pour aujourd’hui</string>
+    <string name="cd_app_locked">%1$s verrouillée</string>
+    <string name="earn_title">Gagner du temps</string>
+    <string name="earn_help">Accordez des minutes bonus après des tâches, ou définissez une liste. Terminer une tâche donne une étoile et les minutes configurées.</string>
+    <string name="earn_grant_now">Accorder des minutes maintenant</string>
+    <string name="earn_grant_title">Accorder %1$d minutes à…</string>
+    <string name="earn_granted">%1$d minutes bonus ajoutées</string>
+    <string name="earn_target_total">Temps d’écran total</string>
+    <string name="earn_tasks_section">Liste de tâches</string>
+    <string name="earn_add_task">Ajouter une tâche</string>
+    <string name="earn_task_title_hint">Nom de la tâche (ex. se brosser les dents)</string>
+    <string name="earn_task_minutes_hint">Minutes de récompense</string>
+    <string name="earn_task_title_required">Saisissez un nom de tâche</string>
+    <string name="earn_reward_total">+%1$d min (total)</string>
+    <string name="earn_reward_app">+%1$d min (%2$s)</string>
+    <string name="earn_task_completed">Bravo ! +%1$d minutes gagnées</string>
+    <string name="earn_stars_summary">★ %1$d étoiles au total · %2$d aujourd’hui</string>
+    <string name="earn_celebration_title">Tu as gagné une étoile !</string>
+    <string name="earn_celebration_minutes">+%1$d minutes bonus</string>
+    <string name="stars_counter">★ %1$d étoiles</string>
+    <string name="cd_stars">%1$d étoiles gagnées</string>
+    <string name="report_title">Rapport hebdomadaire</string>
+    <string name="report_per_day">Cette semaine par jour</string>
+    <string name="report_per_app">Cette semaine par app</string>
+    <string name="report_summary_fmt">Cette semaine : %1$s · ★ %2$d étoiles · limite quotidienne %3$d min</string>
+    <string name="report_duration_hm">%1$dh %2$dm</string>
+    <string name="report_duration_m">%1$d min</string>
+    <string name="report_app_line_fmt">%1$s utilisés · limite %2$s</string>
+    <string name="report_limit_fmt">%1$d min</string>
+    <string name="report_empty">Aucune utilisation enregistrée cette semaine.</string>
+    <string name="report_export_csv">Exporter CSV</string>
+    <string name="report_export_subject">Rapport d’utilisation KidsHome</string>
+    <string name="report_export_failed">Impossible de partager le rapport</string>
+    <string name="report_clear">Effacer l’historique</string>
+    <string name="report_clear_confirm">Supprimer environ 4 semaines d’historique local ? Cette action est irréversible.</string>
+    <string name="report_cleared">Historique d’utilisation effacé</string>
+    <string name="edit">Modifier</string>
+    <string name="delete">Supprimer</string>
+    <string-array name="weekday_short">
+        <item>Dim</item>
+        <item>Lun</item>
+        <item>Mar</item>
+        <item>Mer</item>
+        <item>Jeu</item>
+        <item>Ven</item>
+        <item>Sam</item>
+    </string-array>
+    <string-array name="weekday_full">
+        <item>Dimanche</item>
+        <item>Lundi</item>
+        <item>Mardi</item>
+        <item>Mercredi</item>
+        <item>Jeudi</item>
+        <item>Vendredi</item>
+        <item>Samedi</item>
+    </string-array>
 </resources>

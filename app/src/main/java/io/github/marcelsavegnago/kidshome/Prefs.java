@@ -6,8 +6,10 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -45,7 +47,7 @@ public final class Prefs {
     public static final String KEY_TOUCH_SOUNDS = "KidTouchSounds";
     public static final String KEY_PREFS_VERSION = "PrefsVersion";
     /** Schema version for forward-compatible migrations. Existing installs stay at v0 until migrate. */
-    public static final int CURRENT_PREFS_VERSION = 1;
+    public static final int CURRENT_PREFS_VERSION = 2;
 
     public static final String KEY_SCREEN_TIME_ENABLED = "ScreenTimeEnabled";
     public static final String KEY_DAILY_LIMIT_MINUTES = "DailyLimitMinutes";
@@ -64,6 +66,21 @@ public final class Prefs {
     public static final String KEY_A11Y_EXTRA_BLOCKING = "AccessibilityExtraBlocking";
     public static final String KEY_LOCK_TASK_DISABLE_STATUS_BAR = "LockTaskDisableStatusBar";
     public static final String KEY_LOCK_TASK_DISABLE_KEYGUARD = "LockTaskDisableKeyguard";
+
+    // v1.4.0 — schedules, per-app limits, earn-time, usage history
+    public static final String KEY_SCHEDULES_JSON = "SchedulesJson";
+    public static final String KEY_SCHEDULES_ENABLED = "SchedulesEnabled";
+    public static final String KEY_APP_CATEGORIES_JSON = "AppCategoriesJson";
+    public static final String KEY_APP_LIMITS_JSON = "AppLimitsJson";
+    public static final String KEY_APP_USED_JSON = "AppUsedMillisTodayJson";
+    public static final String KEY_APP_BONUS_JSON = "AppBonusMillisTodayJson";
+    public static final String KEY_EARN_TASKS_JSON = "EarnTasksJson";
+    public static final String KEY_EARN_DONE_JSON = "EarnTasksDoneDayJson";
+    public static final String KEY_STARS_TOTAL = "StarsTotal";
+    public static final String KEY_STARS_TODAY = "StarsToday";
+    public static final String KEY_USAGE_HISTORY_JSON = "UsageHistoryJson";
+    public static final String KEY_PENDING_CELEBRATION = "PendingCelebrationMinutes";
+    public static final String KEY_FOREGROUND_PKG = "ForegroundTrackPackage";
 
     private Prefs() {
     }
@@ -120,16 +137,55 @@ public final class Prefs {
         }
         SharedPreferences.Editor editor = prefs.edit();
         // v1: ensure avatar + onboarding defaults exist; keep all prior keys untouched.
-        if (!prefs.contains(KEY_CHILD_AVATAR)) {
-            editor.putString(KEY_CHILD_AVATAR, ChildAvatars.DEFAULT);
+        if (version < 1) {
+            if (!prefs.contains(KEY_CHILD_AVATAR)) {
+                editor.putString(KEY_CHILD_AVATAR, ChildAvatars.DEFAULT);
+            }
+            if (!prefs.contains(KEY_ONBOARDING_DONE)) {
+                // Existing installs that already have a PIN or kid mode skip the wizard.
+                boolean skip = prefs.getBoolean(KEY_KID_MODE, false) || hasKidPin(context);
+                editor.putBoolean(KEY_ONBOARDING_DONE, skip);
+            }
+            if (!prefs.contains(KEY_TOUCH_SOUNDS)) {
+                editor.putBoolean(KEY_TOUCH_SOUNDS, false);
+            }
         }
-        if (!prefs.contains(KEY_ONBOARDING_DONE)) {
-            // Existing installs that already have a PIN or kid mode skip the wizard.
-            boolean skip = prefs.getBoolean(KEY_KID_MODE, false) || hasKidPin(context);
-            editor.putBoolean(KEY_ONBOARDING_DONE, skip);
-        }
-        if (!prefs.contains(KEY_TOUCH_SOUNDS)) {
-            editor.putBoolean(KEY_TOUCH_SOUNDS, false);
+        // v2: schedules / per-app limits / earn-time / usage history defaults.
+        // Existing PIN, allowlist, total limit, and bedtime keys are never cleared.
+        if (version < 2) {
+            if (!prefs.contains(KEY_SCHEDULES_JSON)) {
+                editor.putString(KEY_SCHEDULES_JSON, "[]");
+            }
+            if (!prefs.contains(KEY_SCHEDULES_ENABLED)) {
+                editor.putBoolean(KEY_SCHEDULES_ENABLED, false);
+            }
+            if (!prefs.contains(KEY_APP_CATEGORIES_JSON)) {
+                editor.putString(KEY_APP_CATEGORIES_JSON, "{}");
+            }
+            if (!prefs.contains(KEY_APP_LIMITS_JSON)) {
+                editor.putString(KEY_APP_LIMITS_JSON, "{}");
+            }
+            if (!prefs.contains(KEY_APP_USED_JSON)) {
+                editor.putString(KEY_APP_USED_JSON, "{}");
+            }
+            if (!prefs.contains(KEY_APP_BONUS_JSON)) {
+                editor.putString(KEY_APP_BONUS_JSON, "{}");
+            }
+            if (!prefs.contains(KEY_EARN_TASKS_JSON)) {
+                editor.putString(KEY_EARN_TASKS_JSON, "[]");
+            }
+            if (!prefs.contains(KEY_EARN_DONE_JSON)) {
+                editor.putString(KEY_EARN_DONE_JSON, "{}");
+            }
+            if (!prefs.contains(KEY_STARS_TOTAL)) {
+                editor.putInt(KEY_STARS_TOTAL, 0);
+            }
+            if (!prefs.contains(KEY_STARS_TODAY)) {
+                editor.putInt(KEY_STARS_TODAY, 0);
+            }
+            if (!prefs.contains(KEY_USAGE_HISTORY_JSON)) {
+                editor.putString(KEY_USAGE_HISTORY_JSON, "{\"days\":{}}");
+            }
         }
         editor.putInt(KEY_PREFS_VERSION, CURRENT_PREFS_VERSION);
         editor.commit();
@@ -379,18 +435,68 @@ public final class Prefs {
 
     public static void ensureScreenTimeDay(Context context) {
         String today = ScreenTimeState.dayKeyNow();
-        String stored = get(context).getString(KEY_USAGE_DAY, "");
+        SharedPreferences prefs = get(context);
+        String stored = prefs.getString(KEY_USAGE_DAY, "");
         if (today.equals(stored)) {
             return;
+        }
+        // Archive the previous day's totals into usage history before resetting.
+        if (stored != null && !stored.isEmpty()) {
+            archiveDayLocked(context, stored,
+                    prefs.getLong(KEY_USED_MILLIS, 0L),
+                    PrefsMaps.longMapFromJson(prefs.getString(KEY_APP_USED_JSON, "{}")),
+                    prefs.getInt(KEY_STARS_TODAY, 0));
         }
         get(context).edit()
                 .putString(KEY_USAGE_DAY, today)
                 .putLong(KEY_USED_MILLIS, 0L)
                 .putLong(KEY_BONUS_MILLIS, 0L)
+                .putString(KEY_APP_USED_JSON, "{}")
+                .putString(KEY_APP_BONUS_JSON, "{}")
+                .putString(KEY_EARN_DONE_JSON, "{}")
+                .putInt(KEY_STARS_TODAY, 0)
                 .putString(KEY_WARN_SHOWN_DAY, "")
                 .putString(KEY_ST_DISABLED_DAY, "")
                 .putString(KEY_BT_DISABLED_DAY, "")
                 .putLong(KEY_LAST_TICK, 0L)
+                .putString(KEY_FOREGROUND_PKG, "")
+                .commit();
+    }
+
+    private static void archiveDayLocked(
+            Context context,
+            String dayKey,
+            long totalMillis,
+            Map<String, Long> appMillis,
+            int starsToday
+    ) {
+        Map<String, UsageHistory.DayUsage> history = UsageHistory.fromJson(
+                get(context).getString(KEY_USAGE_HISTORY_JSON, "{\"days\":{}}"));
+        UsageHistory.DayUsage existing = history.get(dayKey);
+        Map<String, Long> merged = new HashMap<>();
+        if (existing != null) {
+            merged.putAll(existing.appMillis);
+        }
+        if (appMillis != null) {
+            for (Map.Entry<String, Long> e : appMillis.entrySet()) {
+                long prev = merged.containsKey(e.getKey()) ? merged.get(e.getKey()) : 0L;
+                long next = e.getValue() == null ? 0L : e.getValue();
+                // Prefer the fresher per-app counters from today prefs when rolling over.
+                merged.put(e.getKey(), Math.max(prev, next));
+            }
+        }
+        long archivedTotal = totalMillis;
+        if (existing != null && existing.totalMillis > archivedTotal) {
+            archivedTotal = existing.totalMillis;
+        }
+        int stars = starsToday;
+        if (existing != null && existing.starsEarned > stars) {
+            stars = existing.starsEarned;
+        }
+        history.put(dayKey, new UsageHistory.DayUsage(dayKey, merged, archivedTotal, stars));
+        history = UsageHistory.prune(history, ScreenTimeState.dayKeyNow());
+        get(context).edit()
+                .putString(KEY_USAGE_HISTORY_JSON, UsageHistory.toJson(history))
                 .commit();
     }
 
@@ -517,9 +623,310 @@ public final class Prefs {
                 .apply();
     }
 
+    // --- v1.4.0 schedules / categories / per-app limits / earn / history ---
+
+    public static boolean isSchedulesEnabled(Context context) {
+        return get(context).getBoolean(KEY_SCHEDULES_ENABLED, false);
+    }
+
+    public static void setSchedulesEnabled(Context context, boolean enabled) {
+        get(context).edit().putBoolean(KEY_SCHEDULES_ENABLED, enabled).commit();
+    }
+
+    public static List<ScheduleWindow> getSchedules(Context context) {
+        return ScheduleWindow.fromJson(get(context).getString(KEY_SCHEDULES_JSON, "[]"));
+    }
+
+    public static void setSchedules(Context context, List<ScheduleWindow> windows) {
+        get(context).edit()
+                .putString(KEY_SCHEDULES_JSON, ScheduleWindow.toJson(windows == null
+                        ? new ArrayList<ScheduleWindow>() : windows))
+                .commit();
+    }
+
+    public static Map<String, AppCategory> getAppCategories(Context context) {
+        return PrefsMaps.categoryMapFromJson(get(context).getString(KEY_APP_CATEGORIES_JSON, "{}"));
+    }
+
+    public static void setAppCategories(Context context, Map<String, AppCategory> categories) {
+        get(context).edit()
+                .putString(KEY_APP_CATEGORIES_JSON, PrefsMaps.categoryMapToJson(categories))
+                .commit();
+    }
+
+    public static void setAppCategory(Context context, String packageName, AppCategory category) {
+        if (packageName == null || packageName.isEmpty()) {
+            return;
+        }
+        Map<String, AppCategory> map = getAppCategories(context);
+        map.put(packageName, category == null ? AppCategory.OTHER : category);
+        setAppCategories(context, map);
+    }
+
+    public static AppCategory getAppCategory(Context context, String packageName) {
+        return RuleEngine.getAppCategory(getAppCategories(context), packageName);
+    }
+
+    public static Map<String, Integer> getAppLimits(Context context) {
+        return PrefsMaps.intMapFromJson(get(context).getString(KEY_APP_LIMITS_JSON, "{}"));
+    }
+
+    public static void setAppLimits(Context context, Map<String, Integer> limits) {
+        get(context).edit()
+                .putString(KEY_APP_LIMITS_JSON, PrefsMaps.intMapToJson(limits))
+                .commit();
+    }
+
+    public static void setAppLimitMinutes(Context context, String packageName, int minutes) {
+        if (packageName == null || packageName.isEmpty()) {
+            return;
+        }
+        Map<String, Integer> map = getAppLimits(context);
+        if (minutes < 0) {
+            map.remove(packageName);
+        } else {
+            map.put(packageName, minutes);
+        }
+        setAppLimits(context, map);
+    }
+
+    public static int getAppLimitMinutes(Context context, String packageName) {
+        return RuleEngine.getAppLimitMinutes(getAppLimits(context), packageName);
+    }
+
+    public static Map<String, Long> getAppUsedMillisToday(Context context) {
+        ensureScreenTimeDay(context);
+        return PrefsMaps.longMapFromJson(get(context).getString(KEY_APP_USED_JSON, "{}"));
+    }
+
+    public static long getAppUsedMillisToday(Context context, String packageName) {
+        Long value = getAppUsedMillisToday(context).get(packageName);
+        return value == null ? 0L : Math.max(0L, value);
+    }
+
+    public static void addAppUsedMillisToday(Context context, String packageName, long delta) {
+        if (packageName == null || packageName.isEmpty() || delta <= 0L) {
+            return;
+        }
+        ensureScreenTimeDay(context);
+        Map<String, Long> map = getAppUsedMillisToday(context);
+        long prev = map.containsKey(packageName) ? map.get(packageName) : 0L;
+        map.put(packageName, prev + delta);
+        get(context).edit().putString(KEY_APP_USED_JSON, PrefsMaps.longMapToJson(map)).apply();
+    }
+
+    public static Map<String, Long> getAppBonusMillisToday(Context context) {
+        ensureScreenTimeDay(context);
+        return PrefsMaps.longMapFromJson(get(context).getString(KEY_APP_BONUS_JSON, "{}"));
+    }
+
+    public static long getAppBonusMillisToday(Context context, String packageName) {
+        Long value = getAppBonusMillisToday(context).get(packageName);
+        return value == null ? 0L : Math.max(0L, value);
+    }
+
+    public static void addAppBonusMinutes(Context context, String packageName, int minutes) {
+        if (packageName == null || packageName.isEmpty() || minutes <= 0) {
+            return;
+        }
+        ensureScreenTimeDay(context);
+        Map<String, Long> map = getAppBonusMillisToday(context);
+        long prev = map.containsKey(packageName) ? map.get(packageName) : 0L;
+        map.put(packageName, RuleEngine.addBonusMillis(prev, minutes));
+        get(context).edit().putString(KEY_APP_BONUS_JSON, PrefsMaps.longMapToJson(map)).commit();
+    }
+
+    public static long remainingAppMillis(Context context, String packageName) {
+        ensureScreenTimeDay(context);
+        int limit = getAppLimitMinutes(context, packageName);
+        return RuleEngine.remainingAppMillis(
+                getAppUsedMillisToday(context, packageName),
+                getAppBonusMillisToday(context, packageName),
+                limit
+        );
+    }
+
+    public static boolean isAppLimitReached(Context context, String packageName) {
+        int limit = getAppLimitMinutes(context, packageName);
+        return RuleEngine.isAppLimitReached(
+                getAppUsedMillisToday(context, packageName),
+                getAppBonusMillisToday(context, packageName),
+                limit
+        );
+    }
+
+    public static List<EarnTask> getEarnTasks(Context context) {
+        return EarnTask.fromJson(get(context).getString(KEY_EARN_TASKS_JSON, "[]"));
+    }
+
+    public static void setEarnTasks(Context context, List<EarnTask> tasks) {
+        get(context).edit()
+                .putString(KEY_EARN_TASKS_JSON, EarnTask.toJson(tasks == null
+                        ? new ArrayList<EarnTask>() : tasks))
+                .commit();
+    }
+
+    public static Map<String, Boolean> getEarnTasksDoneToday(Context context) {
+        ensureScreenTimeDay(context);
+        Map<String, Boolean> result = new HashMap<>();
+        Map<String, String> raw = PrefsMaps.stringMapFromJson(
+                get(context).getString(KEY_EARN_DONE_JSON, "{}"));
+        for (Map.Entry<String, String> e : raw.entrySet()) {
+            result.put(e.getKey(), "1".equals(e.getValue()) || "true".equalsIgnoreCase(e.getValue()));
+        }
+        return result;
+    }
+
+    public static boolean isEarnTaskDoneToday(Context context, String taskId) {
+        Boolean done = getEarnTasksDoneToday(context).get(taskId);
+        return done != null && done;
+    }
+
+    /**
+     * Marks a task complete for today, grants bonus minutes, and awards a star.
+     * Returns granted minutes (0 if already done / invalid).
+     */
+    public static int completeEarnTask(Context context, String taskId) {
+        ensureScreenTimeDay(context);
+        if (taskId == null || taskId.isEmpty() || isEarnTaskDoneToday(context, taskId)) {
+            return 0;
+        }
+        EarnTask match = null;
+        for (EarnTask task : getEarnTasks(context)) {
+            if (taskId.equals(task.id) && task.enabled) {
+                match = task;
+                break;
+            }
+        }
+        if (match == null || match.rewardMinutes <= 0) {
+            return 0;
+        }
+        Map<String, String> done = PrefsMaps.stringMapFromJson(
+                get(context).getString(KEY_EARN_DONE_JSON, "{}"));
+        done.put(taskId, "1");
+        SharedPreferences.Editor editor = get(context).edit()
+                .putString(KEY_EARN_DONE_JSON, PrefsMaps.stringMapToJson(done))
+                .putInt(KEY_STARS_TOTAL, getStarsTotal(context) + 1)
+                .putInt(KEY_STARS_TODAY, getStarsToday(context) + 1)
+                .putInt(KEY_PENDING_CELEBRATION, match.rewardMinutes);
+        if (match.rewardsTotal()) {
+            long bonus = get(context).getLong(KEY_BONUS_MILLIS, 0L)
+                    + match.rewardMinutes * 60L * 1000L;
+            editor.putLong(KEY_BONUS_MILLIS, bonus);
+        } else {
+            Map<String, Long> appBonus = getAppBonusMillisToday(context);
+            long prev = appBonus.containsKey(match.rewardTarget) ? appBonus.get(match.rewardTarget) : 0L;
+            appBonus.put(match.rewardTarget, RuleEngine.addBonusMillis(prev, match.rewardMinutes));
+            editor.putString(KEY_APP_BONUS_JSON, PrefsMaps.longMapToJson(appBonus));
+        }
+        // Keep today's stars mirrored in live history entry.
+        bumpTodayStarsInHistory(context, getStarsToday(context) + 1);
+        editor.commit();
+        return match.rewardMinutes;
+    }
+
+    public static void grantBonusMinutes(Context context, int minutes, String targetPackageOrTotal) {
+        if (minutes <= 0) {
+            return;
+        }
+        ensureScreenTimeDay(context);
+        if (targetPackageOrTotal == null
+                || targetPackageOrTotal.isEmpty()
+                || EarnTask.TARGET_TOTAL.equals(targetPackageOrTotal)) {
+            addBonusMinutes(context, minutes);
+        } else {
+            addAppBonusMinutes(context, targetPackageOrTotal, minutes);
+        }
+        get(context).edit().putInt(KEY_PENDING_CELEBRATION, minutes).commit();
+    }
+
+    public static int consumePendingCelebration(Context context) {
+        int minutes = get(context).getInt(KEY_PENDING_CELEBRATION, 0);
+        if (minutes > 0) {
+            get(context).edit().putInt(KEY_PENDING_CELEBRATION, 0).commit();
+        }
+        return minutes;
+    }
+
+    public static int getStarsTotal(Context context) {
+        return Math.max(0, get(context).getInt(KEY_STARS_TOTAL, 0));
+    }
+
+    public static int getStarsToday(Context context) {
+        ensureScreenTimeDay(context);
+        return Math.max(0, get(context).getInt(KEY_STARS_TODAY, 0));
+    }
+
+    private static void bumpTodayStarsInHistory(Context context, int starsToday) {
+        String today = ScreenTimeState.dayKeyNow();
+        Map<String, UsageHistory.DayUsage> history = getUsageHistory(context);
+        UsageHistory.DayUsage existing = history.get(today);
+        history.put(today, UsageHistory.withStars(existing, today, starsToday));
+        setUsageHistory(context, history);
+    }
+
+    public static Map<String, UsageHistory.DayUsage> getUsageHistory(Context context) {
+        return UsageHistory.fromJson(get(context).getString(KEY_USAGE_HISTORY_JSON, "{\"days\":{}}"));
+    }
+
+    public static void setUsageHistory(Context context, Map<String, UsageHistory.DayUsage> history) {
+        Map<String, UsageHistory.DayUsage> pruned = UsageHistory.prune(
+                history == null ? new HashMap<String, UsageHistory.DayUsage>() : history,
+                ScreenTimeState.dayKeyNow());
+        get(context).edit()
+                .putString(KEY_USAGE_HISTORY_JSON, UsageHistory.toJson(pruned))
+                .commit();
+    }
+
+    public static void clearUsageHistory(Context context) {
+        get(context).edit()
+                .putString(KEY_USAGE_HISTORY_JSON, "{\"days\":{}}")
+                .commit();
+    }
+
+    /**
+     * Snapshot of "today so far" merged into history for the weekly report UI
+     * without waiting for midnight rollover.
+     */
+    public static Map<String, UsageHistory.DayUsage> getUsageHistoryIncludingToday(Context context) {
+        ensureScreenTimeDay(context);
+        Map<String, UsageHistory.DayUsage> history = new HashMap<>(getUsageHistory(context));
+        String today = ScreenTimeState.dayKeyNow();
+        history.put(today, new UsageHistory.DayUsage(
+                today,
+                getAppUsedMillisToday(context),
+                getUsedMillisToday(context),
+                getStarsToday(context)
+        ));
+        return UsageHistory.prune(history, today);
+    }
+
+    public static String getForegroundTrackPackage(Context context) {
+        return get(context).getString(KEY_FOREGROUND_PKG, "");
+    }
+
+    public static void setForegroundTrackPackage(Context context, String packageName) {
+        get(context).edit()
+                .putString(KEY_FOREGROUND_PKG, packageName == null ? "" : packageName)
+                .apply();
+    }
+
+    public static RuleEngine.ScheduleDecision currentScheduleDecision(Context context) {
+        if (!isSchedulesEnabled(context)) {
+            return RuleEngine.ScheduleDecision.normal();
+        }
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        return RuleEngine.evaluateSchedule(
+                getSchedules(context),
+                cal.get(java.util.Calendar.DAY_OF_WEEK),
+                ScreenTimeState.minutesOfDayNow()
+        );
+    }
+
     private static void ensureDefaults(Context context) {
         if (!isDefaultsLoaded(context)) {
             loadDetectionDefaults(context);
         }
     }
 }
+

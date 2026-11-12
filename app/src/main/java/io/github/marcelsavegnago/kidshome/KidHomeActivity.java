@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.TextView;
@@ -36,8 +37,13 @@ public class KidHomeActivity extends AppCompatActivity {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private TextView greeting;
     private TextView timeLeft;
+    private TextView starsView;
+    private TextView scheduleBanner;
     private TextView avatar;
     private RemainingTimeRing timeRing;
+    private FrameLayout celebrationOverlay;
+    private TextView celebrationMessage;
+    private TextView celebrationStar;
     private KidHomeAdapter adapter;
     private ToneGenerator toneGenerator;
     private boolean entryAnimated;
@@ -45,6 +51,7 @@ public class KidHomeActivity extends AppCompatActivity {
         @Override
         public void run() {
             refreshHeader();
+            refreshGrid();
             if (ScreenTimeTracker.isBlocked(KidHomeActivity.this)) {
                 ScreenTimeLockActivity.launch(KidHomeActivity.this);
             }
@@ -73,8 +80,14 @@ public class KidHomeActivity extends AppCompatActivity {
 
         greeting = findViewById(R.id.kidHomeGreeting);
         timeLeft = findViewById(R.id.kidHomeTimeLeft);
+        starsView = findViewById(R.id.kidHomeStars);
+        scheduleBanner = findViewById(R.id.kidHomeScheduleBanner);
         avatar = findViewById(R.id.kidHomeAvatar);
         timeRing = findViewById(R.id.kidHomeTimeRing);
+        celebrationOverlay = findViewById(R.id.kidCelebrationOverlay);
+        celebrationMessage = findViewById(R.id.kidCelebrationMessage);
+        celebrationStar = findViewById(R.id.kidCelebrationStar);
+        celebrationOverlay.setOnClickListener(v -> hideCelebration());
         GridView grid = findViewById(R.id.kidHomeGrid);
         adapter = new KidHomeAdapter(this);
         applyAdaptiveColumns(grid);
@@ -125,6 +138,7 @@ public class KidHomeActivity extends AppCompatActivity {
         DeviceOwnerHelper.startLockTaskIfNeeded(this);
         refreshHeader();
         refreshGrid();
+        maybeShowCelebration();
         maybeAnimateEntry();
         handler.removeCallbacks(refreshTime);
         handler.post(refreshTime);
@@ -181,7 +195,21 @@ public class KidHomeActivity extends AppCompatActivity {
         avatar.setText(Prefs.getChildAvatar(this));
         avatar.setContentDescription(getString(R.string.cd_child_avatar, Prefs.getChildAvatar(this)));
         timeLeft.setText(ScreenTimeTracker.formatRemaining(this));
+        int stars = Prefs.getStarsTotal(this);
+        starsView.setText(getString(R.string.stars_counter, stars));
+        starsView.setContentDescription(getString(R.string.cd_stars, stars));
+        updateScheduleBanner();
         updateTimeRing();
+    }
+
+    private void updateScheduleBanner() {
+        RuleEngine.ScheduleDecision decision = Prefs.currentScheduleDecision(this);
+        if (decision.mode == RuleEngine.AccessMode.CATEGORY_FILTER && decision.window != null) {
+            scheduleBanner.setVisibility(View.VISIBLE);
+            scheduleBanner.setText(getString(R.string.schedule_active_banner, decision.window.name));
+        } else {
+            scheduleBanner.setVisibility(View.GONE);
+        }
     }
 
     private void updateTimeRing() {
@@ -210,20 +238,36 @@ public class KidHomeActivity extends AppCompatActivity {
         List<KidHomeItem> items = new ArrayList<>();
         PackageManager pm = getPackageManager();
         Set<String> allowed = Prefs.getAllowedPackages(this);
+        RuleEngine.ScheduleDecision schedule = Prefs.currentScheduleDecision(this);
         for (String pkg : allowed) {
             if (pkg == null || pkg.isEmpty()) {
+                continue;
+            }
+            AppCategory category = Prefs.getAppCategory(this, pkg);
+            if (!RuleEngine.isAllowedBySchedule(schedule, category)) {
+                // Hidden during category filter windows (not shown greyed — fully hidden).
                 continue;
             }
             try {
                 ApplicationInfo info = pm.getApplicationInfo(pkg, 0);
                 CharSequence label = info.loadLabel(pm);
-                items.add(KidHomeItem.app(pkg, label != null ? label.toString() : pkg));
+                boolean locked = Prefs.isAppLimitReached(this, pkg);
+                String timeLabel = ScreenTimeTracker.formatAppRemainingShort(this, pkg);
+                items.add(KidHomeItem.app(
+                        pkg,
+                        label != null ? label.toString() : pkg,
+                        locked,
+                        timeLabel
+                ));
             } catch (Exception ignored) {
             }
         }
-        for (SiteShortcut site : Prefs.getSiteShortcuts(this)) {
-            if (site.url != null && !site.url.isEmpty()) {
-                items.add(KidHomeItem.site(site));
+        // Sites stay available outside bedtime (bedtime uses the lock screen).
+        if (schedule.mode != RuleEngine.AccessMode.BEDTIME) {
+            for (SiteShortcut site : Prefs.getSiteShortcuts(this)) {
+                if (site.url != null && !site.url.isEmpty()) {
+                    items.add(KidHomeItem.site(site));
+                }
             }
         }
         adapter.setItems(items);
@@ -238,11 +282,16 @@ public class KidHomeActivity extends AppCompatActivity {
             return;
         }
         if (item.type == KidHomeItem.Type.APP) {
+            if (item.locked || !ScreenTimeTracker.canLaunchApp(this, item.packageName)) {
+                Toast.makeText(this, R.string.app_limit_reached_toast, Toast.LENGTH_SHORT).show();
+                return;
+            }
             Intent launch = getPackageManager().getLaunchIntentForPackage(item.packageName);
             if (launch == null) {
                 Toast.makeText(this, R.string.app_not_found, Toast.LENGTH_SHORT).show();
                 return;
             }
+            Prefs.setForegroundTrackPackage(this, item.packageName);
             launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(launch);
             return;
@@ -256,11 +305,16 @@ public class KidHomeActivity extends AppCompatActivity {
         String browserPkg = Prefs.getBrowserPackage(this);
         String browserAct = Prefs.getBrowserActivity(this);
         if (browserPkg != null && !browserPkg.isEmpty()) {
+            if (!ScreenTimeTracker.canLaunchApp(this, browserPkg)) {
+                Toast.makeText(this, R.string.app_limit_reached_toast, Toast.LENGTH_SHORT).show();
+                return;
+            }
             if (browserAct != null && !browserAct.isEmpty()) {
                 view.setComponent(new ComponentName(browserPkg, browserAct));
             } else {
                 view.setPackage(browserPkg);
             }
+            Prefs.setForegroundTrackPackage(this, browserPkg);
         }
         try {
             startActivity(view);
@@ -273,6 +327,39 @@ public class KidHomeActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.browser_not_found, Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    private void maybeShowCelebration() {
+        int minutes = Prefs.consumePendingCelebration(this);
+        if (minutes <= 0 || celebrationOverlay == null) {
+            return;
+        }
+        celebrationMessage.setText(getString(R.string.earn_celebration_minutes, minutes));
+        celebrationOverlay.setVisibility(View.VISIBLE);
+        celebrationOverlay.setAlpha(0f);
+        celebrationOverlay.animate().alpha(1f).setDuration(250L).start();
+        if (celebrationStar != null && MotionHelper.animationsEnabled(this)) {
+            celebrationStar.setScaleX(0.2f);
+            celebrationStar.setScaleY(0.2f);
+            celebrationStar.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(500L)
+                    .setInterpolator(new OvershootInterpolator())
+                    .start();
+        }
+        handler.postDelayed(this::hideCelebration, 2800L);
+        refreshHeader();
+    }
+
+    private void hideCelebration() {
+        if (celebrationOverlay == null || celebrationOverlay.getVisibility() != View.VISIBLE) {
+            return;
+        }
+        celebrationOverlay.animate().alpha(0f).setDuration(200L).withEndAction(() -> {
+            celebrationOverlay.setVisibility(View.GONE);
+            celebrationOverlay.setAlpha(1f);
+        }).start();
     }
 
     private void playSoftClick() {
