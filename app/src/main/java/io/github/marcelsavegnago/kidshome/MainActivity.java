@@ -326,7 +326,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void openHelp() {
         Intent helpIntent = new Intent(Intent.ACTION_VIEW,
-                Uri.parse("https://github.com/marcelsavegnago/KidsHome#readme"));
+                Uri.parse("https://github.com/appstudio42/KidsHome#readme"));
         startActivity(helpIntent);
     }
 

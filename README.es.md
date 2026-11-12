@@ -9,18 +9,18 @@
 <p align="center"><strong>Un inicio infantil ligero para móviles Android, tablets y Amazon Fire OS.</strong></p>
 
 <p align="center">
-  <a href="https://github.com/marcelsavegnago/KidsHome/releases/latest"><img src="https://img.shields.io/github/v/release/marcelsavegnago/KidsHome?label=latest%20release" alt="Última versión" /></a>
-  <a href="https://github.com/marcelsavegnago/KidsHome/releases"><img src="https://img.shields.io/github/downloads/marcelsavegnago/KidsHome/total" alt="Descargas" /></a>
-  <a href="https://github.com/marcelsavegnago/KidsHome/actions/workflows/android.yml"><img src="https://img.shields.io/github/actions/workflow/status/marcelsavegnago/KidsHome/android.yml?branch=master&label=CI" alt="Estado del CI" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/marcelsavegnago/KidsHome" alt="Licencia" /></a>
+  <a href="https://github.com/appstudio42/KidsHome/releases/latest"><img src="https://img.shields.io/github/v/release/appstudio42/KidsHome?label=latest%20release" alt="Última versión" /></a>
+  <a href="https://github.com/appstudio42/KidsHome/releases"><img src="https://img.shields.io/github/downloads/appstudio42/KidsHome/total" alt="Descargas" /></a>
+  <a href="https://github.com/appstudio42/KidsHome/actions/workflows/android.yml"><img src="https://img.shields.io/github/actions/workflow/status/appstudio42/KidsHome/android.yml?branch=master&label=CI" alt="Estado del CI" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/appstudio42/KidsHome" alt="Licencia" /></a>
   <img src="https://img.shields.io/badge/min%20Android-5.1%20(API%2022)-green" alt="Android mínimo 5.1 API 22" />
 </p>
 
 <p align="center">
-  <a href="https://github.com/marcelsavegnago/KidsHome/releases/latest"><strong>⬇ Descargar APK (última versión)</strong></a>
+  <a href="https://github.com/appstudio42/KidsHome/releases/latest"><strong>⬇ Descargar APK (última versión)</strong></a>
 </p>
 
-KidsHome (v1.4.0) convierte un móvil o tablet de repuesto en una pantalla de inicio pensada para niños: solo las apps y sitios que tú permitas, con límite diario de tiempo de uso, bloqueo a la hora de dormir y salida de emergencia con PIN parental. Elige el mejor modo de aplicación para el dispositivo (o lo defines en **Configuración del dispositivo**).
+KidsHome (v1.4.0) convierte un móvil o tablet de repuesto en una pantalla de inicio pensada para niños: solo las apps y sitios que tú permitas, con límite diario de tiempo de uso, bloqueo a la hora de dormir y salida de emergencia con PIN parental. Elige el mejor modo de aplicación para el dispositivo (o lo defines en **Configuración del dispositivo**). Mantenido por [App Studio 42](https://appstudio42.github.io).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="Configuración de KidsHome: crear PIN, elegir apps, definir tiempo de pantalla, entrar en modo niño" width="720" />
@@ -87,7 +87,7 @@ Fork GPL-3 de [Meems33/LauncherHijack](https://github.com/Meems33/LauncherHijack
 
 ## Inicio rápido
 
-1. Descarga el APK de la [última versión](https://github.com/marcelsavegnago/KidsHome/releases/latest) (o el artefacto `KidsHome-release-apk` de GitHub Actions).
+1. Descarga el APK de la [última versión](https://github.com/appstudio42/KidsHome/releases/latest) (o el artefacto `KidsHome-release-apk` de GitHub Actions).
 2. Instala (la misma firma de prueba del CI conserva los datos al actualizar):
 
    ```bash

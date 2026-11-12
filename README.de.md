@@ -9,18 +9,18 @@
 <p align="center"><strong>Ein schlanker Kinder-Startbildschirm für Android-Handys, Tablets und Amazon Fire OS.</strong></p>
 
 <p align="center">
-  <a href="https://github.com/marcelsavegnago/KidsHome/releases/latest"><img src="https://img.shields.io/github/v/release/marcelsavegnago/KidsHome?label=latest%20release" alt="Neueste Version" /></a>
-  <a href="https://github.com/marcelsavegnago/KidsHome/releases"><img src="https://img.shields.io/github/downloads/marcelsavegnago/KidsHome/total" alt="Downloads" /></a>
-  <a href="https://github.com/marcelsavegnago/KidsHome/actions/workflows/android.yml"><img src="https://img.shields.io/github/actions/workflow/status/marcelsavegnago/KidsHome/android.yml?branch=master&label=CI" alt="CI-Status" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/marcelsavegnago/KidsHome" alt="Lizenz" /></a>
+  <a href="https://github.com/appstudio42/KidsHome/releases/latest"><img src="https://img.shields.io/github/v/release/appstudio42/KidsHome?label=latest%20release" alt="Neueste Version" /></a>
+  <a href="https://github.com/appstudio42/KidsHome/releases"><img src="https://img.shields.io/github/downloads/appstudio42/KidsHome/total" alt="Downloads" /></a>
+  <a href="https://github.com/appstudio42/KidsHome/actions/workflows/android.yml"><img src="https://img.shields.io/github/actions/workflow/status/appstudio42/KidsHome/android.yml?branch=master&label=CI" alt="CI-Status" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/appstudio42/KidsHome" alt="Lizenz" /></a>
   <img src="https://img.shields.io/badge/min%20Android-5.1%20(API%2022)-green" alt="Min. Android 5.1 API 22" />
 </p>
 
 <p align="center">
-  <a href="https://github.com/marcelsavegnago/KidsHome/releases/latest"><strong>⬇ APK herunterladen (neueste Version)</strong></a>
+  <a href="https://github.com/appstudio42/KidsHome/releases/latest"><strong>⬇ APK herunterladen (neueste Version)</strong></a>
 </p>
 
-KidsHome (v1.4.0) macht aus einem Ersatzhandy oder -tablet einen kinderfreundlichen Startbildschirm: nur erlaubte Apps und Websites, mit täglichem Bildschirmzeitlimit, Bettzeit-Sperre und Notausstieg per Eltern-PIN. Es wählt den besten Enforcement-Modus für das Gerät (oder Sie überschreiben ihn unter **Geräteeinrichtung**).
+KidsHome (v1.4.0) macht aus einem Ersatzhandy oder -tablet einen kinderfreundlichen Startbildschirm: nur erlaubte Apps und Websites, mit täglichem Bildschirmzeitlimit, Bettzeit-Sperre und Notausstieg per Eltern-PIN. Es wählt den besten Enforcement-Modus für das Gerät (oder Sie überschreiben ihn unter **Geräteeinrichtung**). Gepflegt von [App Studio 42](https://appstudio42.github.io).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="KidsHome-Einrichtung: PIN erstellen, Apps wählen, Bildschirmzeit setzen, Kindermodus starten" width="720" />
@@ -87,7 +87,7 @@ GPL-3-Fork von [Meems33/LauncherHijack](https://github.com/Meems33/LauncherHijac
 
 ## Schnellstart
 
-1. Laden Sie die APK von der [neuesten Version](https://github.com/marcelsavegnago/KidsHome/releases/latest) herunter (oder das GitHub-Actions-Artefakt `KidsHome-release-apk`).
+1. Laden Sie die APK von der [neuesten Version](https://github.com/appstudio42/KidsHome/releases/latest) herunter (oder das GitHub-Actions-Artefakt `KidsHome-release-apk`).
 2. Installieren (gleiche CI-Testsignatur → Upgrades behalten Daten):
 
    ```bash

@@ -9,18 +9,18 @@
 <p align="center"><strong>A lightweight kid-mode home for Android phones, tablets, and Amazon Fire OS.</strong></p>
 
 <p align="center">
-  <a href="https://github.com/marcelsavegnago/KidsHome/releases/latest"><img src="https://img.shields.io/github/v/release/marcelsavegnago/KidsHome?label=latest%20release" alt="Latest release" /></a>
-  <a href="https://github.com/marcelsavegnago/KidsHome/releases"><img src="https://img.shields.io/github/downloads/marcelsavegnago/KidsHome/total" alt="Downloads" /></a>
-  <a href="https://github.com/marcelsavegnago/KidsHome/actions/workflows/android.yml"><img src="https://img.shields.io/github/actions/workflow/status/marcelsavegnago/KidsHome/android.yml?branch=master&label=CI" alt="CI status" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/marcelsavegnago/KidsHome" alt="License" /></a>
+  <a href="https://github.com/appstudio42/KidsHome/releases/latest"><img src="https://img.shields.io/github/v/release/appstudio42/KidsHome?label=latest%20release" alt="Latest release" /></a>
+  <a href="https://github.com/appstudio42/KidsHome/releases"><img src="https://img.shields.io/github/downloads/appstudio42/KidsHome/total" alt="Downloads" /></a>
+  <a href="https://github.com/appstudio42/KidsHome/actions/workflows/android.yml"><img src="https://img.shields.io/github/actions/workflow/status/appstudio42/KidsHome/android.yml?branch=master&label=CI" alt="CI status" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/appstudio42/KidsHome" alt="License" /></a>
   <img src="https://img.shields.io/badge/min%20Android-5.1%20(API%2022)-green" alt="Min Android 5.1 API 22" />
 </p>
 
 <p align="center">
-  <a href="https://github.com/marcelsavegnago/KidsHome/releases/latest"><strong>⬇ Download APK (latest release)</strong></a>
+  <a href="https://github.com/appstudio42/KidsHome/releases/latest"><strong>⬇ Download APK (latest release)</strong></a>
 </p>
 
-KidsHome (v1.4.0) turns a spare phone or tablet into a kid-friendly home screen: only the apps and sites you allow, with daily screen-time limits, bedtime lock, and a parent PIN escape. It picks the best enforcement mode for the device (or you override it in **Device setup**).
+KidsHome (v1.4.0) turns a spare phone or tablet into a kid-friendly home screen: only the apps and sites you allow, with daily screen-time limits, bedtime lock, and a parent PIN escape. It picks the best enforcement mode for the device (or you override it in **Device setup**). Maintained by [App Studio 42](https://appstudio42.github.io).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="KidsHome setup: create PIN, choose apps, set screen time, enter kid mode" width="720" />
@@ -90,7 +90,7 @@ GPL-3 fork of [Meems33/LauncherHijack](https://github.com/Meems33/LauncherHijack
 
 ## Quick start
 
-1. Download the APK from the [latest release](https://github.com/marcelsavegnago/KidsHome/releases/latest) (or the GitHub Actions artifact `KidsHome-release-apk`).
+1. Download the APK from the [latest release](https://github.com/appstudio42/KidsHome/releases/latest) (or the GitHub Actions artifact `KidsHome-release-apk`).
 2. Install (same CI test signature across builds → upgrades keep data):
 
    ```bash
