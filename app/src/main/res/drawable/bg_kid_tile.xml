@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Base tile shell; pastel fill is tinted per-item in KidHomeAdapter. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#33000000">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/kid_tile_pastel_1" />
+            <corners android:radius="@dimen/kid_tile_radius" />
+        </shape>
+    </item>
+</ripple>

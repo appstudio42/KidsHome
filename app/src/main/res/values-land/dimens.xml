@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fire 7 / short tablets: still playful, not miniaturized. -->
+    <dimen name="kid_tile_min">120dp</dimen>
+    <dimen name="kid_icon_size">76dp</dimen>
+    <dimen name="kid_label_text">16sp</dimen>
+    <dimen name="kid_tile_gap">12dp</dimen>
+    <dimen name="kid_header_avatar">64dp</dimen>
+    <dimen name="kid_greeting_text">28sp</dimen>
+    <dimen name="kid_subtitle_text">15sp</dimen>
+    <dimen name="time_ring_size">60dp</dimen>
+
+    <dimen name="pin_key_size">68dp</dimen>
+    <dimen name="pin_key_icon_pad">14dp</dimen>
+    <dimen name="pin_key_text">22sp</dimen>
+    <dimen name="pin_card_max_width">780dp</dimen>
+    <dimen name="pin_unlock_max_width">220dp</dimen>
+    <dimen name="pin_card_padding">24dp</dimen>
+
+    <dimen name="lock_illust_size">200dp</dimen>
+    <dimen name="lock_title_text">34sp</dimen>
+    <dimen name="lock_message_text">17sp</dimen>
+</resources>

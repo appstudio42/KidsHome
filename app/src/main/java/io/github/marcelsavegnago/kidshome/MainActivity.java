@@ -11,17 +11,22 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.card.MaterialCardView;
+
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private ListView listApps;
     private TextView statusBanner;
+    private View launcherSection;
     private MenuItem launcherFilter;
     private MenuItem hideSystemApps;
     private int prevSelectedIndex = 0;
@@ -30,6 +35,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Prefs.migrateIfNeeded(this);
+
+        if (!Prefs.isOnboardingDone(this) && !Prefs.isKidModeEnabled(this)) {
+            startActivity(new Intent(this, OnboardingActivity.class));
+            finish();
+            return;
+        }
 
         if (Prefs.isKidModeEnabled(this) && !SessionAuth.isUnlocked()) {
             awaitingPin = true;
@@ -62,11 +74,43 @@ public class MainActivity extends AppCompatActivity {
 
     private void showMainUi() {
         setContentView(R.layout.activity_main);
+        MaterialToolbar toolbar = findViewById(R.id.mainToolbar);
+        setSupportActionBar(toolbar);
+        ThemeHelper.applySystemBars(this);
+
         listApps = findViewById(R.id.lvApps);
         statusBanner = findViewById(R.id.statusBanner);
+        launcherSection = findViewById(R.id.launcherSection);
+
+        bindHubCard(R.id.cardChild, R.drawable.ic_section_child,
+                R.string.section_child_profile, R.string.section_child_profile_sub,
+                v -> startActivity(new Intent(this, KidModeActivity.class)));
+        bindHubCard(R.id.cardApps, R.drawable.ic_section_apps,
+                R.string.section_allowed_apps, R.string.section_allowed_apps_sub,
+                v -> startActivity(new Intent(this, AllowedAppsActivity.class)));
+        bindHubCard(R.id.cardWeb, R.drawable.ic_section_web,
+                R.string.section_websites, R.string.section_websites_sub,
+                v -> startActivity(new Intent(this, SiteShortcutsActivity.class)));
+        bindHubCard(R.id.cardTime, R.drawable.ic_section_time,
+                R.string.section_screen_time, R.string.section_screen_time_sub,
+                v -> {
+                    Intent intent = new Intent(this, KidModeActivity.class);
+                    intent.putExtra(KidModeActivity.EXTRA_SCROLL_TO_TIME, true);
+                    startActivity(intent);
+                });
+        bindHubCard(R.id.cardDevice, R.drawable.ic_section_device,
+                R.string.section_device_setup, R.string.section_device_setup_sub,
+                v -> startActivity(new Intent(this, SetupActivity.class)));
+        bindHubCard(R.id.cardSecurity, R.drawable.ic_section_security,
+                R.string.section_security, R.string.section_security_sub,
+                v -> startActivity(new Intent(this, KidModeActivity.class)));
+        bindHubCard(R.id.cardAbout, R.drawable.ic_section_about,
+                R.string.about, R.string.section_about_sub,
+                v -> startActivity(new Intent(this, AboutActivity.class)));
 
         ServiceMan.start(this);
         refreshStatusBanner();
+        refreshLauncherSection();
 
         listApps.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -111,6 +155,41 @@ public class MainActivity extends AppCompatActivity {
         } else if (SetupChecklist.countMissingRequired(this) > 0) {
             Toast.makeText(this, R.string.setup_incomplete_hint, Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void bindHubCard(int includeId, int iconRes, int titleRes, int subtitleRes, View.OnClickListener click) {
+        View card = findViewById(includeId);
+        if (card == null) {
+            return;
+        }
+        ImageView icon = card.findViewById(R.id.hubIcon);
+        TextView title = card.findViewById(R.id.hubTitle);
+        TextView subtitle = card.findViewById(R.id.hubSubtitle);
+        if (icon != null) {
+            icon.setImageResource(iconRes);
+        }
+        if (title != null) {
+            title.setText(titleRes);
+        }
+        if (subtitle != null) {
+            subtitle.setText(subtitleRes);
+        }
+        card.setOnClickListener(click);
+        if (card instanceof MaterialCardView) {
+            card.setContentDescription(getString(titleRes));
+        }
+    }
+
+    private void refreshLauncherSection() {
+        if (launcherSection == null) {
+            return;
+        }
+        EnforcementMode mode = EnforcementController.getEffectiveMode(this);
+        boolean show = mode == EnforcementMode.ACCESSIBILITY
+                || Prefs.getEnforcementModePreference(this) == EnforcementMode.ACCESSIBILITY
+                || (Prefs.getEnforcementModePreference(this) == EnforcementMode.AUTO
+                && DeviceDetector.isFireOs(this));
+        launcherSection.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     private void refreshStatusBanner() {
@@ -168,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         if (!awaitingPin) {
             refreshStatusBanner();
+            refreshLauncherSection();
             if (launcherFilter != null) {
                 updateList();
             }

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:alignmentMode="alignBounds"
+    android:columnCount="3"
+    android:rowCount="4"
+    android:useDefaultMargins="true">
+
+    <TextView
+        android:id="@+id/pinKey1"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="1" />
+
+    <TextView
+        android:id="@+id/pinKey2"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="2" />
+
+    <TextView
+        android:id="@+id/pinKey3"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="3" />
+
+    <TextView
+        android:id="@+id/pinKey4"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="4" />
+
+    <TextView
+        android:id="@+id/pinKey5"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="5" />
+
+    <TextView
+        android:id="@+id/pinKey6"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="6" />
+
+    <TextView
+        android:id="@+id/pinKey7"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="7" />
+
+    <TextView
+        android:id="@+id/pinKey8"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="8" />
+
+    <TextView
+        android:id="@+id/pinKey9"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="9" />
+
+    <View
+        android:layout_width="@dimen/pin_key_size"
+        android:layout_height="@dimen/pin_key_size" />
+
+    <TextView
+        android:id="@+id/pinKey0"
+        style="@style/Widget.KidsHome.PinKey"
+        android:text="0" />
+
+    <ImageView
+        android:id="@+id/pinKeyBack"
+        android:layout_width="@dimen/pin_key_size"
+        android:layout_height="@dimen/pin_key_size"
+        android:background="@drawable/bg_pin_key"
+        android:clickable="true"
+        android:contentDescription="@string/cd_pin_backspace"
+        android:focusable="true"
+        android:padding="@dimen/pin_key_icon_pad"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_backspace" />
+</GridLayout>

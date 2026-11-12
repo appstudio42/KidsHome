@@ -9,15 +9,19 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioButton;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.widget.NestedScrollView;
+
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.materialswitch.MaterialSwitch;
+import com.google.android.material.slider.Slider;
 
 import java.util.List;
 import java.util.Locale;
@@ -26,25 +30,32 @@ import java.util.Locale;
  * Optional PIN-protected kid mode configuration.
  */
 public class KidModeActivity extends AppCompatActivity {
-    private Switch kidModeSwitch;
+    public static final String EXTRA_SCROLL_TO_TIME = "scroll_to_time";
+
+    private MaterialSwitch kidModeSwitch;
     private RadioButton lockKidHome;
     private RadioButton lockApp;
     private TextView kidAppLabel;
     private TextView browserLabel;
     private TextView limitsNote;
     private TextView escapeHelp;
+    private TextView childAvatarPreview;
+    private TextView dailyLimitLabel;
     private EditText childNameInput;
     private EditText dailyLimitInput;
     private CheckBox escapeCorner;
     private CheckBox escapeBackHold;
     private CheckBox screenTimeEnabled;
     private CheckBox bedtimeEnabled;
-    private Button pickAppButton;
-    private Button bedtimeStartButton;
-    private Button bedtimeEndButton;
+    private CheckBox touchSounds;
+    private MaterialButton pickAppButton;
+    private MaterialButton bedtimeStartButton;
+    private MaterialButton bedtimeEndButton;
+    private Slider dailyLimitSlider;
 
     private String pendingAppPackage = "";
     private String pendingAppActivity = "";
+    private String pendingAvatar = ChildAvatars.DEFAULT;
     private int bedtimeStartMinutes;
     private int bedtimeEndMinutes;
 
@@ -71,7 +82,13 @@ public class KidModeActivity extends AppCompatActivity {
 
     private void inflateUi() {
         setContentView(R.layout.activity_kid_mode);
-        setTitle(R.string.kid_mode);
+        MaterialToolbar toolbar = findViewById(R.id.kidModeToolbar);
+        setSupportActionBar(toolbar);
+        ThemeHelper.applySystemBars(this);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        toolbar.setNavigationOnClickListener(v -> finish());
 
         kidModeSwitch = findViewById(R.id.kidModeSwitch);
         lockKidHome = findViewById(R.id.lockKidHome);
@@ -81,9 +98,13 @@ public class KidModeActivity extends AppCompatActivity {
         limitsNote = findViewById(R.id.limitsNote);
         escapeHelp = findViewById(R.id.escapeHelp);
         childNameInput = findViewById(R.id.childNameInput);
+        childAvatarPreview = findViewById(R.id.childAvatarPreview);
         dailyLimitInput = findViewById(R.id.dailyLimitInput);
+        dailyLimitLabel = findViewById(R.id.dailyLimitLabel);
+        dailyLimitSlider = findViewById(R.id.dailyLimitSlider);
         escapeCorner = findViewById(R.id.escapeCornerCB);
         escapeBackHold = findViewById(R.id.escapeBackHoldCB);
+        touchSounds = findViewById(R.id.touchSoundsCB);
         screenTimeEnabled = findViewById(R.id.screenTimeEnabled);
         bedtimeEnabled = findViewById(R.id.bedtimeEnabled);
         pickAppButton = findViewById(R.id.pickAppButton);
@@ -99,10 +120,21 @@ public class KidModeActivity extends AppCompatActivity {
         lockApp.setChecked(lockToApp);
         escapeCorner.setChecked(Prefs.isEscapeCornerEnabled(this));
         escapeBackHold.setChecked(Prefs.isEscapeBackHoldEnabled(this));
+        touchSounds.setChecked(Prefs.isTouchSoundsEnabled(this));
         screenTimeEnabled.setChecked(Prefs.isScreenTimeEnabled(this));
         bedtimeEnabled.setChecked(Prefs.isBedtimeEnabled(this));
         childNameInput.setText(Prefs.getChildName(this));
-        dailyLimitInput.setText(String.valueOf(Prefs.getDailyLimitMinutes(this)));
+        pendingAvatar = Prefs.getChildAvatar(this);
+        childAvatarPreview.setText(pendingAvatar);
+        int limit = Prefs.getDailyLimitMinutes(this);
+        dailyLimitInput.setText(String.valueOf(limit));
+        dailyLimitSlider.setValue(Math.max(15, Math.min(240, limit)));
+        dailyLimitLabel.setText(getString(R.string.daily_limit_slider_fmt, Math.round(dailyLimitSlider.getValue())));
+        dailyLimitSlider.addOnChangeListener((slider, value, fromUser) -> {
+            int minutes = Math.round(value);
+            dailyLimitLabel.setText(getString(R.string.daily_limit_slider_fmt, minutes));
+            dailyLimitInput.setText(String.valueOf(minutes));
+        });
         bedtimeStartMinutes = Prefs.getBedtimeStartMinutes(this);
         bedtimeEndMinutes = Prefs.getBedtimeEndMinutes(this);
         pendingAppPackage = Prefs.getKidAppPackage(this);
@@ -111,6 +143,15 @@ public class KidModeActivity extends AppCompatActivity {
         refreshBrowserLabel();
         refreshBedtimeButtons();
         refreshEnabledState();
+
+        findViewById(R.id.pickAvatarButton).setOnClickListener(v -> showAvatarPicker());
+        if (getIntent().getBooleanExtra(EXTRA_SCROLL_TO_TIME, false)) {
+            View card = findViewById(R.id.screenTimeCard);
+            NestedScrollView scroll = findScrollParent(card);
+            if (scroll != null && card != null) {
+                card.post(() -> scroll.smoothScrollTo(0, card.getTop()));
+            }
+        }
 
         kidModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked && !Prefs.hasKidPin(this)) {
@@ -163,6 +204,31 @@ public class KidModeActivity extends AppCompatActivity {
         findViewById(R.id.changePinButton).setOnClickListener(v -> changePin());
         findViewById(R.id.saveKidModeButton).setOnClickListener(v -> save());
         findViewById(R.id.cancelKidModeButton).setOnClickListener(v -> finish());
+    }
+
+    private NestedScrollView findScrollParent(View view) {
+        View current = view;
+        while (current != null) {
+            if (current instanceof NestedScrollView) {
+                return (NestedScrollView) current;
+            }
+            if (!(current.getParent() instanceof View)) {
+                return null;
+            }
+            current = (View) current.getParent();
+        }
+        return null;
+    }
+
+    private void showAvatarPicker() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.pick_avatar)
+                .setItems(ChildAvatars.ALL, (d, which) -> {
+                    pendingAvatar = ChildAvatars.ALL[which];
+                    childAvatarPreview.setText(pendingAvatar);
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
     }
 
     private void changePin() {
@@ -334,9 +400,13 @@ public class KidModeActivity extends AppCompatActivity {
         boolean corner = escapeCorner.isChecked();
         boolean backHold = escapeBackHold.isChecked();
 
-        Prefs.setChildName(this, childNameInput.getText() != null
-                ? childNameInput.getText().toString() : "");
+        Prefs.setChildProfile(
+                this,
+                childNameInput.getText() != null ? childNameInput.getText().toString() : "",
+                pendingAvatar
+        );
         Prefs.setEscapeOptions(this, corner, backHold);
+        Prefs.setTouchSoundsEnabled(this, touchSounds.isChecked());
         Prefs.setScreenTimeEnabled(this, screenTimeEnabled.isChecked());
         Prefs.setBedtimeEnabled(this, bedtimeEnabled.isChecked());
         Prefs.setBedtimeWindow(this, bedtimeStartMinutes, bedtimeEndMinutes);
@@ -345,7 +415,7 @@ public class KidModeActivity extends AppCompatActivity {
                     ? dailyLimitInput.getText().toString().trim() : "60");
             Prefs.setDailyLimitMinutes(this, limit);
         } catch (Exception e) {
-            Prefs.setDailyLimitMinutes(this, 60);
+            Prefs.setDailyLimitMinutes(this, Math.round(dailyLimitSlider.getValue()));
         }
 
         if (enable) {
