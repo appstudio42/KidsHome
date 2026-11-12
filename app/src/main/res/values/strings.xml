@@ -235,4 +235,111 @@
     <string name="cd_pin_backspace">Delete last digit</string>
     <string name="cd_child_avatar">Child avatar %1$s</string>
     <string name="cd_allowed_app_row">Allow app %1$s</string>
+
+    <!-- v1.4.0 — schedules, per-app limits, earn time, weekly report -->
+    <string name="section_schedules">Schedules / routines</string>
+    <string name="section_schedules_sub">Time windows by weekday and app categories</string>
+    <string name="section_app_limits">Per-app time limits</string>
+    <string name="section_app_limits_sub">Daily minutes for each allowed app</string>
+    <string name="section_earn_time">Earn time / stars</string>
+    <string name="section_earn_time_sub">Bonus minutes and task checklist</string>
+    <string name="section_weekly_report">Weekly usage report</string>
+    <string name="section_weekly_report_sub">Local history, charts, and CSV export</string>
+
+    <string name="schedules_title">Schedules</string>
+    <string name="schedules_help">Define time windows for school mornings, reading time, or bedtime. Outside any window, the normal allowlist and limits apply.</string>
+    <string name="schedules_enable">Enable schedules</string>
+    <string name="schedules_add">Add schedule window</string>
+    <string name="schedules_edit">Edit schedule</string>
+    <string name="schedules_saved">Schedules saved</string>
+    <string name="schedule_name_hint">Name (e.g. School mornings)</string>
+    <string name="schedule_name_required">Enter a name for this window</string>
+    <string name="schedule_pick_days">Which days?</string>
+    <string name="schedule_pick_times">Pick times</string>
+    <string name="schedule_pick_mode">What should happen?</string>
+    <string name="schedule_pick_categories">Allowed categories</string>
+    <string name="schedule_mode_categories">Only selected categories</string>
+    <string name="schedule_mode_bedtime">Block everything (bedtime)</string>
+    <string name="schedule_summary_filter">%1$s · %2$s–%3$s · %4$s</string>
+    <string name="schedule_summary_bedtime">%1$s · %2$s–%3$s · bedtime</string>
+    <string name="schedule_active_banner">Routine: %1$s</string>
+    <string name="categories_section">App categories</string>
+    <string name="categories_help">Tag allowed apps so schedule rules can show Games, Education, Video, or Other.</string>
+    <string name="categories_empty">Add allowed apps first, then assign categories here.</string>
+    <string name="category_games">Games</string>
+    <string name="category_education">Education / Reading</string>
+    <string name="category_video">Video</string>
+    <string name="category_other">Other</string>
+
+    <string name="app_limits_title">Per-app limits</string>
+    <string name="app_limits_help">Set a daily minute limit for each allowed app. Unlimited apps are never locked by this rule. Limits stack with the total daily screen-time limit.</string>
+    <string name="app_limits_saved">Per-app limits saved</string>
+    <string name="app_limit_hint">Minutes per day</string>
+    <string name="app_limit_dialog_message">Enter minutes per day, or choose Unlimited.</string>
+    <string name="app_limit_unlimited">Unlimited</string>
+    <string name="app_limit_invalid">Enter a valid number of minutes</string>
+    <string name="app_limit_summary_fmt">%1$d min / day · %2$d min left</string>
+    <string name="app_time_unlimited">Unlimited</string>
+    <string name="app_time_zero">0 min</string>
+    <string name="app_time_left_short">%1$d min</string>
+    <string name="app_limit_reached_toast">Time for this app is up for today</string>
+    <string name="cd_app_locked">%1$s locked</string>
+
+    <string name="earn_title">Earn time</string>
+    <string name="earn_help">Grant bonus minutes after chores, or define a checklist. Completing a task awards a star and the configured minutes.</string>
+    <string name="earn_grant_now">Grant minutes now</string>
+    <string name="earn_grant_title">Grant %1$d minutes to…</string>
+    <string name="earn_granted">Added %1$d bonus minutes</string>
+    <string name="earn_target_total">Total screen time</string>
+    <string name="earn_tasks_section">Task checklist</string>
+    <string name="earn_add_task">Add task</string>
+    <string name="earn_task_title_hint">Task name (e.g. brush teeth)</string>
+    <string name="earn_task_minutes_hint">Reward minutes</string>
+    <string name="earn_task_title_required">Enter a task name</string>
+    <string name="earn_reward_total">+%1$d min (total)</string>
+    <string name="earn_reward_app">+%1$d min (%2$s)</string>
+    <string name="earn_task_completed">Nice! +%1$d minutes earned</string>
+    <string name="earn_stars_summary">★ %1$d stars total · %2$d today</string>
+    <string name="earn_celebration_title">You earned a star!</string>
+    <string name="earn_celebration_minutes">+%1$d bonus minutes</string>
+    <string name="stars_counter">★ %1$d stars</string>
+    <string name="cd_stars">%1$d stars earned</string>
+
+    <string name="report_title">Weekly report</string>
+    <string name="report_per_day">This week by day</string>
+    <string name="report_per_app">This week by app</string>
+    <string name="report_summary_fmt">This week: %1$s · ★ %2$d stars · daily limit %3$d min</string>
+    <string name="report_duration_hm">%1$dh %2$dm</string>
+    <string name="report_duration_m">%1$d min</string>
+    <string name="report_app_line_fmt">%1$s used · limit %2$s</string>
+    <string name="report_limit_fmt">%1$d min</string>
+    <string name="report_empty">No usage recorded yet this week.</string>
+    <string name="report_export_csv">Export CSV</string>
+    <string name="report_export_subject">KidsHome usage report</string>
+    <string name="report_export_failed">Could not share the report</string>
+    <string name="report_clear">Clear history</string>
+    <string name="report_clear_confirm">Delete about 4 weeks of local usage history? This cannot be undone.</string>
+    <string name="report_cleared">Usage history cleared</string>
+
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+
+    <string-array name="weekday_short">
+        <item>Sun</item>
+        <item>Mon</item>
+        <item>Tue</item>
+        <item>Wed</item>
+        <item>Thu</item>
+        <item>Fri</item>
+        <item>Sat</item>
+    </string-array>
+    <string-array name="weekday_full">
+        <item>Sunday</item>
+        <item>Monday</item>
+        <item>Tuesday</item>
+        <item>Wednesday</item>
+        <item>Thursday</item>
+        <item>Friday</item>
+        <item>Saturday</item>
+    </string-array>
 </resources>

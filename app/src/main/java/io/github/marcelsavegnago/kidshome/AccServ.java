@@ -76,6 +76,14 @@ public class AccServ extends AccessibilityService {
             return;
         }
 
+        // Remember foreground package for per-app usage accounting.
+        if (lastApp != null && !lastApp.isEmpty()
+                && !lastApp.equals(getPackageName())
+                && !"com.android.systemui".equals(lastApp)
+                && !"android".equals(lastApp)) {
+            Prefs.setForegroundTrackPackage(this, lastApp);
+        }
+
         maybeEnforceKidMode();
     }
 
@@ -88,6 +96,13 @@ public class AccServ extends AccessibilityService {
             return;
         }
         if (!EnforcementController.shouldBlockNonAllowedApps(this)) {
+            // Still bounce apps that hit a per-app limit or schedule filter when we can see them.
+            String pkg = lastApp;
+            if (pkg != null && !pkg.isEmpty()
+                    && Prefs.getAllowedPackages(this).contains(pkg)
+                    && !ScreenTimeTracker.canLaunchApp(this, pkg)) {
+                HomePress.perform(this);
+            }
             return;
         }
         String packageName = lastApp;
@@ -116,15 +131,17 @@ public class AccServ extends AccessibilityService {
 
         if (Prefs.isKidLockToApp(this)) {
             String kidApp = Prefs.getKidAppPackage(this);
-            return packageName.equals(kidApp);
+            return packageName.equals(kidApp) && ScreenTimeTracker.canLaunchApp(this, packageName);
         }
 
-        // Kid-home mode: allowlisted apps + chosen browser.
-        if (Prefs.getAllowedPackages(this).contains(packageName)) {
-            return true;
-        }
+        // Kid-home mode: allowlisted apps + chosen browser, with schedule / per-app limits.
+        boolean allowlisted = Prefs.getAllowedPackages(this).contains(packageName);
         String browser = Prefs.getBrowserPackage(this);
-        return browser != null && browser.equals(packageName);
+        boolean isBrowser = browser != null && browser.equals(packageName);
+        if (!allowlisted && !isBrowser) {
+            return false;
+        }
+        return ScreenTimeTracker.canLaunchApp(this, packageName);
     }
 
     private static boolean shouldHijackPackage(String packageName) {

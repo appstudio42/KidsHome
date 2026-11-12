@@ -1,0 +1,165 @@
+package io.github.marcelsavegnago.kidshome;
+
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.material.appbar.MaterialToolbar;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
+/** Parent weekly usage report with a simple Canvas bar chart. */
+public class WeeklyReportActivity extends ParentPinActivity {
+    private TextView summary;
+    private SimpleBarChartView chart;
+    private LinearLayout appsList;
+
+    @Override
+    protected void onPinUnlocked() {
+        setContentView(R.layout.activity_weekly_report);
+        MaterialToolbar toolbar = findViewById(R.id.reportToolbar);
+        setSupportActionBar(toolbar);
+        ThemeHelper.applySystemBars(this);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        toolbar.setNavigationOnClickListener(v -> finish());
+
+        summary = findViewById(R.id.reportSummary);
+        chart = findViewById(R.id.reportChart);
+        appsList = findViewById(R.id.reportAppsList);
+
+        findViewById(R.id.reportExport).setOnClickListener(v -> exportCsv());
+        findViewById(R.id.reportClear).setOnClickListener(v -> confirmClear());
+        refresh();
+    }
+
+    private void refresh() {
+        Map<String, UsageHistory.DayUsage> history = Prefs.getUsageHistoryIncludingToday(this);
+        String today = ScreenTimeState.dayKeyNow();
+        List<UsageHistory.DayUsage> week = UsageHistory.weekDays(history, today);
+
+        long weekTotal = 0L;
+        int weekStars = 0;
+        List<SimpleBarChartView.Bar> bars = new ArrayList<>();
+        String[] dayLabels = getResources().getStringArray(R.array.weekday_short);
+        for (UsageHistory.DayUsage day : week) {
+            weekTotal += day.totalMillis;
+            weekStars += day.starsEarned;
+            int dow = dayOfWeekIndex(day.dayKey); // 0=Sun … 6=Sat
+            String label = dow >= 0 && dow < dayLabels.length ? dayLabels[dow] : day.dayKey.substring(6);
+            bars.add(new SimpleBarChartView.Bar(label, day.totalMillis / 60_000f));
+        }
+        chart.setBars(bars);
+
+        long limitMin = Prefs.getDailyLimitMinutes(this);
+        summary.setText(getString(
+                R.string.report_summary_fmt,
+                formatDuration(weekTotal),
+                weekStars,
+                Prefs.isScreenTimeEnabled(this) ? limitMin : 0
+        ));
+
+        Map<String, Long> appTotals = UsageHistory.aggregateApps(week);
+        List<Map.Entry<String, Long>> sorted = new ArrayList<>(appTotals.entrySet());
+        Collections.sort(sorted, new Comparator<Map.Entry<String, Long>>() {
+            @Override
+            public int compare(Map.Entry<String, Long> a, Map.Entry<String, Long> b) {
+                return Long.compare(b.getValue(), a.getValue());
+            }
+        });
+
+        appsList.removeAllViews();
+        LayoutInflater inflater = LayoutInflater.from(this);
+        if (sorted.isEmpty()) {
+            TextView empty = new TextView(this);
+            empty.setText(R.string.report_empty);
+            empty.setPadding(0, 16, 0, 16);
+            appsList.addView(empty);
+            return;
+        }
+        for (Map.Entry<String, Long> entry : sorted) {
+            View row = inflater.inflate(android.R.layout.simple_list_item_2, appsList, false);
+            TextView t1 = row.findViewById(android.R.id.text1);
+            TextView t2 = row.findViewById(android.R.id.text2);
+            String pkg = entry.getKey();
+            t1.setText(labelFor(pkg));
+            int limit = Prefs.getAppLimitMinutes(this, pkg);
+            String limitText = limit < 0
+                    ? getString(R.string.app_time_unlimited)
+                    : getString(R.string.report_limit_fmt, limit);
+            t2.setText(getString(R.string.report_app_line_fmt, formatDuration(entry.getValue()), limitText));
+            appsList.addView(row);
+        }
+    }
+
+    private int dayOfWeekIndex(String dayKey) {
+        try {
+            int y = Integer.parseInt(dayKey.substring(0, 4));
+            int m = Integer.parseInt(dayKey.substring(4, 6));
+            int d = Integer.parseInt(dayKey.substring(6, 8));
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.clear();
+            cal.set(y, m - 1, d);
+            return cal.get(java.util.Calendar.DAY_OF_WEEK) - 1;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private String formatDuration(long millis) {
+        long totalMin = Math.max(0L, millis / 60_000L);
+        long h = totalMin / 60L;
+        long m = totalMin % 60L;
+        if (h > 0) {
+            return getString(R.string.report_duration_hm, h, m);
+        }
+        return getString(R.string.report_duration_m, m);
+    }
+
+    private String labelFor(String pkg) {
+        try {
+            ApplicationInfo info = getPackageManager().getApplicationInfo(pkg, 0);
+            CharSequence label = info.loadLabel(getPackageManager());
+            return label != null ? label.toString() : pkg;
+        } catch (Exception e) {
+            return pkg;
+        }
+    }
+
+    private void confirmClear() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.report_clear)
+                .setMessage(R.string.report_clear_confirm)
+                .setPositiveButton(R.string.report_clear, (d, w) -> {
+                    Prefs.clearUsageHistory(this);
+                    refresh();
+                    Toast.makeText(this, R.string.report_cleared, Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void exportCsv() {
+        Map<String, UsageHistory.DayUsage> history = Prefs.getUsageHistoryIncludingToday(this);
+        String csv = UsageHistory.toCsv(history);
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("text/plain");
+        share.putExtra(Intent.EXTRA_TEXT, csv);
+        share.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.report_export_subject));
+        try {
+            startActivity(Intent.createChooser(share, getString(R.string.report_export_csv)));
+        } catch (Exception ex) {
+            Toast.makeText(this, R.string.report_export_failed, Toast.LENGTH_SHORT).show();
+        }
+    }
+}

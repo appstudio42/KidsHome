@@ -223,4 +223,104 @@
     <string name="cd_pin_backspace">Letzte Ziffer löschen</string>
     <string name="cd_child_avatar">Kinder-Avatar %1$s</string>
     <string name="cd_allowed_app_row">App erlauben %1$s</string>
+    <!-- v1.4.0 -->
+    <string name="section_schedules">Zeitpläne / Routinen</string>
+    <string name="section_schedules_sub">Zeitfenster nach Wochentag und App-Kategorien</string>
+    <string name="section_app_limits">Limits pro App</string>
+    <string name="section_app_limits_sub">Tägliche Minuten für jede erlaubte App</string>
+    <string name="section_earn_time">Zeit verdienen / Sterne</string>
+    <string name="section_earn_time_sub">Bonusminuten und Aufgabenliste</string>
+    <string name="section_weekly_report">Wochenbericht</string>
+    <string name="section_weekly_report_sub">Lokaler Verlauf, Diagramme und CSV-Export</string>
+    <string name="schedules_title">Zeitpläne</string>
+    <string name="schedules_help">Legen Sie Zeitfenster für Schulmorgen, Lesezeit oder Schlafenszeit fest. Außerhalb gelten die normale Freigabeliste und Limits.</string>
+    <string name="schedules_enable">Zeitpläne aktivieren</string>
+    <string name="schedules_add">Zeitfenster hinzufügen</string>
+    <string name="schedules_edit">Zeitplan bearbeiten</string>
+    <string name="schedules_saved">Zeitpläne gespeichert</string>
+    <string name="schedule_name_hint">Name (z. B. Schulmorgen)</string>
+    <string name="schedule_name_required">Geben Sie einen Namen für dieses Fenster ein</string>
+    <string name="schedule_pick_days">Welche Tage?</string>
+    <string name="schedule_pick_times">Zeiten wählen</string>
+    <string name="schedule_pick_mode">Was soll passieren?</string>
+    <string name="schedule_pick_categories">Erlaubte Kategorien</string>
+    <string name="schedule_mode_categories">Nur ausgewählte Kategorien</string>
+    <string name="schedule_mode_bedtime">Alles sperren (Schlafenszeit)</string>
+    <string name="schedule_summary_filter">%1$s · %2$s–%3$s · %4$s</string>
+    <string name="schedule_summary_bedtime">%1$s · %2$s–%3$s · Schlafen</string>
+    <string name="schedule_active_banner">Routine: %1$s</string>
+    <string name="categories_section">App-Kategorien</string>
+    <string name="categories_help">Markieren Sie erlaubte Apps, damit Regeln Spiele, Bildung, Video oder Sonstiges anzeigen können.</string>
+    <string name="categories_empty">Fügen Sie zuerst erlaubte Apps hinzu und weisen Sie hier Kategorien zu.</string>
+    <string name="category_games">Spiele</string>
+    <string name="category_education">Bildung / Lesen</string>
+    <string name="category_video">Video</string>
+    <string name="category_other">Sonstiges</string>
+    <string name="app_limits_title">Limits pro App</string>
+    <string name="app_limits_help">Legen Sie ein tägliches Minutenlimit für jede erlaubte App fest. Unbegrenzte Apps werden durch diese Regel nie gesperrt. Limits gelten zusätzlich zum Gesamttageslimit.</string>
+    <string name="app_limits_saved">App-Limits gespeichert</string>
+    <string name="app_limit_hint">Minuten pro Tag</string>
+    <string name="app_limit_dialog_message">Minuten pro Tag eingeben oder Unbegrenzt wählen.</string>
+    <string name="app_limit_unlimited">Unbegrenzt</string>
+    <string name="app_limit_invalid">Gültige Minutenzahl eingeben</string>
+    <string name="app_limit_summary_fmt">%1$d Min / Tag · %2$d Min übrig</string>
+    <string name="app_time_unlimited">Unbegrenzt</string>
+    <string name="app_time_zero">0 Min</string>
+    <string name="app_time_left_short">%1$d Min</string>
+    <string name="app_limit_reached_toast">Die Zeit für diese App ist heute aufgebraucht</string>
+    <string name="cd_app_locked">%1$s gesperrt</string>
+    <string name="earn_title">Zeit verdienen</string>
+    <string name="earn_help">Gewähren Sie Bonusminuten nach Aufgaben oder definieren Sie eine Checkliste. Eine erledigte Aufgabe gibt einen Stern und die konfigurierten Minuten.</string>
+    <string name="earn_grant_now">Minuten jetzt gewähren</string>
+    <string name="earn_grant_title">%1$d Minuten gewähren für…</string>
+    <string name="earn_granted">%1$d Bonusminuten hinzugefügt</string>
+    <string name="earn_target_total">Gesamte Bildschirmzeit</string>
+    <string name="earn_tasks_section">Aufgabenliste</string>
+    <string name="earn_add_task">Aufgabe hinzufügen</string>
+    <string name="earn_task_title_hint">Aufgabenname (z. B. Zähne putzen)</string>
+    <string name="earn_task_minutes_hint">Belohnungsminuten</string>
+    <string name="earn_task_title_required">Aufgabenname eingeben</string>
+    <string name="earn_reward_total">+%1$d Min (gesamt)</string>
+    <string name="earn_reward_app">+%1$d Min (%2$s)</string>
+    <string name="earn_task_completed">Toll! +%1$d Minuten verdient</string>
+    <string name="earn_stars_summary">★ %1$d Sterne insgesamt · %2$d heute</string>
+    <string name="earn_celebration_title">Du hast einen Stern verdient!</string>
+    <string name="earn_celebration_minutes">+%1$d Bonusminuten</string>
+    <string name="stars_counter">★ %1$d Sterne</string>
+    <string name="cd_stars">%1$d Sterne verdient</string>
+    <string name="report_title">Wochenbericht</string>
+    <string name="report_per_day">Diese Woche nach Tag</string>
+    <string name="report_per_app">Diese Woche nach App</string>
+    <string name="report_summary_fmt">Diese Woche: %1$s · ★ %2$d Sterne · Tageslimit %3$d Min</string>
+    <string name="report_duration_hm">%1$d Std %2$d Min</string>
+    <string name="report_duration_m">%1$d Min</string>
+    <string name="report_app_line_fmt">%1$s genutzt · Limit %2$s</string>
+    <string name="report_limit_fmt">%1$d Min</string>
+    <string name="report_empty">Diese Woche noch keine Nutzung erfasst.</string>
+    <string name="report_export_csv">CSV exportieren</string>
+    <string name="report_export_subject">KidsHome Nutzungsbericht</string>
+    <string name="report_export_failed">Bericht konnte nicht geteilt werden</string>
+    <string name="report_clear">Verlauf löschen</string>
+    <string name="report_clear_confirm">Etwa 4 Wochen lokalen Nutzungsverlauf löschen? Das kann nicht rückgängig gemacht werden.</string>
+    <string name="report_cleared">Nutzungsverlauf gelöscht</string>
+    <string name="edit">Bearbeiten</string>
+    <string name="delete">Löschen</string>
+    <string-array name="weekday_short">
+        <item>So</item>
+        <item>Mo</item>
+        <item>Di</item>
+        <item>Mi</item>
+        <item>Do</item>
+        <item>Fr</item>
+        <item>Sa</item>
+    </string-array>
+    <string-array name="weekday_full">
+        <item>Sonntag</item>
+        <item>Montag</item>
+        <item>Dienstag</item>
+        <item>Mittwoch</item>
+        <item>Donnerstag</item>
+        <item>Freitag</item>
+        <item>Samstag</item>
+    </string-array>
 </resources>

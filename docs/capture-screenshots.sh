@@ -78,7 +78,7 @@ write_prefs() {
   <string name="ChildName">Theo</string>
   <string name="ChildAvatar">🦊</string>
   <boolean name="OnboardingDone" value="true" />
-  <int name="PrefsVersion" value="1" />
+  <int name="PrefsVersion" value="2" />
   <boolean name="KidLockToApp" value="false" />
   <set name="AllowedPackages">
 ${DEMO_PACKAGES_XML}  </set>
@@ -92,6 +92,17 @@ ${DEMO_PACKAGES_XML}  </set>
   <long name="BonusMillisToday" value="0" />
   <string name="UsageDayKey">${TODAY}</string>
   <boolean name="BedtimeEnabled" value="false" />
+  <boolean name="SchedulesEnabled" value="true" />
+  <string name="SchedulesJson">[{"id":"school","name":"School mornings","enabled":true,"daysMask":62,"start":420,"end":720,"mode":"allow_categories","categories":["education"]},{"id":"read","name":"Evening reading","enabled":true,"daysMask":127,"start":1200,"end":1260,"mode":"allow_categories","categories":["education"]},{"id":"bed","name":"Bedtime","enabled":true,"daysMask":127,"start":1260,"end":420,"mode":"bedtime","categories":[]}]</string>
+  <string name="AppCategoriesJson">{"com.google.android.apps.youtube.kids":"video","com.google.android.youtube":"video","com.android.chrome":"other","com.android.camera2":"other","com.google.android.apps.photos":"other","com.google.android.apps.maps":"education","com.google.android.deskclock":"other"}</string>
+  <string name="AppLimitsJson">{"com.google.android.apps.youtube.kids":30,"com.google.android.youtube":30}</string>
+  <string name="AppUsedMillisTodayJson">{"com.google.android.youtube":1800000}</string>
+  <string name="AppBonusMillisTodayJson">{}</string>
+  <string name="EarnTasksJson">[{"id":"teeth","title":"Brush teeth","minutes":10,"target":"total","enabled":true},{"id":"hw","title":"Homework","minutes":15,"target":"total","enabled":true}]</string>
+  <string name="EarnTasksDoneDayJson">{"teeth":"1"}</string>
+  <int name="StarsTotal" value="5" />
+  <int name="StarsToday" value="1" />
+  <string name="UsageHistoryJson">{"days":{"${TODAY}":{"apps":{"com.google.android.youtube":1800000,"com.android.chrome":600000},"total":2400000,"stars":1}}}</string>
   <string name="EnforcementMode">launcher</string>
   <boolean name="defaultsLoaded" value="true" />
   <boolean name="EscapeCornerEnabled" value="true" />
@@ -220,6 +231,56 @@ adb shell am start -n "$PKG/$CLS.MainActivity"
 sleep 3.0
 adb shell input tap 24 24 >/dev/null 2>&1 || true
 screencap "08-main-hub" 1.2
+
+# --- v1.4.0 feature screens (parent UIs with kid mode off so PIN dialog is skipped) ---
+YDAY="$(python3 - <<'PY'
+from datetime import date, timedelta
+print((date.today() - timedelta(days=1)).strftime("%Y%m%d"))
+PY
+)"
+PARENT_EXTRA="<boolean name=\"KidModeEnabled\" value=\"false\" />
+  <string name=\"UsageHistoryJson\">{\"days\":{\"${TODAY}\":{\"apps\":{\"com.google.android.youtube\":1800000,\"com.android.chrome\":900000,\"com.google.android.apps.maps\":600000},\"total\":3300000,\"stars\":2},\"${YDAY}\":{\"apps\":{\"com.google.android.youtube\":1200000,\"com.android.chrome\":400000},\"total\":1600000,\"stars\":1}}}</string>"
+
+write_prefs "${PARENT_EXTRA}"
+adb shell am force-stop "$PKG"
+adb shell am start -n "$PKG/$CLS.SchedulesActivity"
+screencap "09-schedules" 2.2
+adb shell input swipe $((W/2)) $((H*3/4)) $((W/2)) $((H/5)) 300 || true
+screencap "09-schedules" 0.8
+
+adb shell am force-stop "$PKG"
+adb shell am start -n "$PKG/$CLS.AppLimitsActivity"
+screencap "10-app-limits" 2.2
+adb shell input swipe $((W/2)) $((H*3/4)) $((W/2)) $((H/5)) 300 || true
+screencap "10-app-limits" 0.8
+
+adb shell am force-stop "$PKG"
+adb shell am start -n "$PKG/$CLS.EarnTimeActivity"
+screencap "11-earn-time" 2.2
+
+adb shell am force-stop "$PKG"
+adb shell am start -n "$PKG/$CLS.WeeklyReportActivity"
+screencap "12-weekly-report" 2.2
+
+# Celebration overlay on kid home
+write_prefs '<int name="PendingCelebrationMinutes" value="15" />
+  <int name="StarsTotal" value="6" />'
+adb shell am force-stop "$PKG"
+adb shell settings put global animator_duration_scale 1 || true
+adb shell am start -n "$PKG/$CLS.KidHomeActivity"
+sleep 1.2
+dismiss_immersive_cling
+screencap "13-star-celebration" 1.2
+adb shell settings put global animator_duration_scale 0 || true
+
+write_prefs '<boolean name="BedtimeEnabled" value="true" />
+  <int name="BedtimeStartMinutes" value="0" />
+  <int name="BedtimeEndMinutes" value="1439" />'
+adb shell am force-stop "$PKG"
+adb shell am start -n "$PKG/$CLS.KidHomeActivity"
+sleep 1.0
+dismiss_immersive_cling
+screencap "14-bedtime" 1.8
 
 # --- Fire 7 landscape check ---
 echo "Fire 7 ${FIRE7_SIZE} @ ${FIRE7_DPI}dpi"

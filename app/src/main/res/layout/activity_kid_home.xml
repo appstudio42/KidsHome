@@ -69,6 +69,18 @@
                     android:textColor="@color/kid_label"
                     android:textSize="@dimen/kid_subtitle_text"
                     tools:text="Time left: 45 min" />
+
+                <TextView
+                    android:id="@+id/kidHomeStars"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:shadowColor="#80000000"
+                    android:shadowRadius="2"
+                    android:textColor="@color/star_gold"
+                    android:textSize="@dimen/kid_subtitle_text"
+                    android:textStyle="bold"
+                    tools:text="★ 3 stars" />
             </LinearLayout>
 
             <io.github.marcelsavegnago.kidshome.RemainingTimeRing
@@ -77,6 +89,18 @@
                 android:layout_height="@dimen/time_ring_size"
                 android:contentDescription="@string/cd_time_remaining" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/kidHomeScheduleBanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/bannerBackground"
+            android:padding="@dimen/space_sm"
+            android:textColor="@color/bannerText"
+            android:textSize="14sp"
+            android:visibility="gone"
+            tools:text="Reading time — education apps only"
+            tools:visibility="visible" />
 
         <GridView
             android:id="@+id/kidHomeGrid"
@@ -99,4 +123,53 @@
             android:stretchMode="columnWidth"
             android:verticalSpacing="@dimen/kid_tile_gap" />
     </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/kidCelebrationOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#990F172A"
+        android:clickable="true"
+        android:elevation="20dp"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/space_lg">
+
+            <TextView
+                android:id="@+id/kidCelebrationStar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="★"
+                android:textColor="@color/star_gold"
+                android:textSize="72sp" />
+
+            <TextView
+                android:id="@+id/kidCelebrationTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_sm"
+                android:gravity="center"
+                android:text="@string/earn_celebration_title"
+                android:textColor="@color/kid_label"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/kidCelebrationMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_xs"
+                android:gravity="center"
+                android:textColor="@color/kid_label"
+                android:textSize="18sp"
+                tools:text="+15 minutes!" />
+        </LinearLayout>
+    </FrameLayout>
 </FrameLayout>

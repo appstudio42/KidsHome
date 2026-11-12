@@ -20,7 +20,7 @@
   <a href="https://github.com/marcelsavegnago/KidsHome/releases/latest"><strong>⬇ Download APK (latest release)</strong></a>
 </p>
 
-KidsHome (v1.3.0) turns a spare phone or tablet into a kid-friendly home screen: only the apps and sites you allow, with daily screen-time limits, bedtime lock, and a parent PIN escape. It picks the best enforcement mode for the device (or you override it in **Device setup**).
+KidsHome (v1.4.0) turns a spare phone or tablet into a kid-friendly home screen: only the apps and sites you allow, with daily screen-time limits, bedtime lock, and a parent PIN escape. It picks the best enforcement mode for the device (or you override it in **Device setup**).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="KidsHome setup: create PIN, choose apps, set screen time, enter kid mode" width="720" />
@@ -47,6 +47,16 @@ Real captures from an Android tablet emulator (1280×800) with demo child name *
 | ![Allowed apps](docs/screenshots/07-allowed-apps.png) | ![Main hub](docs/screenshots/08-main-hub.png) |
 | Pick apps for the grid | Main KidsHome screen |
 
+| Schedules | Per-app limits | Earn time |
+|:---:|:---:|:---:|
+| ![Schedules](docs/screenshots/09-schedules.png) | ![App limits](docs/screenshots/10-app-limits.png) | ![Earn time](docs/screenshots/11-earn-time.png) |
+| Routine windows & categories | Daily minutes per app | Tasks & bonus minutes |
+
+| Weekly report | Star celebration | Bedtime |
+|:---:|:---:|:---:|
+| ![Report](docs/screenshots/12-weekly-report.png) | ![Celebration](docs/screenshots/13-star-celebration.png) | ![Bedtime](docs/screenshots/14-bedtime.png) |
+| Local usage chart | Earn-time celebration | Friendly bedtime lock |
+
 ## Features
 
 - **Three enforcement modes** (auto-detected, with manual override):
@@ -56,8 +66,12 @@ Real captures from an Android tablet emulator (1280×800) with demo child name *
 - **Modern Material 3 UI** — cheerful seed palette (dynamic color on Android 12+), light/dark parent themes, first-run onboarding
 - **Kid home** — large rounded app/site tiles, child avatar, remaining-time ring, soft motion (respects reduce-motion)
 - **Screen time** — daily limit slider, bedtime window, friendly lock illustrations, PIN to add time / disable for today
+- **Schedules / routines** — weekday time windows (school mornings, reading time, bedtime) with app categories
+- **Per-app limits** — daily minutes per allowed app on top of the total limit; locked tiles when exhausted
+- **Earn time / stars** — PIN-gated bonus minutes and a simple task checklist with celebration + star counter
+- **Weekly usage report** — local per-app/per-day history (~4 weeks), Canvas bar chart, clear / CSV export
 - **Emergency PIN exit** — modern keypad with dots, shake + haptics, lockout; 5 taps top-right or hold Back ~3s
-- **Parent hub** — section cards for profile, apps (search/toggles), websites, screen time, device setup, security, about
+- **Parent hub** — section cards for profile, apps, websites, screen time, schedules, limits, earn time, report, device setup, security, about
 - Survives reboot; warns if accessibility is off when that mode needs it
 - Optional accessibility blocking of non-allowed apps as an **extra layer** in launcher / Device Owner modes
 - UI strings in **en / pt-BR / es / fr / de**
@@ -143,14 +157,18 @@ Device Owner can only be set when the device has **no accounts** (remove Google/
    - `startLockTask` from kid home (kiosk)
 5. Emergency PIN exit calls `stopLockTask` and can disable kid mode.
 
-## Screen time & bedtime
+## Screen time, schedules & earn time
 
-In **Kid mode** settings you can enable:
+In the **parent hub** (PIN-protected) you can configure:
 
 - **Daily screen-time limit** (minutes) — kid home shows time left; when the limit is reached, a friendly “Time's up” lock appears.
 - **Bedtime block** — sleep window (e.g. 20:00–07:00); during bedtime the lock says “It's bedtime”.
+- **Schedules / routines** — weekday windows that show only certain app categories or block everything until morning.
+- **Per-app limits** — e.g. 30 min/day for video apps, unlimited for education.
+- **Earn time** — grant bonus minutes (total or per app) or mark checklist tasks done to award stars.
+- **Weekly report** — local usage by day/app, totals vs limits, clear history, optional CSV share.
 
-A parent unlocks with the PIN to add 15/30 minutes, disable the limit for today, or disable bedtime for tonight.
+A parent unlocks with the PIN to add 15/30 minutes, disable the limit for today, or disable bedtime for tonight. Everything stays on-device (no network / analytics / cloud).
 
 ## Emergency PIN exit
 
@@ -255,3 +273,7 @@ Screenshot / GIF regeneration (optional): see [`.github/workflows/screenshots.ym
 KidsHome is licensed under the **GNU GPL v3** — see [LICENSE](LICENSE).
 
 Credits: BaronKiko (LauncherHijack), Meems33 / WhiteRaven777 (Launcher Replacer).
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for release notes (current: **1.4.0**).

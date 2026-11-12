@@ -20,7 +20,7 @@
   <a href="https://github.com/marcelsavegnago/KidsHome/releases/latest"><strong>⬇ APK herunterladen (neueste Version)</strong></a>
 </p>
 
-KidsHome (v1.3.0) macht aus einem Ersatzhandy oder -tablet einen kinderfreundlichen Startbildschirm: nur erlaubte Apps und Websites, mit täglichem Bildschirmzeitlimit, Bettzeit-Sperre und Notausstieg per Eltern-PIN. Es wählt den besten Enforcement-Modus für das Gerät (oder Sie überschreiben ihn unter **Geräteeinrichtung**).
+KidsHome (v1.4.0) macht aus einem Ersatzhandy oder -tablet einen kinderfreundlichen Startbildschirm: nur erlaubte Apps und Websites, mit täglichem Bildschirmzeitlimit, Bettzeit-Sperre und Notausstieg per Eltern-PIN. Es wählt den besten Enforcement-Modus für das Gerät (oder Sie überschreiben ihn unter **Geräteeinrichtung**).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="KidsHome-Einrichtung: PIN erstellen, Apps wählen, Bildschirmzeit setzen, Kindermodus starten" width="720" />
@@ -47,6 +47,16 @@ Echte Aufnahmen von einem Android-Tablet-Emulator (1280×800) mit dem Demo-Kinde
 | ![Erlaubte Apps](docs/screenshots/07-allowed-apps.png) | ![Hauptansicht](docs/screenshots/08-main-hub.png) |
 | Apps für das Raster wählen | KidsHome-Hauptbildschirm |
 
+| Zeitpläne | Limits pro App | Zeit verdienen |
+|:---:|:---:|:---:|
+| ![Schedules](docs/screenshots/09-schedules.png) | ![App limits](docs/screenshots/10-app-limits.png) | ![Earn time](docs/screenshots/11-earn-time.png) |
+| Routinen & Kategorien | Tägliche Minuten pro App | Aufgaben & Bonusminuten |
+
+| Wochenbericht | Feier | Bettzeit |
+|:---:|:---:|:---:|
+| ![Report](docs/screenshots/12-weekly-report.png) | ![Celebration](docs/screenshots/13-star-celebration.png) | ![Bedtime](docs/screenshots/14-bedtime.png) |
+| Lokales Nutzungsdiagramm | Stern verdient | Freundliche Sperre |
+
 ## Funktionen
 
 - **Drei Enforcement-Modi** (automatisch erkannt, manuell überschreibbar):
@@ -55,6 +65,10 @@ Echte Aufnahmen von einem Android-Tablet-Emulator (1280×800) mit dem Demo-Kinde
   - Device Owner + Lock Task — stärkster Kiosk
 - **Kinder-Home** — großes Icon-Raster erlaubter Apps + Website-Shortcuts, oder Sperre auf eine einzelne App
 - **Bildschirmzeit** — Tageslimit, Bettzeitfenster, Warnung, freundliche Sperrbildschirm, PIN zum Verlängern / Deaktivieren für heute
+- **Zeitpläne / Routinen** — Wochentagsfenster (Schule, Lesen, Schlafen) mit App-Kategorien
+- **Limits pro App** — tägliche Minuten pro erlaubter App zusätzlich zum Gesamttageslimit; gesperrte Kacheln bei Erschöpfung
+- **Zeit verdienen / Sterne** — Bonusminuten per PIN und Aufgabenliste mit Feier + Sternzähler
+- **Wochenbericht** — lokaler Verlauf pro App/Tag (~4 Wochen), Canvas-Diagramm, löschen / CSV-Export
 - **Notausstieg per PIN** — 5 Tipps oben rechts (Overlay) oder Zurück ~3 s halten; Device-Owner-Pfad ruft `stopLockTask` sauber auf
 - Überlebt Neustarts; warnt, wenn Accessibility aus ist und der Modus sie braucht
 - Optionale Accessibility-Sperre nicht erlaubter Apps als **zusätzliche Schicht** in Launcher- / Device-Owner-Modi
@@ -140,14 +154,18 @@ Device Owner lässt sich nur setzen, wenn das Gerät **keine Konten** hat (Googl
    - `startLockTask` vom Kinder-Home aus starten (Kiosk)
 5. Der PIN-Notausstieg ruft `stopLockTask` auf und kann den Kindermodus deaktivieren.
 
-## Bildschirmzeit & Bettzeit
+## Bildschirmzeit, Zeitpläne & Zeit verdienen
 
-Unter **Kindermodus**-Einstellungen können Sie aktivieren:
+Im **Eltern-Hub** (PIN-geschützt) können Sie konfigurieren:
 
 - **Tägliches Bildschirmzeitlimit** (Minuten) — das Home zeigt die Restzeit; bei Erreichen erscheint die Sperre „Zeit abgelaufen“.
 - **Bettzeit-Sperre** — Schlaffenster (z. B. 20:00–07:00); während der Bettzeit lautet die Meldung „Schlafenszeit“.
+- **Zeitpläne / Routinen** — Wochentagsfenster, die nur bestimmte Kategorien zeigen oder alles bis zum Morgen sperren.
+- **Limits pro App** — z. B. 30 Min/Tag für Video, unbegrenzt für Bildung.
+- **Zeit verdienen** — Bonusminuten gewähren (gesamt oder pro App) oder Aufgaben abhaken, um Sterne zu vergeben.
+- **Wochenbericht** — lokale Nutzung nach Tag/App, Summen vs. Limits, Verlauf löschen, optional CSV.
 
-Eltern entsperren mit dem PIN, um 15/30 Minuten hinzuzufügen, das Limit für heute oder die Bettzeit für diese Nacht zu deaktivieren.
+Eltern entsperren mit dem PIN, um 15/30 Minuten hinzuzufügen, das Limit für heute oder die Bettzeit für diese Nacht zu deaktivieren. Alles bleibt auf dem Gerät (kein Netz / Analytics / Cloud).
 
 ## Notausstieg per PIN
 
@@ -235,8 +253,8 @@ Siehe `keystore/README.md`.
 2. Tag `vX.Y.Z` pushen:
 
    ```bash
-   git tag v1.3.0
-   git push origin v1.3.0
+   git tag v1.4.0
+   git push origin v1.4.0
    ```
 
 3. GitHub Actions (`.github/workflows/android.yml`) baut die Release-APK und hängt sie an die GitHub Release.
@@ -252,3 +270,7 @@ Screenshot-/GIF-Regenerierung (optional): siehe [`.github/workflows/screenshots.
 KidsHome steht unter der **GNU GPL v3** — siehe [LICENSE](LICENSE).
 
 Credits: BaronKiko (LauncherHijack), Meems33 / WhiteRaven777 (Launcher Replacer).
+
+## Changelog
+
+Siehe [CHANGELOG.md](CHANGELOG.md) für Versionshinweise (aktuell: **1.4.0**).

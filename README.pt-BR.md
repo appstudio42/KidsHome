@@ -20,7 +20,7 @@
   <a href="https://github.com/marcelsavegnago/KidsHome/releases/latest"><strong>⬇ Baixar APK (última versão)</strong></a>
 </p>
 
-O KidsHome (v1.3.0) transforma um celular ou tablet reserva em uma tela inicial amigável para crianças: só os apps e sites que você permitir, com limite diário de tempo de tela, bloqueio na hora de dormir e saída de emergência com PIN dos pais. Ele escolhe o melhor modo de enforcement para o aparelho (ou você redefine em **Configuração do dispositivo**).
+O KidsHome (v1.4.0) transforma um celular ou tablet reserva em uma tela inicial amigável para crianças: só os apps e sites que você permitir, com limite diário de tempo de tela, bloqueio na hora de dormir e saída de emergência com PIN dos pais. Ele escolhe o melhor modo de enforcement para o aparelho (ou você redefine em **Configuração do dispositivo**).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="Configuração do KidsHome: criar PIN, escolher apps, definir tempo de tela, entrar no modo criança" width="720" />
@@ -47,6 +47,16 @@ Capturas reais de um emulador Android tablet (1280×800) com o nome de exemplo *
 | ![Apps permitidos](docs/screenshots/07-allowed-apps.png) | ![Hub](docs/screenshots/08-main-hub.png) |
 | Escolher apps da grade | Tela principal do KidsHome |
 
+| Horários | Limites por app | Ganhar tempo |
+|:---:|:---:|:---:|
+| ![Schedules](docs/screenshots/09-schedules.png) | ![App limits](docs/screenshots/10-app-limits.png) | ![Earn time](docs/screenshots/11-earn-time.png) |
+| Rotinas e categorias | Minutos diários por app | Tarefas e minutos bônus |
+
+| Relatório semanal | Celebração | Hora de dormir |
+|:---:|:---:|:---:|
+| ![Report](docs/screenshots/12-weekly-report.png) | ![Celebration](docs/screenshots/13-star-celebration.png) | ![Bedtime](docs/screenshots/14-bedtime.png) |
+| Gráfico de uso local | Estrela ganha | Bloqueio amigável |
+
 ## Recursos
 
 - **Três modos de enforcement** (detectados automaticamente, com override manual):
@@ -55,6 +65,10 @@ Capturas reais de um emulador Android tablet (1280×800) com o nome de exemplo *
   - Device Owner + lock task — kiosk mais forte
 - **Home infantil** — grade com ícones grandes de apps e atalhos de sites, ou travar em um único app
 - **Tempo de tela** — limite diário, janela de sono, aviso, tela de bloqueio amigável, PIN para adicionar tempo / desativar por hoje
+- **Horários / rotinas** — janelas por dia da semana (escola, leitura, dormir) com categorias de apps
+- **Limites por app** — minutos diários por app permitido além do limite total; tiles bloqueados quando esgotados
+- **Ganhar tempo / estrelas** — minutos bônus com PIN e checklist simples com celebração + contador de estrelas
+- **Relatório semanal** — histórico local por app/dia (~4 semanas), gráfico Canvas, limpar / exportar CSV
 - **Saída de emergência com PIN** — 5 toques no canto superior direito (overlay) ou segurar Voltar ~3s; no Device Owner chama `stopLockTask` corretamente
 - Sobrevive a reinicialização; avisa se a acessibilidade estiver desligada quando o modo precisar dela
 - Bloqueio opcional por acessibilidade de apps não permitidos como **camada extra** nos modos launcher / Device Owner
@@ -140,14 +154,18 @@ O Device Owner só pode ser definido em aparelho **sem contas** (remova contas G
    - `startLockTask` a partir do home infantil (kiosk)
 5. A saída de emergência com PIN chama `stopLockTask` e pode desativar o modo criança.
 
-## Tempo de tela e hora de dormir
+## Tempo de tela, horários e ganhar tempo
 
-Nas configurações do **Modo criança** você pode ativar:
+No **hub dos pais** (protegido por PIN) você pode configurar:
 
 - **Limite diário de tempo de tela** (minutos) — o home mostra o tempo restante; ao esgotar, aparece o bloqueio “Tempo esgotado”.
 - **Bloqueio na hora de dormir** — janela de sono (ex.: 20:00–07:00); durante esse período a mensagem é “Hora de dormir”.
+- **Horários / rotinas** — janelas por dia da semana que mostram só certas categorias ou bloqueiam tudo até de manhã.
+- **Limites por app** — ex.: 30 min/dia para vídeo, ilimitado para educação.
+- **Ganhar tempo** — conceder minutos bônus (total ou por app) ou marcar tarefas da lista para dar estrelas.
+- **Relatório semanal** — uso local por dia/app, totais vs limites, limpar histórico, CSV opcional.
 
-Os pais desbloqueiam com o PIN para adicionar 15/30 minutos, desativar o limite por hoje ou a hora de dormir nesta noite.
+Os pais desbloqueiam com o PIN para adicionar 15/30 minutos, desativar o limite por hoje ou a hora de dormir nesta noite. Tudo fica no aparelho (sem rede / analytics / nuvem).
 
 ## Saída de emergência com PIN
 
@@ -235,8 +253,8 @@ Veja `keystore/README.md`.
 2. Envie uma tag `vX.Y.Z`:
 
    ```bash
-   git tag v1.3.0
-   git push origin v1.3.0
+   git tag v1.4.0
+   git push origin v1.4.0
    ```
 
 3. O GitHub Actions (`.github/workflows/android.yml`) gera o APK de release e anexa ao GitHub Release.
@@ -252,3 +270,7 @@ Regeneração de capturas / GIF (opcional): veja [`.github/workflows/screenshots
 KidsHome está sob a **GNU GPL v3** — veja [LICENSE](LICENSE).
 
 Créditos: BaronKiko (LauncherHijack), Meems33 / WhiteRaven777 (Launcher Replacer).
+
+## Changelog
+
+Veja [CHANGELOG.md](CHANGELOG.md) para as notas da versão (atual: **1.4.0**).

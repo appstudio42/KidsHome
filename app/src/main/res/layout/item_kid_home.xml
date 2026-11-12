@@ -21,13 +21,28 @@
         android:paddingEnd="@dimen/space_sm"
         android:paddingBottom="@dimen/space_sm">
 
-        <ImageView
-            android:id="@+id/kidIcon"
-            android:layout_width="@dimen/kid_icon_size"
-            android:layout_height="@dimen/kid_icon_size"
-            android:layout_marginBottom="2dp"
-            android:contentDescription="@null"
-            android:scaleType="fitCenter" />
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp">
+
+            <ImageView
+                android:id="@+id/kidIcon"
+                android:layout_width="@dimen/kid_icon_size"
+                android:layout_height="@dimen/kid_icon_size"
+                android:contentDescription="@null"
+                android:scaleType="fitCenter" />
+
+            <ImageView
+                android:id="@+id/kidLockBadge"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="end|bottom"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_tile_lock"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/kidLabel"
@@ -40,5 +55,18 @@
             android:textSize="@dimen/kid_label_text"
             android:textStyle="bold"
             tools:text="Photos" />
+
+        <TextView
+            android:id="@+id/kidTimeLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textColor="@color/kid_tile_time"
+            android:textSize="11sp"
+            android:visibility="gone"
+            tools:text="12 min"
+            tools:visibility="visible" />
     </LinearLayout>
 </io.github.marcelsavegnago.kidshome.SquareFrameLayout>
