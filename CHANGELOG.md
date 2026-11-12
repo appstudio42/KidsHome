@@ -15,6 +15,8 @@ Offline parent controls for routines, per-app limits, earn-time, and weekly usag
 ### Changed
 - Version **1.4.0** (`versionCode` 140).
 - Prefs schema **v2** migration keeps PIN, allowlist, total limit, and bedtime from 1.3.0.
+- Parent screens (schedules, per-app limits, earn time, weekly report) use the same immersive / lock-task chrome as kid-facing screens, and match the Material 3 pastel hub styling (category chips, limit slider/presets + progress, report chart polish).
+- Bedtime illustration blends with the lock background (no opaque square).
 
 ### Unchanged
 - `applicationId` and release signing setup (CI keystore / optional release secrets) — `adb install -r` upgrades keep data.

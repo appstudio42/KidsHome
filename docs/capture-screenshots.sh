@@ -13,13 +13,13 @@ PKG="${PKG:-io.github.marcelsavegnago.kidshome}"
 CLS="io.github.marcelsavegnago.kidshome"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SHOT="${ROOT}/docs/screenshots"
+SHOT_140="${ROOT}/docs/screenshots/1.4.0"
 MEDIA="${ROOT}/docs/media"
 RAW="/tmp/kidshome-raw"
 EXTRA="${ROOT}/docs/screenshots-extra"
 PIN_SALT="0123456789abcdef0123456789abcdef"
 PIN_HASH="ae60819222c8c4c5e7a63dd250d88f4913926c0ca96d4fcd0accb1b14b34fc7e"
 TODAY="$(adb shell date +%Y%m%d | tr -d '\r')"
-APP_UID="$(adb shell stat -c %u /data/data/$PKG 2>/dev/null | tr -d '\r')"
 
 TABLET_SIZE="${TABLET_SIZE:-1280x800}"
 TABLET_DPI="${TABLET_DPI:-213}"
@@ -28,19 +28,25 @@ FIRE7_DPI="${FIRE7_DPI:-160}"
 PHONE_SIZE="${PHONE_SIZE:-1080x1920}"
 PHONE_DPI="${PHONE_DPI:-420}"
 
-mkdir -p "$SHOT" "$MEDIA" "$RAW" "$EXTRA"
+mkdir -p "$SHOT" "$SHOT_140" "$MEDIA" "$RAW" "$EXTRA"
 
-# Prefer kid-friendly launchable packages present on the emulator. Never include Settings.
+refresh_app_uid() {
+  APP_UID="$(adb shell stat -c %u /data/data/$PKG 2>/dev/null | tr -d '\r')"
+}
+
+# Prefer kid-friendly launchable packages present on the emulator.
+# Never include Settings / Gmail / Chrome as visible tiles (escape / adult apps).
 pick_demo_packages() {
   local candidates=(
     "com.google.android.apps.youtube.kids"
     "com.google.android.youtube"
-    "com.android.chrome"
     "com.android.camera2"
     "com.google.android.GoogleCamera"
     "com.google.android.apps.photos"
     "com.google.android.apps.maps"
     "com.google.android.deskclock"
+    "com.google.android.calendar"
+    "com.google.android.apps.docs.editors.docs"
   )
   local chosen=()
   local pkg
@@ -54,22 +60,49 @@ pick_demo_packages() {
     fi
   done
   DEMO_PACKAGES_XML=""
+  DEMO_PRIMARY_PKG=""
   for pkg in "${chosen[@]}"; do
     DEMO_PACKAGES_XML+="    <string>${pkg}</string>"$'\n'
+    if [ -z "$DEMO_PRIMARY_PKG" ]; then
+      DEMO_PRIMARY_PKG="$pkg"
+    fi
   done
   if [ -z "$DEMO_PACKAGES_XML" ]; then
-    DEMO_PACKAGES_XML=$'    <string>com.android.chrome</string>\n    <string>com.android.camera2</string>\n    <string>com.google.android.apps.photos</string>\n'
+    DEMO_PACKAGES_XML=$'    <string>com.android.camera2</string>\n    <string>com.google.android.apps.photos</string>\n    <string>com.google.android.deskclock</string>\n'
+    DEMO_PRIMARY_PKG="com.android.camera2"
   fi
+  # Prefer YouTube (Kids or regular) as the locked demo tile when present.
+  DEMO_LOCK_PKG="$DEMO_PRIMARY_PKG"
+  for pkg in "${chosen[@]}"; do
+    case "$pkg" in
+      *youtube*) DEMO_LOCK_PKG="$pkg"; break ;;
+    esac
+  done
 }
 
 pick_demo_packages
+echo "Demo apps: lock=${DEMO_LOCK_PKG}"
+echo "${DEMO_PACKAGES_XML}"
+
+# Escape text for SharedPreferences XML string nodes.
+xml_escape() {
+  python3 -c 'import sys,xml.sax.saxutils as x; sys.stdout.write(x.escape(sys.stdin.read()))'
+}
 
 write_prefs() {
   local extra="${1:-}"
   adb shell am force-stop "$PKG"
   sleep 0.4
-  adb shell "mkdir -p /data/data/$PKG/shared_prefs"
-  adb shell "cat > /data/data/$PKG/shared_prefs/KidsHome.xml" <<EOF
+  refresh_app_uid
+  local history_json
+  history_json=$(printf '{"days":{"%s":{"apps":{"%s":1800000,"com.google.android.apps.photos":600000,"com.google.android.apps.maps":400000},"total":2800000,"stars":1}}}' "$TODAY" "$DEMO_LOCK_PKG")
+  local history_xml
+  history_xml=$(printf '%s' "$history_json" | xml_escape)
+  local limits_json used_json
+  limits_json=$(printf '{"%s":30,"com.google.android.apps.photos":60}' "$DEMO_LOCK_PKG")
+  used_json=$(printf '{"%s":1800000,"com.google.android.apps.photos":900000,"com.google.android.apps.maps":400000}' "$DEMO_LOCK_PKG")
+  local tmp="/tmp/KidsHome-capture.xml"
+  cat > "$tmp" <<EOF
 <?xml version='1.0' encoding='utf-8' standalone='yes' ?>
 <map>
   <boolean name="KidModeEnabled" value="true" />
@@ -84,8 +117,6 @@ write_prefs() {
 ${DEMO_PACKAGES_XML}  </set>
   <string name="SiteShortcutsJson">[{"id":"poki","name":"Poki Kids","url":"https://kids.poki.com/"},{"id":"pbs","name":"PBS Kids","url":"https://pbskids.org/games"}]</string>
   <boolean name="siteSuggestionsSeeded" value="true" />
-  <string name="BrowserPackage">com.android.chrome</string>
-  <string name="BrowserActivity">com.google.android.apps.chrome.Main</string>
   <boolean name="ScreenTimeEnabled" value="true" />
   <int name="DailyLimitMinutes" value="60" />
   <long name="UsedMillisToday" value="900000" />
@@ -94,15 +125,15 @@ ${DEMO_PACKAGES_XML}  </set>
   <boolean name="BedtimeEnabled" value="false" />
   <boolean name="SchedulesEnabled" value="true" />
   <string name="SchedulesJson">[{"id":"school","name":"School mornings","enabled":true,"daysMask":62,"start":420,"end":720,"mode":"allow_categories","categories":["education"]},{"id":"read","name":"Evening reading","enabled":true,"daysMask":127,"start":1200,"end":1260,"mode":"allow_categories","categories":["education"]},{"id":"bed","name":"Bedtime","enabled":true,"daysMask":127,"start":1260,"end":420,"mode":"bedtime","categories":[]}]</string>
-  <string name="AppCategoriesJson">{"com.google.android.apps.youtube.kids":"video","com.google.android.youtube":"video","com.android.chrome":"other","com.android.camera2":"other","com.google.android.apps.photos":"other","com.google.android.apps.maps":"education","com.google.android.deskclock":"other"}</string>
-  <string name="AppLimitsJson">{"com.google.android.apps.youtube.kids":30,"com.google.android.youtube":30}</string>
-  <string name="AppUsedMillisTodayJson">{"com.google.android.youtube":1800000}</string>
+  <string name="AppCategoriesJson">{"com.google.android.apps.youtube.kids":"video","com.google.android.youtube":"video","com.android.camera2":"other","com.google.android.GoogleCamera":"other","com.google.android.apps.photos":"other","com.google.android.apps.maps":"education","com.google.android.deskclock":"other","com.google.android.calendar":"education"}</string>
+  <string name="AppLimitsJson">$(printf '%s' "$limits_json" | xml_escape)</string>
+  <string name="AppUsedMillisTodayJson">$(printf '%s' "$used_json" | xml_escape)</string>
   <string name="AppBonusMillisTodayJson">{}</string>
   <string name="EarnTasksJson">[{"id":"teeth","title":"Brush teeth","minutes":10,"target":"total","enabled":true},{"id":"hw","title":"Homework","minutes":15,"target":"total","enabled":true}]</string>
   <string name="EarnTasksDoneDayJson">{"teeth":"1"}</string>
   <int name="StarsTotal" value="5" />
   <int name="StarsToday" value="1" />
-  <string name="UsageHistoryJson">{"days":{"${TODAY}":{"apps":{"com.google.android.youtube":1800000,"com.android.chrome":600000},"total":2400000,"stars":1}}}</string>
+  <string name="UsageHistoryJson">${history_xml}</string>
   <string name="EnforcementMode">launcher</string>
   <boolean name="defaultsLoaded" value="true" />
   <boolean name="EscapeCornerEnabled" value="true" />
@@ -111,9 +142,20 @@ ${DEMO_PACKAGES_XML}  </set>
   ${extra}
 </map>
 EOF
-  if [ -n "${APP_UID}" ]; then
-    adb shell "chown ${APP_UID}:${APP_UID} /data/data/$PKG/shared_prefs/KidsHome.xml; chmod 660 /data/data/$PKG/shared_prefs/KidsHome.xml"
-  fi
+  adb shell "mkdir -p /data/data/$PKG/shared_prefs"
+  adb push "$tmp" /data/local/tmp/KidsHome.xml >/dev/null
+  # Root-copied prefs keep the wrong SELinux MCS category; chcon to the app's
+  # data context so SharedPreferencesImpl can open the file.
+  adb shell "
+    UID=\$(stat -c %u /data/data/$PKG)
+    CTX=\$(stat -c %C /data/data/$PKG)
+    rm -f /data/data/$PKG/shared_prefs/KidsHome.xml /data/data/$PKG/shared_prefs/KidsHome.xml.bak
+    cat /data/local/tmp/KidsHome.xml > /data/data/$PKG/shared_prefs/KidsHome.xml
+    chown \"\$UID:\$UID\" /data/data/$PKG/shared_prefs /data/data/$PKG/shared_prefs/KidsHome.xml
+    chmod 771 /data/data/$PKG/shared_prefs
+    chmod 660 /data/data/$PKG/shared_prefs/KidsHome.xml
+    chcon \"\$CTX\" /data/data/$PKG/shared_prefs/KidsHome.xml
+  "
 }
 
 optimize_png() {
@@ -125,6 +167,12 @@ optimize_png() {
   else
     cp /tmp/kh-crop.png "$dest"
   fi
+  # Keep a PR/README mirror under docs/screenshots/1.4.0 for v1.4.0 shots.
+  case "$(basename "$dest")" in
+    01-kid-home.png|09-schedules.png|10-app-limits.png|11-earn-time.png|12-weekly-report.png|13-star-celebration.png|14-bedtime.png)
+      cp "$dest" "${SHOT_140}/$(basename "$dest")"
+      ;;
+  esac
 }
 
 set_display() {
@@ -233,34 +281,61 @@ adb shell input tap 24 24 >/dev/null 2>&1 || true
 screencap "08-main-hub" 1.2
 
 # --- v1.4.0 feature screens (parent UIs with kid mode off so PIN dialog is skipped) ---
-YDAY="$(python3 - <<'PY'
+# Build a full week of usage so the weekly report chart has bars + today highlight.
+WEEK_HISTORY_XML="$(python3 - <<PY
 from datetime import date, timedelta
-print((date.today() - timedelta(days=1)).strftime("%Y%m%d"))
+import json
+import xml.sax.saxutils as x
+today = date.today()
+lock = "${DEMO_LOCK_PKG}"
+days = {}
+samples = [25, 40, 55, 48, 70, 35, 45]
+for i in range(6, -1, -1):
+    d = today - timedelta(days=i)
+    mins = samples[6 - i]
+    photos = max(5, mins // 3)
+    maps = max(3, mins // 5)
+    days[d.strftime("%Y%m%d")] = {
+        "apps": {
+            lock: (mins - photos - maps) * 60000,
+            "com.google.android.apps.photos": photos * 60000,
+            "com.google.android.apps.maps": maps * 60000,
+        },
+        "total": mins * 60000,
+        "stars": 1 if i % 2 == 0 else 2,
+    }
+print(x.escape(json.dumps({"days": days}, separators=(",", ":"))))
 PY
 )"
 PARENT_EXTRA="<boolean name=\"KidModeEnabled\" value=\"false\" />
-  <string name=\"UsageHistoryJson\">{\"days\":{\"${TODAY}\":{\"apps\":{\"com.google.android.youtube\":1800000,\"com.android.chrome\":900000,\"com.google.android.apps.maps\":600000},\"total\":3300000,\"stars\":2},\"${YDAY}\":{\"apps\":{\"com.google.android.youtube\":1200000,\"com.android.chrome\":400000},\"total\":1600000,\"stars\":1}}}</string>"
+  <string name=\"UsageHistoryJson\">${WEEK_HISTORY_XML}</string>"
 
 write_prefs "${PARENT_EXTRA}"
 adb shell am force-stop "$PKG"
 adb shell am start -n "$PKG/$CLS.SchedulesActivity"
-screencap "09-schedules" 2.2
+sleep 1.0
+dismiss_immersive_cling
+screencap "09-schedules" 2.0
 adb shell input swipe $((W/2)) $((H*3/4)) $((W/2)) $((H/5)) 300 || true
-screencap "09-schedules" 0.8
+screencap "09-schedules" 1.0
 
 adb shell am force-stop "$PKG"
 adb shell am start -n "$PKG/$CLS.AppLimitsActivity"
-screencap "10-app-limits" 2.2
-adb shell input swipe $((W/2)) $((H*3/4)) $((W/2)) $((H/5)) 300 || true
-screencap "10-app-limits" 0.8
+sleep 1.0
+dismiss_immersive_cling
+screencap "10-app-limits" 2.0
 
 adb shell am force-stop "$PKG"
 adb shell am start -n "$PKG/$CLS.EarnTimeActivity"
-screencap "11-earn-time" 2.2
+sleep 1.0
+dismiss_immersive_cling
+screencap "11-earn-time" 2.0
 
 adb shell am force-stop "$PKG"
 adb shell am start -n "$PKG/$CLS.WeeklyReportActivity"
-screencap "12-weekly-report" 2.2
+sleep 1.0
+dismiss_immersive_cling
+screencap "12-weekly-report" 2.0
 
 # Celebration overlay on kid home
 write_prefs '<int name="PendingCelebrationMinutes" value="15" />

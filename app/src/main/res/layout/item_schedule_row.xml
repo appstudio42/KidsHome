@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/space_sm"
+    app:cardBackgroundColor="@color/kid_tile_pastel_2"
     app:cardElevation="@dimen/card_elevation">
 
     <LinearLayout
@@ -20,10 +21,18 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
+            <ImageView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:contentDescription="@null"
+                android:padding="6dp"
+                android:src="@drawable/ic_section_schedule" />
+
             <TextView
                 android:id="@+id/scheduleName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_sm"
                 android:layout_weight="1"
                 android:textAppearance="@style/TextAppearance.KidsHome.Section"
                 tools:text="School mornings" />
@@ -38,6 +47,7 @@
             android:id="@+id/scheduleSummary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_xs"
             android:textAppearance="@style/TextAppearance.KidsHome.Body"
             android:textColor="?attr/colorOnSurfaceVariant"
             tools:text="Mon–Fri · 07:00–12:00 · Education" />
@@ -50,14 +60,14 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/scheduleEdit"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.KidsHome.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/edit" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/scheduleDelete"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.KidsHome.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/delete" />

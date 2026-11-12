@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/space_sm"
+    app:cardBackgroundColor="@color/kid_tile_pastel_5"
     app:cardElevation="@dimen/card_elevation">
 
     <LinearLayout
@@ -45,7 +46,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/earnTaskDelete"
-            style="@style/Widget.Material3.Button.TextButton"
+            style="@style/Widget.KidsHome.Button.Text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/delete" />

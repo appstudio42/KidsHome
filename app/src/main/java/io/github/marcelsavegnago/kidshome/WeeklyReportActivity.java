@@ -3,13 +3,14 @@ package io.github.marcelsavegnago.kidshome;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,13 +27,7 @@ public class WeeklyReportActivity extends ParentPinActivity {
     @Override
     protected void onPinUnlocked() {
         setContentView(R.layout.activity_weekly_report);
-        MaterialToolbar toolbar = findViewById(R.id.reportToolbar);
-        setSupportActionBar(toolbar);
-        ThemeHelper.applySystemBars(this);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-        toolbar.setNavigationOnClickListener(v -> finish());
+        bindParentChrome(R.id.parentRoot, R.id.reportToolbar);
 
         summary = findViewById(R.id.reportSummary);
         chart = findViewById(R.id.reportChart);
@@ -55,11 +50,17 @@ public class WeeklyReportActivity extends ParentPinActivity {
         for (UsageHistory.DayUsage day : week) {
             weekTotal += day.totalMillis;
             weekStars += day.starsEarned;
-            int dow = dayOfWeekIndex(day.dayKey); // 0=Sun … 6=Sat
+            int dow = dayOfWeekIndex(day.dayKey);
             String label = dow >= 0 && dow < dayLabels.length ? dayLabels[dow] : day.dayKey.substring(6);
-            bars.add(new SimpleBarChartView.Bar(label, day.totalMillis / 60_000f));
+            boolean isToday = today.equals(day.dayKey);
+            bars.add(new SimpleBarChartView.Bar(label, day.totalMillis / 60_000f, isToday));
         }
         chart.setBars(bars);
+        if (Prefs.isScreenTimeEnabled(this)) {
+            chart.setLimitValue(Prefs.getDailyLimitMinutes(this));
+        } else {
+            chart.setLimitValue(-1f);
+        }
 
         long limitMin = Prefs.getDailyLimitMinutes(this);
         summary.setText(getString(
@@ -80,6 +81,7 @@ public class WeeklyReportActivity extends ParentPinActivity {
 
         appsList.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(this);
+        PackageManager pm = getPackageManager();
         if (sorted.isEmpty()) {
             TextView empty = new TextView(this);
             empty.setText(R.string.report_empty);
@@ -88,16 +90,31 @@ public class WeeklyReportActivity extends ParentPinActivity {
             return;
         }
         for (Map.Entry<String, Long> entry : sorted) {
-            View row = inflater.inflate(android.R.layout.simple_list_item_2, appsList, false);
-            TextView t1 = row.findViewById(android.R.id.text1);
-            TextView t2 = row.findViewById(android.R.id.text2);
+            View row = inflater.inflate(R.layout.item_report_app, appsList, false);
+            ImageView icon = row.findViewById(R.id.reportAppIcon);
+            TextView name = row.findViewById(R.id.reportAppName);
+            TextView line = row.findViewById(R.id.reportAppSummary);
+            ProgressBar progress = row.findViewById(R.id.reportAppProgress);
             String pkg = entry.getKey();
-            t1.setText(labelFor(pkg));
+            name.setText(labelFor(pkg));
+            try {
+                icon.setImageDrawable(pm.getApplicationIcon(pkg));
+            } catch (Exception e) {
+                icon.setImageResource(R.drawable.ic_notification);
+            }
             int limit = Prefs.getAppLimitMinutes(this, pkg);
             String limitText = limit < 0
                     ? getString(R.string.app_time_unlimited)
                     : getString(R.string.report_limit_fmt, limit);
-            t2.setText(getString(R.string.report_app_line_fmt, formatDuration(entry.getValue()), limitText));
+            line.setText(getString(R.string.report_app_line_fmt, formatDuration(entry.getValue()), limitText));
+            long usedMin = Math.max(0L, entry.getValue() / 60_000L);
+            if (limit < 0) {
+                progress.setMax(100);
+                progress.setProgress((int) Math.min(100, usedMin));
+            } else {
+                progress.setMax(Math.max(1, limit));
+                progress.setProgress((int) Math.min(limit, usedMin));
+            }
             appsList.addView(row);
         }
     }

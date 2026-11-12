@@ -11,8 +11,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.appbar.MaterialToolbar;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,13 +23,7 @@ public class EarnTimeActivity extends ParentPinActivity {
     @Override
     protected void onPinUnlocked() {
         setContentView(R.layout.activity_earn_time);
-        MaterialToolbar toolbar = findViewById(R.id.earnToolbar);
-        setSupportActionBar(toolbar);
-        ThemeHelper.applySystemBars(this);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-        toolbar.setNavigationOnClickListener(v -> finish());
+        bindParentChrome(R.id.parentRoot, R.id.earnToolbar);
 
         tasksList = findViewById(R.id.earnTasksList);
         starsSummary = findViewById(R.id.earnStarsSummary);

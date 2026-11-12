@@ -4,22 +4,22 @@ import android.app.AlertDialog;
 import android.app.TimePickerDialog;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.materialswitch.MaterialSwitch;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 /** Parent editor for weekday routine windows and app categories. */
@@ -32,13 +32,7 @@ public class SchedulesActivity extends ParentPinActivity {
     @Override
     protected void onPinUnlocked() {
         setContentView(R.layout.activity_schedules);
-        MaterialToolbar toolbar = findViewById(R.id.schedulesToolbar);
-        setSupportActionBar(toolbar);
-        ThemeHelper.applySystemBars(this);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-        toolbar.setNavigationOnClickListener(v -> finish());
+        bindParentChrome(R.id.parentRoot, R.id.schedulesToolbar);
 
         schedulesList = findViewById(R.id.schedulesList);
         categoriesList = findViewById(R.id.categoriesList);
@@ -347,12 +341,18 @@ public class SchedulesActivity extends ParentPinActivity {
     private void refreshCategories() {
         categoriesList.removeAllViews();
         PackageManager pm = getPackageManager();
-        Map<String, AppCategory> categories = Prefs.getAppCategories(this);
+        LayoutInflater inflater = LayoutInflater.from(this);
         for (String pkg : Prefs.getAllowedPackages(this)) {
-            View row = LayoutInflater.from(this).inflate(
-                    android.R.layout.simple_list_item_2, categoriesList, false);
-            TextView t1 = row.findViewById(android.R.id.text1);
-            TextView t2 = row.findViewById(android.R.id.text2);
+            final String packageName = pkg;
+            View row = inflater.inflate(R.layout.item_category_app, categoriesList, false);
+            ImageView icon = row.findViewById(R.id.categoryAppIcon);
+            TextView name = row.findViewById(R.id.categoryAppName);
+            ChipGroup chips = row.findViewById(R.id.categoryChipGroup);
+            Chip chipGames = row.findViewById(R.id.chipGames);
+            Chip chipEducation = row.findViewById(R.id.chipEducation);
+            Chip chipVideo = row.findViewById(R.id.chipVideo);
+            Chip chipOther = row.findViewById(R.id.chipOther);
+
             String resolvedLabel = pkg;
             try {
                 ApplicationInfo info = pm.getApplicationInfo(pkg, 0);
@@ -360,14 +360,33 @@ public class SchedulesActivity extends ParentPinActivity {
                 if (loaded != null) {
                     resolvedLabel = loaded.toString();
                 }
-            } catch (Exception ignored) {
+                icon.setImageDrawable(pm.getApplicationIcon(pkg));
+            } catch (Exception e) {
+                icon.setImageResource(R.drawable.ic_notification);
             }
-            final String label = resolvedLabel;
-            final String packageName = pkg;
-            AppCategory cat = categories.containsKey(pkg) ? categories.get(pkg) : AppCategory.OTHER;
-            t1.setText(label);
-            t2.setText(getString(cat.labelResId()));
-            row.setOnClickListener(v -> pickCategoryFor(packageName, label));
+            name.setText(resolvedLabel);
+
+            AppCategory current = Prefs.getAppCategory(this, packageName);
+            chipGames.setChecked(current == AppCategory.GAMES);
+            chipEducation.setChecked(current == AppCategory.EDUCATION);
+            chipVideo.setChecked(current == AppCategory.VIDEO);
+            chipOther.setChecked(current == AppCategory.OTHER);
+
+            chips.setOnCheckedStateChangeListener((group, checkedIds) -> {
+                if (checkedIds.isEmpty()) {
+                    return;
+                }
+                int id = checkedIds.get(0);
+                AppCategory selected = AppCategory.OTHER;
+                if (id == R.id.chipGames) {
+                    selected = AppCategory.GAMES;
+                } else if (id == R.id.chipEducation) {
+                    selected = AppCategory.EDUCATION;
+                } else if (id == R.id.chipVideo) {
+                    selected = AppCategory.VIDEO;
+                }
+                Prefs.setAppCategory(this, packageName, selected);
+            });
             categoriesList.addView(row);
         }
         if (categoriesList.getChildCount() == 0) {
@@ -376,27 +395,5 @@ public class SchedulesActivity extends ParentPinActivity {
             empty.setPadding(0, 16, 0, 16);
             categoriesList.addView(empty);
         }
-    }
-
-    private void pickCategoryFor(String packageName, String label) {
-        AppCategory[] all = AppCategory.values();
-        CharSequence[] labels = new CharSequence[all.length];
-        int selected = 0;
-        AppCategory current = Prefs.getAppCategory(this, packageName);
-        for (int i = 0; i < all.length; i++) {
-            labels[i] = getString(all[i].labelResId());
-            if (all[i] == current) {
-                selected = i;
-            }
-        }
-        new AlertDialog.Builder(this)
-                .setTitle(label)
-                .setSingleChoiceItems(labels, selected, (d, which) -> {
-                    Prefs.setAppCategory(this, packageName, all[which]);
-                    d.dismiss();
-                    refreshCategories();
-                })
-                .setNegativeButton(R.string.cancel, null)
-                .show();
     }
 }

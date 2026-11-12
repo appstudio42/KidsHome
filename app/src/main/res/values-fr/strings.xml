@@ -264,6 +264,10 @@
     <string name="app_limit_unlimited">Illimité</string>
     <string name="app_limit_invalid">Saisissez un nombre de minutes valide</string>
     <string name="app_limit_summary_fmt">%1$d min / jour · %2$d min restantes</string>
+    <string name="app_limit_minutes_fmt">%1$d min / jour</string>
+    <string name="app_limit_preset_15">15</string>
+    <string name="app_limit_preset_30">30</string>
+    <string name="app_limit_preset_60">60</string>
     <string name="app_time_unlimited">Illimité</string>
     <string name="app_time_zero">0 min</string>
     <string name="app_time_left_short">%1$d min</string>
