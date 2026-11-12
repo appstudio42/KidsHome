@@ -82,6 +82,10 @@
                 layout="@layout/item_hub_card" />
 
             <include
+                android:id="@+id/cardRemote"
+                layout="@layout/item_hub_card" />
+
+            <include
                 android:id="@+id/cardDevice"
                 layout="@layout/item_hub_card" />
 

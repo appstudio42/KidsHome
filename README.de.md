@@ -20,7 +20,7 @@
   <a href="https://github.com/appstudio42/KidsHome/releases/latest"><strong>⬇ APK herunterladen (neueste Version)</strong></a>
 </p>
 
-KidsHome (v1.4.0) macht aus einem Ersatzhandy oder -tablet einen kinderfreundlichen Startbildschirm: nur erlaubte Apps und Websites, mit täglichem Bildschirmzeitlimit, Bettzeit-Sperre und Notausstieg per Eltern-PIN. Es wählt den besten Enforcement-Modus für das Gerät (oder Sie überschreiben ihn unter **Geräteeinrichtung**). Gepflegt von [App Studio 42](https://appstudio42.github.io).
+KidsHome (v1.5.0) macht aus einem Ersatzhandy oder -tablet einen kinderfreundlichen Startbildschirm: nur erlaubte Apps und Websites, mit täglichem Bildschirmzeitlimit, Bettzeit-Sperre, Notausstieg per Eltern-PIN und optionaler LAN-Fernbedienung im Telefonbrowser. Es wählt den besten Enforcement-Modus für das Gerät (oder Sie überschreiben ihn unter **Geräteeinrichtung**). Gepflegt von [App Studio 42](https://appstudio42.github.io).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="KidsHome-Einrichtung: PIN erstellen, Apps wählen, Bildschirmzeit setzen, Kindermodus starten" width="720" />
@@ -69,9 +69,18 @@ Echte Aufnahmen von einem Android-Tablet-Emulator (1280×800) mit dem Demo-Kinde
 - **Limits pro App** — tägliche Minuten pro erlaubter App zusätzlich zum Gesamttageslimit; gesperrte Kacheln bei Erschöpfung
 - **Zeit verdienen / Sterne** — Bonusminuten per PIN und Aufgabenliste mit Feier + Sternzähler
 - **Wochenbericht** — lokaler Verlauf pro App/Tag (~4 Wochen), Canvas-Diagramm, löschen / CSV-Export
+- **Fernbedienung (LAN)** — lokale Webseite im Tablet-WLAN (Port 8642); QR/Token oder PIN; Zeit hinzufügen, sperren/entsperren; standardmäßig aus; keine Cloud
 - **Notausstieg per PIN** — 5 Tipps oben rechts (Overlay) oder Zurück ~3 s halten; Device-Owner-Pfad ruft `stopLockTask` sauber auf
 - Überlebt Neustarts; warnt, wenn Accessibility aus ist und der Modus sie braucht
 - Optionale Accessibility-Sperre nicht erlaubter Apps als **zusätzliche Schicht** in Launcher- / Device-Owner-Modi
+
+## Fernbedienung
+
+Standardmäßig aus. Im Eltern-Hub **Fernbedienung** öffnen, aktivieren und den QR scannen (oder `http://<tablet-ip>:8642`) vom Telefon im **selben WLAN**. Die Seite zeigt heutige Nutzung, Sterne und Status; +15/+30/+60 Min., **Jetzt sperren** oder **Entsperren**. Auth per QR-Token oder PIN (PIN wird nie angezeigt). Keine Cloud. Aktionen erscheinen im Wochenbericht als **Fernbedienung**.
+
+| Einstellungen | Telefonseite | Nach +Zeit | Fernsperre |
+|:---:|:---:|:---:|:---:|
+| ![Remote settings](docs/screenshots/1.5.0/01-remote-settings-qr.png) | ![Remote page](docs/screenshots/1.5.0/02-remote-phone-page.png) | ![After add](docs/screenshots/1.5.0/03-remote-after-add-time.png) | ![Remote lock](docs/screenshots/1.5.0/04-remote-lock-tablet.png) |
 
 ## Unterstützte Geräte
 
@@ -253,8 +262,8 @@ Siehe `keystore/README.md`.
 2. Tag `vX.Y.Z` pushen:
 
    ```bash
-   git tag v1.4.0
-   git push origin v1.4.0
+   git tag v1.5.0
+   git push origin v1.5.0
    ```
 
 3. GitHub Actions (`.github/workflows/android.yml`) baut die Release-APK und hängt sie an die GitHub Release.
@@ -273,4 +282,4 @@ Credits: BaronKiko (LauncherHijack), Meems33 / WhiteRaven777 (Launcher Replacer)
 
 ## Changelog
 
-Siehe [CHANGELOG.md](CHANGELOG.md) für Versionshinweise (aktuell: **1.4.0**).
+Siehe [CHANGELOG.md](CHANGELOG.md) für Versionshinweise (aktuell: **1.5.0**).

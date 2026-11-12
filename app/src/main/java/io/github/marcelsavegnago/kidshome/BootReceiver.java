@@ -44,6 +44,9 @@ public class BootReceiver extends BroadcastReceiver {
         ServiceMan.start(context);
         StatusNotifier.ensureChannel(context);
         EscapeOverlayNotifier.requestRefresh(context);
+        if (Prefs.isRemoteControlEnabled(context)) {
+            RemoteControlService.start(context);
+        }
 
         if (EnforcementController.needsAccessibilityService(context)
                 && !AccessibilityHelper.isAccessibilityEnabled(context)) {

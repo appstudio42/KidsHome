@@ -20,7 +20,7 @@
   <a href="https://github.com/appstudio42/KidsHome/releases/latest"><strong>⬇ Download APK (latest release)</strong></a>
 </p>
 
-KidsHome (v1.4.0) turns a spare phone or tablet into a kid-friendly home screen: only the apps and sites you allow, with daily screen-time limits, bedtime lock, and a parent PIN escape. It picks the best enforcement mode for the device (or you override it in **Device setup**). Maintained by [App Studio 42](https://appstudio42.github.io).
+KidsHome (v1.5.0) turns a spare phone or tablet into a kid-friendly home screen: only the apps and sites you allow, with daily screen-time limits, bedtime lock, a parent PIN escape, and optional LAN remote control from a phone browser. It picks the best enforcement mode for the device (or you override it in **Device setup**). Maintained by [App Studio 42](https://appstudio42.github.io).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="KidsHome setup: create PIN, choose apps, set screen time, enter kid mode" width="720" />
@@ -57,6 +57,11 @@ Real captures from an Android tablet emulator (1280×800) with demo child name *
 | ![Report](docs/screenshots/12-weekly-report.png) | ![Celebration](docs/screenshots/13-star-celebration.png) | ![Bedtime](docs/screenshots/14-bedtime.png) |
 | Local usage chart | Earn-time celebration | Friendly bedtime lock |
 
+| Remote settings | Phone page | After +time | Remote lock |
+|:---:|:---:|:---:|:---:|
+| ![Remote settings](docs/screenshots/1.5.0/01-remote-settings-qr.png) | ![Remote page](docs/screenshots/1.5.0/02-remote-phone-page.png) | ![After add](docs/screenshots/1.5.0/03-remote-after-add-time.png) | ![Remote lock](docs/screenshots/1.5.0/04-remote-lock-tablet.png) |
+| URL + QR in parent settings | Usage & state on phone | Time added remotely | Lock now on tablet |
+
 ## Features
 
 - **Three enforcement modes** (auto-detected, with manual override):
@@ -70,11 +75,16 @@ Real captures from an Android tablet emulator (1280×800) with demo child name *
 - **Per-app limits** — daily minutes per allowed app on top of the total limit; locked tiles when exhausted
 - **Earn time / stars** — PIN-gated bonus minutes and a simple task checklist with celebration + star counter
 - **Weekly usage report** — local per-app/per-day history (~4 weeks), Canvas bar chart, clear / CSV export
+- **Remote control (LAN)** — optional embedded HTTP page on the tablet Wi‑Fi (port 8642); QR pairing token or parent PIN; add time, lock/unlock; off by default; no cloud
 - **Emergency PIN exit** — modern keypad with dots, shake + haptics, lockout; 5 taps top-right or hold Back ~3s
-- **Parent hub** — section cards for profile, apps, websites, screen time, schedules, limits, earn time, report, device setup, security, about
+- **Parent hub** — section cards for profile, apps, websites, screen time, schedules, limits, earn time, report, remote control, device setup, security, about
 - Survives reboot; warns if accessibility is off when that mode needs it
 - Optional accessibility blocking of non-allowed apps as an **extra layer** in launcher / Device Owner modes
 - UI strings in **en / pt-BR / es / fr / de**
+
+## Remote control
+
+Off by default. In the parent hub open **Remote control**, enable it, then scan the QR (or open `http://<tablet-ip>:8642`) from a phone on the **same Wi‑Fi**. The page shows today’s usage, stars, and tablet state; parents can add +15/+30/+60 minutes (or custom), **Lock now**, or **Unlock**. Auth uses the QR pairing token or the parent PIN (PIN is never shown). Sessions use a cookie; PIN attempts are rate-limited; regenerating the token revokes sessions. Only private LAN peers are accepted. Actions appear in the weekly report as **parent remote**. FOSS stack (NanoHTTPD + ZXing core) — F-Droid friendly, no accounts/cloud.
 
 ## Supported devices
 
@@ -276,4 +286,4 @@ Credits: BaronKiko (LauncherHijack), Meems33 / WhiteRaven777 (Launcher Replacer)
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for release notes (current: **1.4.0**).
+See [CHANGELOG.md](CHANGELOG.md) for release notes (current: **1.5.0**).

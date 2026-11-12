@@ -324,6 +324,32 @@
     <string name="report_clear">Clear history</string>
     <string name="report_clear_confirm">Delete about 4 weeks of local usage history? This cannot be undone.</string>
     <string name="report_cleared">Usage history cleared</string>
+    <string name="report_remote_section">Parent remote actions</string>
+
+    <!-- v1.5.0 — LAN parent remote control -->
+    <string name="section_remote_control">Remote control</string>
+    <string name="section_remote_control_sub">LAN web page for parents — off by default</string>
+    <string name="remote_title">Remote control</string>
+    <string name="remote_help">Turn on a tiny local web page on this tablet’s Wi‑Fi. Open it from any phone browser on the same network. No cloud, no accounts, no separate app.</string>
+    <string name="remote_enable">Enable remote control</string>
+    <string name="remote_url_label">Open on your phone</string>
+    <string name="remote_url_hint">Pairing link (includes token):\n%1$s</string>
+    <string name="remote_qr_cd">QR code with pairing URL</string>
+    <string name="remote_copy_url">Copy pairing URL</string>
+    <string name="remote_url_copied">Pairing URL copied</string>
+    <string name="remote_regenerate_token">Regenerate pairing token</string>
+    <string name="remote_token_regenerated">Token regenerated — old sessions revoked</string>
+    <string name="remote_security_note">Requests need the QR token or parent PIN. The PIN is never shown. Only private LAN addresses are accepted. Regenerating the token signs everyone out.</string>
+    <string name="remote_no_wifi">Connect this tablet to Wi‑Fi to get a URL</string>
+    <string name="remote_no_wifi_hint">Join the same Wi‑Fi as your phone, then reopen this screen.</string>
+    <string name="remote_notification_channel">Remote control</string>
+    <string name="remote_notification_channel_desc">Keeps the local parent remote page available on Wi‑Fi</string>
+    <string name="remote_notification_title">KidsHome remote control</string>
+    <string name="remote_notification_text">Open %1$s on your phone</string>
+    <string name="remote_notification_no_wifi">Waiting for Wi‑Fi…</string>
+    <string name="remote_lock_title">Paused by a parent</string>
+    <string name="remote_lock_message">A parent locked the tablet from the remote page. Ask them to unlock, or enter the parent PIN.</string>
+    <string name="remote_unlock_here">Unlock remote lock</string>
 
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>

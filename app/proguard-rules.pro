@@ -2,7 +2,9 @@
 -keep class io.github.marcelsavegnago.kidshome.AccServ { *; }
 -keep class io.github.marcelsavegnago.kidshome.BootReceiver { *; }
 -keep class io.github.marcelsavegnago.kidshome.HomeButtonService { *; }
+-keep class io.github.marcelsavegnago.kidshome.RemoteControlService { *; }
 -keep class io.github.marcelsavegnago.kidshome.KidsHomeDeviceAdminReceiver { *; }
+-keep class fi.iki.elonen.** { *; }
 -keep class io.github.marcelsavegnago.kidshome.MainActivity { *; }
 -keep class io.github.marcelsavegnago.kidshome.EscapePinActivity { *; }
 -keep class io.github.marcelsavegnago.kidshome.ScreenTimeLockActivity { *; }

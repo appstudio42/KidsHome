@@ -110,6 +110,9 @@ public class MainActivity extends AppCompatActivity {
         bindHubCard(R.id.cardReport, R.drawable.ic_section_report,
                 R.string.section_weekly_report, R.string.section_weekly_report_sub,
                 v -> startActivity(new Intent(this, WeeklyReportActivity.class)));
+        bindHubCard(R.id.cardRemote, R.drawable.ic_section_remote,
+                R.string.section_remote_control, R.string.section_remote_control_sub,
+                v -> startActivity(new Intent(this, RemoteControlActivity.class)));
         bindHubCard(R.id.cardDevice, R.drawable.ic_section_device,
                 R.string.section_device_setup, R.string.section_device_setup_sub,
                 v -> startActivity(new Intent(this, SetupActivity.class)));
@@ -121,6 +124,9 @@ public class MainActivity extends AppCompatActivity {
                 v -> startActivity(new Intent(this, AboutActivity.class)));
 
         ServiceMan.start(this);
+        if (Prefs.isRemoteControlEnabled(this)) {
+            RemoteControlService.start(this);
+        }
         refreshStatusBanner();
         refreshLauncherSection();
 

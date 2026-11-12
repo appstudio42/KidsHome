@@ -47,7 +47,7 @@ public final class Prefs {
     public static final String KEY_TOUCH_SOUNDS = "KidTouchSounds";
     public static final String KEY_PREFS_VERSION = "PrefsVersion";
     /** Schema version for forward-compatible migrations. Existing installs stay at v0 until migrate. */
-    public static final int CURRENT_PREFS_VERSION = 2;
+    public static final int CURRENT_PREFS_VERSION = 3;
 
     public static final String KEY_SCREEN_TIME_ENABLED = "ScreenTimeEnabled";
     public static final String KEY_DAILY_LIMIT_MINUTES = "DailyLimitMinutes";
@@ -81,6 +81,13 @@ public final class Prefs {
     public static final String KEY_USAGE_HISTORY_JSON = "UsageHistoryJson";
     public static final String KEY_PENDING_CELEBRATION = "PendingCelebrationMinutes";
     public static final String KEY_FOREGROUND_PKG = "ForegroundTrackPackage";
+
+    // v1.5.0 — LAN parent remote control (off by default)
+    public static final String KEY_REMOTE_ENABLED = "RemoteControlEnabled";
+    public static final String KEY_REMOTE_PORT = "RemoteControlPort";
+    public static final String KEY_REMOTE_TOKEN = "RemoteControlToken";
+    public static final String KEY_REMOTE_FORCE_LOCK = "RemoteForceLock";
+    public static final String KEY_REMOTE_ACTION_LOG_JSON = "RemoteActionLogJson";
 
     private Prefs() {
     }
@@ -185,6 +192,21 @@ public final class Prefs {
             }
             if (!prefs.contains(KEY_USAGE_HISTORY_JSON)) {
                 editor.putString(KEY_USAGE_HISTORY_JSON, "{\"days\":{}}");
+            }
+        }
+        // v3: LAN remote control defaults (disabled; generate token lazily when enabled).
+        if (version < 3) {
+            if (!prefs.contains(KEY_REMOTE_ENABLED)) {
+                editor.putBoolean(KEY_REMOTE_ENABLED, false);
+            }
+            if (!prefs.contains(KEY_REMOTE_PORT)) {
+                editor.putInt(KEY_REMOTE_PORT, RemoteRequestHandler.DEFAULT_PORT);
+            }
+            if (!prefs.contains(KEY_REMOTE_FORCE_LOCK)) {
+                editor.putBoolean(KEY_REMOTE_FORCE_LOCK, false);
+            }
+            if (!prefs.contains(KEY_REMOTE_ACTION_LOG_JSON)) {
+                editor.putString(KEY_REMOTE_ACTION_LOG_JSON, "{\"entries\":[]}");
             }
         }
         editor.putInt(KEY_PREFS_VERSION, CURRENT_PREFS_VERSION);
@@ -881,6 +903,7 @@ public final class Prefs {
     public static void clearUsageHistory(Context context) {
         get(context).edit()
                 .putString(KEY_USAGE_HISTORY_JSON, "{\"days\":{}}")
+                .putString(KEY_REMOTE_ACTION_LOG_JSON, "{\"entries\":[]}")
                 .commit();
     }
 
@@ -921,6 +944,98 @@ public final class Prefs {
                 cal.get(java.util.Calendar.DAY_OF_WEEK),
                 ScreenTimeState.minutesOfDayNow()
         );
+    }
+
+    // --- v1.5.0 remote control ---
+
+    public static boolean isRemoteControlEnabled(Context context) {
+        migrateIfNeeded(context);
+        return get(context).getBoolean(KEY_REMOTE_ENABLED, false);
+    }
+
+    public static void setRemoteControlEnabled(Context context, boolean enabled) {
+        SharedPreferences.Editor editor = get(context).edit().putBoolean(KEY_REMOTE_ENABLED, enabled);
+        if (!enabled) {
+            editor.putBoolean(KEY_REMOTE_FORCE_LOCK, false);
+        }
+        editor.commit();
+    }
+
+    public static int getRemoteControlPort(Context context) {
+        migrateIfNeeded(context);
+        int port = get(context).getInt(KEY_REMOTE_PORT, RemoteRequestHandler.DEFAULT_PORT);
+        if (port < 1024 || port > 65535) {
+            return RemoteRequestHandler.DEFAULT_PORT;
+        }
+        return port;
+    }
+
+    public static void setRemoteControlPort(Context context, int port) {
+        int safe = (port < 1024 || port > 65535) ? RemoteRequestHandler.DEFAULT_PORT : port;
+        get(context).edit().putInt(KEY_REMOTE_PORT, safe).commit();
+    }
+
+    /**
+     * Returns the pairing token, creating one if missing. Never stores or returns the parent PIN.
+     */
+    public static String getOrCreateRemoteToken(Context context) {
+        migrateIfNeeded(context);
+        String token = get(context).getString(KEY_REMOTE_TOKEN, "");
+        if (token == null || token.isEmpty()) {
+            token = RemoteAuth.generateToken();
+            get(context).edit().putString(KEY_REMOTE_TOKEN, token).commit();
+        }
+        return token;
+    }
+
+    public static String getRemoteToken(Context context) {
+        migrateIfNeeded(context);
+        return get(context).getString(KEY_REMOTE_TOKEN, "");
+    }
+
+    /** Regenerates the pairing token and clears any remote force-lock. Sessions are revoked by the server. */
+    public static String regenerateRemoteToken(Context context) {
+        String token = RemoteAuth.generateToken();
+        get(context).edit()
+                .putString(KEY_REMOTE_TOKEN, token)
+                .putBoolean(KEY_REMOTE_FORCE_LOCK, false)
+                .commit();
+        return token;
+    }
+
+    public static boolean isRemoteForceLocked(Context context) {
+        return get(context).getBoolean(KEY_REMOTE_FORCE_LOCK, false);
+    }
+
+    public static void setRemoteForceLocked(Context context, boolean locked) {
+        get(context).edit().putBoolean(KEY_REMOTE_FORCE_LOCK, locked).commit();
+    }
+
+    public static java.util.List<RemoteActionLog.Entry> getRemoteActionLog(Context context) {
+        migrateIfNeeded(context);
+        return RemoteActionLog.fromJson(get(context).getString(KEY_REMOTE_ACTION_LOG_JSON, "{\"entries\":[]}"));
+    }
+
+    public static void appendRemoteAction(Context context, String action, int minutes) {
+        migrateIfNeeded(context);
+        java.util.List<RemoteActionLog.Entry> existing = getRemoteActionLog(context);
+        RemoteActionLog.Entry entry = new RemoteActionLog.Entry(
+                System.currentTimeMillis(),
+                ScreenTimeState.dayKeyNow(),
+                action,
+                minutes
+        );
+        java.util.List<RemoteActionLog.Entry> next = RemoteActionLog.append(
+                existing, entry, UsageHistory.RETAIN_DAYS);
+        get(context).edit()
+                .putString(KEY_REMOTE_ACTION_LOG_JSON, RemoteActionLog.toJson(next))
+                .commit();
+    }
+
+    public static void clearRemoteActionLog(Context context) {
+        get(context).edit()
+                .putString(KEY_REMOTE_ACTION_LOG_JSON, "{\"entries\":[]}")
+                .commit();
     }
 
     private static void ensureDefaults(Context context) {

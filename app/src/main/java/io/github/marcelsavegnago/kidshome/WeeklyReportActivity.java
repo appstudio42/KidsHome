@@ -82,6 +82,25 @@ public class WeeklyReportActivity extends ParentPinActivity {
         appsList.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(this);
         PackageManager pm = getPackageManager();
+
+        List<RemoteActionLog.Entry> remoteWeek = RemoteActionLog.forWeek(
+                Prefs.getRemoteActionLog(this), today);
+        if (!remoteWeek.isEmpty()) {
+            TextView remoteHeader = new TextView(this);
+            remoteHeader.setText(R.string.report_remote_section);
+            remoteHeader.setPadding(0, 8, 0, 8);
+            remoteHeader.setTextAppearance(this, R.style.TextAppearance_KidsHome_Section);
+            appsList.addView(remoteHeader);
+            String lang = getResources().getConfiguration().locale.getLanguage();
+            boolean portuguese = lang != null && lang.toLowerCase().startsWith("pt");
+            for (RemoteActionLog.Entry entry : remoteWeek) {
+                TextView line = new TextView(this);
+                line.setText(RemoteActionLog.formatLabel(entry, portuguese));
+                line.setPadding(0, 4, 0, 4);
+                appsList.addView(line);
+            }
+        }
+
         if (sorted.isEmpty()) {
             TextView empty = new TextView(this);
             empty.setText(R.string.report_empty);

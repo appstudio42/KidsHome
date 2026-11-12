@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#E86A5B" />
+  <title>KidsHome Remote</title>
+  <link rel="stylesheet" href="/assets/style.css" />
+</head>
+<body>
+  <div class="bg" aria-hidden="true"></div>
+  <main class="shell">
+    <header class="brand">
+      <p class="brand-mark">KidsHome</p>
+      <h1 id="title">Remote control</h1>
+      <p id="subtitle" class="lede">Same Wi‑Fi · no cloud · no accounts</p>
+    </header>
+
+    <section id="login" class="panel" hidden>
+      <h2 id="loginTitle">Parent login</h2>
+      <p id="loginHint" class="muted">Open the QR from tablet settings, or enter the parent PIN.</p>
+      <label class="field">
+        <span id="lblToken">Pairing token</span>
+        <input id="token" type="text" autocomplete="off" spellcheck="false" />
+      </label>
+      <label class="field">
+        <span id="lblPin">Parent PIN</span>
+        <input id="pin" type="password" inputmode="numeric" maxlength="8" autocomplete="current-password" />
+      </label>
+      <p id="loginError" class="error" role="alert" hidden></p>
+      <button id="btnLogin" class="btn primary" type="button">Sign in</button>
+    </section>
+
+    <section id="dashboard" class="panel" hidden>
+      <div class="status-row">
+        <span id="stateChip" class="chip">…</span>
+        <span id="childChip" class="chip soft"></span>
+      </div>
+
+      <section class="usage">
+        <h2 id="usageTitle">Today</h2>
+        <div class="meter" aria-hidden="true">
+          <div id="usageFill" class="meter-fill"></div>
+        </div>
+        <p id="usageLine" class="usage-line">—</p>
+        <p id="starsLine" class="stars">★ 0</p>
+      </section>
+
+      <section>
+        <h2 id="actionsTitle">Actions</h2>
+        <div class="actions">
+          <button class="btn" data-add="15" type="button">+15</button>
+          <button class="btn" data-add="30" type="button">+30</button>
+          <button class="btn" data-add="60" type="button">+60</button>
+          <button id="btnCustom" class="btn" type="button">…</button>
+        </div>
+        <div class="actions stack">
+          <button id="btnLock" class="btn danger" type="button">Lock now</button>
+          <button id="btnUnlock" class="btn teal" type="button">Unlock</button>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="appsTitle">Apps today</h2>
+        <ul id="appsList" class="apps"></ul>
+      </section>
+
+      <button id="btnLogout" class="btn ghost" type="button">Sign out</button>
+    </section>
+
+    <p id="toast" class="toast" hidden></p>
+  </main>
+  <script src="/assets/app.js"></script>
+</body>
+</html>

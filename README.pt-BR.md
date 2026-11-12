@@ -20,7 +20,7 @@
   <a href="https://github.com/appstudio42/KidsHome/releases/latest"><strong>⬇ Baixar APK (última versão)</strong></a>
 </p>
 
-O KidsHome (v1.4.0) transforma um celular ou tablet reserva em uma tela inicial amigável para crianças: só os apps e sites que você permitir, com limite diário de tempo de tela, bloqueio na hora de dormir e saída de emergência com PIN dos pais. Ele escolhe o melhor modo de enforcement para o aparelho (ou você redefine em **Configuração do dispositivo**). Mantido pelo [App Studio 42](https://appstudio42.github.io).
+O KidsHome (v1.5.0) transforma um celular ou tablet reserva em uma tela inicial amigável para crianças: só os apps e sites que você permitir, com limite diário de tempo de tela, bloqueio na hora de dormir, saída de emergência com PIN dos pais e controle remoto opcional na rede local pelo navegador do celular. Ele escolhe o melhor modo de enforcement para o aparelho (ou você redefine em **Configuração do dispositivo**). Mantido pelo [App Studio 42](https://appstudio42.github.io).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="Configuração do KidsHome: criar PIN, escolher apps, definir tempo de tela, entrar no modo criança" width="720" />
@@ -69,9 +69,18 @@ Capturas reais de um emulador Android tablet (1280×800) com o nome de exemplo *
 - **Limites por app** — minutos diários por app permitido além do limite total; tiles bloqueados quando esgotados
 - **Ganhar tempo / estrelas** — minutos bônus com PIN e checklist simples com celebração + contador de estrelas
 - **Relatório semanal** — histórico local por app/dia (~4 semanas), gráfico Canvas, limpar / exportar CSV
+- **Controle remoto (LAN)** — página web embutida no Wi‑Fi do tablet (porta 8642); QR/token ou PIN; adicionar tempo, bloquear/desbloquear; desligado por padrão; sem nuvem
 - **Saída de emergência com PIN** — 5 toques no canto superior direito (overlay) ou segurar Voltar ~3s; no Device Owner chama `stopLockTask` corretamente
 - Sobrevive a reinicialização; avisa se a acessibilidade estiver desligada quando o modo precisar dela
 - Bloqueio opcional por acessibilidade de apps não permitidos como **camada extra** nos modos launcher / Device Owner
+
+## Controle remoto
+
+Desligado por padrão. No hub dos responsáveis abra **Controle remoto**, ative e escaneie o QR (ou abra `http://<ip-do-tablet>:8642`) no celular na **mesma rede Wi‑Fi**. A página mostra o uso de hoje, estrelas e o estado do tablet; dá para adicionar +15/+30/+60 min (ou personalizado), **Bloquear agora** ou **Desbloquear**. Autenticação com o token do QR ou o PIN (o PIN nunca aparece). Sessões com cookie; tentativas de PIN com bloqueio progressivo; regenerar o token encerra as sessões. Só peers de rede local privada. As ações aparecem no relatório semanal como **controle remoto**.
+
+| Configurações | Página no celular | Após +tempo | Bloqueio remoto |
+|:---:|:---:|:---:|:---:|
+| ![Remote settings](docs/screenshots/1.5.0/01-remote-settings-qr.png) | ![Remote page](docs/screenshots/1.5.0/02-remote-phone-page.png) | ![After add](docs/screenshots/1.5.0/03-remote-after-add-time.png) | ![Remote lock](docs/screenshots/1.5.0/04-remote-lock-tablet.png) |
 
 ## Dispositivos suportados
 
@@ -253,8 +262,8 @@ Veja `keystore/README.md`.
 2. Envie uma tag `vX.Y.Z`:
 
    ```bash
-   git tag v1.4.0
-   git push origin v1.4.0
+   git tag v1.5.0
+   git push origin v1.5.0
    ```
 
 3. O GitHub Actions (`.github/workflows/android.yml`) gera o APK de release e anexa ao GitHub Release.
@@ -273,4 +282,4 @@ Créditos: BaronKiko (LauncherHijack), Meems33 / WhiteRaven777 (Launcher Replace
 
 ## Changelog
 
-Veja [CHANGELOG.md](CHANGELOG.md) para as notas da versão (atual: **1.4.0**).
+Veja [CHANGELOG.md](CHANGELOG.md) para as notas da versão (atual: **1.5.0**).
