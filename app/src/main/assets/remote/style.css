@@ -55,7 +55,8 @@ html, body {
   height: 56px;
   border-radius: 16px;
   box-shadow: 0 8px 20px rgba(232, 106, 91, 0.22);
-  background: #FFF8F3;
+  display: block;
+  background: transparent;
 }
 .brand-mark {
   margin: 0;
@@ -78,19 +79,24 @@ html, body {
   animation: rise 0.9s ease both;
 }
 
+/* Transform-only: opacity fades made locked screenshots / late paints look washed out. */
 @keyframes rise {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { transform: translateY(10px); }
+  to { transform: translateY(0); }
 }
 
 .panel {
   margin-top: 22px;
   padding: 18px;
-  background: var(--card);
+  background: #fff;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  backdrop-filter: blur(8px);
-  animation: rise 0.75s ease both;
+  opacity: 1;
+  animation: rise 0.45s ease both;
+}
+
+.panel[hidden] {
+  display: none !important;
 }
 
 .panel h2 {
@@ -131,9 +137,16 @@ html, body {
   transition: transform 0.15s ease, background 0.15s ease;
 }
 .btn:active { transform: scale(0.97); }
-.btn.primary { background: var(--coral); color: #fff; width: 100%; margin-top: 8px; }
+.btn.primary { background: var(--coral); color: #fff; }
+#btnLogin.btn.primary { width: 100%; margin-top: 8px; }
+.actions.stack .btn.primary { width: auto; margin-top: 0; }
 .btn.danger { background: var(--danger); color: #fff; }
 .btn.teal { background: var(--teal); color: #fff; }
+.btn.secondary {
+  background: #fff;
+  color: var(--ink);
+  border: 1.5px solid rgba(42, 36, 32, 0.16);
+}
 .btn.ghost { background: transparent; box-shadow: none; color: var(--muted); width: 100%; margin-top: 18px; }
 
 .actions {
@@ -169,6 +182,49 @@ html, body {
 .chip.ok { background: rgba(95, 168, 160, 0.22); color: #2F6B64; }
 .chip.warn { background: rgba(232, 184, 74, 0.28); color: #7A5A12; }
 .chip.bad { background: rgba(232, 106, 91, 0.22); color: #8E3A31; }
+
+.lock-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(232, 106, 91, 0.14);
+  border: 2px solid var(--coral);
+  color: #8E3A31;
+}
+.lock-banner[hidden] { display: none !important; }
+.lock-banner strong {
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+}
+.lock-banner span {
+  font-size: 0.9rem;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+#dashboard.is-locked .chip.bad {
+  background: var(--coral);
+  color: #fff;
+}
+
+#dashboard.is-locked #btnUnlock {
+  background: var(--coral);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(232, 106, 91, 0.28);
+}
+
+#dashboard.is-locked #btnLock {
+  background: #fff;
+  color: var(--ink);
+  border: 1.5px solid rgba(42, 36, 32, 0.16);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg, .brand-row, .brand h1, .lede, .panel, .toast { animation: none !important; }
+}
 
 .meter {
   height: 12px;

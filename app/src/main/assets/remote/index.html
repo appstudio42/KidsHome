@@ -35,6 +35,10 @@
     </section>
 
     <section id="dashboard" class="panel" hidden>
+      <div id="lockBanner" class="lock-banner" hidden>
+        <strong id="lockBannerTitle">Locked</strong>
+        <span id="lockBannerHint"></span>
+      </div>
       <div class="status-row">
         <span id="stateChip" class="chip">…</span>
         <span id="childChip" class="chip soft"></span>
@@ -58,8 +62,8 @@
           <button id="btnCustom" class="btn" type="button">…</button>
         </div>
         <div class="actions stack">
-          <button id="btnLock" class="btn danger" type="button">Lock now</button>
           <button id="btnUnlock" class="btn teal" type="button">Unlock</button>
+          <button id="btnLock" class="btn danger" type="button">Lock now</button>
         </div>
       </section>
 

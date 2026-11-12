@@ -57,10 +57,10 @@ Real captures from an Android tablet emulator (1280×800) with demo child name *
 | ![Report](docs/screenshots/12-weekly-report.png) | ![Celebration](docs/screenshots/13-star-celebration.png) | ![Bedtime](docs/screenshots/14-bedtime.png) |
 | Local usage chart | Earn-time celebration | Friendly bedtime lock |
 
-| Remote settings | Phone page | After +time | Remote lock |
-|:---:|:---:|:---:|:---:|
-| ![Remote settings](docs/screenshots/1.5.0/01-remote-settings-qr.png) | ![Remote page](docs/screenshots/1.5.0/02-remote-phone-page.png) | ![After add](docs/screenshots/1.5.0/03-remote-after-add-time.png) | ![Remote lock](docs/screenshots/1.5.0/04-remote-lock-tablet.png) |
-| URL + QR in parent settings | Usage & state on phone | Time added remotely | Lock now on tablet |
+| Remote settings | Phone page | After +time | Remote lock | Phone · locked |
+|:---:|:---:|:---:|:---:|:---:|
+| ![Remote settings](docs/screenshots/1.5.0/01-remote-settings-qr.png) | ![Remote page](docs/screenshots/1.5.0/02-remote-phone-page.png) | ![After add](docs/screenshots/1.5.0/03-remote-after-add-time.png) | ![Remote lock](docs/screenshots/1.5.0/04-remote-lock-tablet.png) | ![Phone locked](docs/screenshots/1.5.0/09-remote-phone-locked.png) |
+| URL + QR in parent settings | Usage & state on phone | Time added remotely | Lock now on tablet | Kid mode on · remote lock |
 
 | Remote settings (pt-BR) | Phone page (pt-BR) | Lock screen (pt-BR) | Phone · kid mode locked (pt-BR) |
 |:---:|:---:|:---:|:---:|
