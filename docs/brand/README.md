@@ -6,7 +6,7 @@ Vector source for the KidsHome mark (App Studio 42 palette: coral `#E86A5B`, war
 |------|-----|
 | `kidshome-logo.svg` | Full rounded-square mark (docs, README, AppIcon) |
 | `kidshome-logo-fg.svg` | Adaptive-icon foreground (house + smile, no background) |
-| `kidshome-banner.svg` | Android TV / Fire TV banner (320×180) |
+| `kidshome-banner.svg` | Android TV / Fire TV banner (320×180); wordmark is path outlines (no font) |
 | `kidshome-logo.png` / `kidshome-banner.png` | Raster exports |
 
-Android launcher assets live under `app/src/main/res/` (`ic_home_foreground`, adaptive mipmaps, legacy PNGs, `tv_banner`).
+Android assets under `app/src/main/res/`: `ic_home_foreground`, adaptive mipmaps, legacy PNGs, and vector `tv_banner` / `tv_banner_foreground` (layer-list + path wordmark).

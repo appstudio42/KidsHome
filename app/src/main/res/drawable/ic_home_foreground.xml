@@ -4,7 +4,6 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- KidsHome mark: cream house-face (safe zone centered in 108dp). -->
     <path
         android:fillColor="#FFF8F3"
         android:pathData="M54,26 L82,50 L82,78 Q82,83 77,83 L31,83 Q26,83 26,78 L26,50 Z" />
@@ -13,14 +12,14 @@
         android:pathData="M54,26 L82,50 L26,50 Z" />
     <path
         android:fillColor="#5FA8A0"
-        android:pathData="M44,56m-5.5,0a5.5,5.5 0,1 1,11,0a5.5,5.5 0,1 1,-11,0" />
+        android:pathData="M43.5,57m-6.2,0a6.2,6.2 0,1 1,12.4,0a6.2,6.2 0,1 1,-12.4,0" />
     <path
         android:fillColor="#5FA8A0"
-        android:pathData="M64,56m-5.5,0a5.5,5.5 0,1 1,11,0a5.5,5.5 0,1 1,-11,0" />
+        android:pathData="M64.5,57m-6.2,0a6.2,6.2 0,1 1,12.4,0a6.2,6.2 0,1 1,-12.4,0" />
     <path
         android:fillColor="#00000000"
-        android:pathData="M41,66 C47,74 61,74 67,66"
-        android:strokeWidth="5.5"
+        android:pathData="M38.5,67.5 C46,77 62,77 69.5,67.5"
+        android:strokeWidth="6.5"
         android:strokeColor="#E86A5B"
         android:strokeLineCap="round" />
 </vector>
