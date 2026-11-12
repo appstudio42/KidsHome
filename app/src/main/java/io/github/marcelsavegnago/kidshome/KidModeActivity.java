@@ -1,6 +1,7 @@
 package io.github.marcelsavegnago.kidshome;
 
 import android.app.AlertDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
@@ -10,6 +11,7 @@ import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -18,25 +20,33 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
- * Optional PIN-protected kid mode. Accessibility-based — not a true device-owner lock.
+ * Optional PIN-protected kid mode configuration.
  */
 public class KidModeActivity extends AppCompatActivity {
     private Switch kidModeSwitch;
-    private RadioButton lockLauncher;
+    private RadioButton lockKidHome;
     private RadioButton lockApp;
     private TextView kidAppLabel;
+    private TextView browserLabel;
     private TextView limitsNote;
     private TextView escapeHelp;
+    private EditText childNameInput;
+    private EditText dailyLimitInput;
     private CheckBox escapeCorner;
     private CheckBox escapeBackHold;
+    private CheckBox screenTimeEnabled;
+    private CheckBox bedtimeEnabled;
     private Button pickAppButton;
-    private Button changePinButton;
-    private Button saveButton;
+    private Button bedtimeStartButton;
+    private Button bedtimeEndButton;
 
     private String pendingAppPackage = "";
     private String pendingAppActivity = "";
+    private int bedtimeStartMinutes;
+    private int bedtimeEndMinutes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,29 +74,42 @@ public class KidModeActivity extends AppCompatActivity {
         setTitle(R.string.kid_mode);
 
         kidModeSwitch = findViewById(R.id.kidModeSwitch);
-        lockLauncher = findViewById(R.id.lockLauncher);
+        lockKidHome = findViewById(R.id.lockKidHome);
         lockApp = findViewById(R.id.lockApp);
         kidAppLabel = findViewById(R.id.kidAppLabel);
+        browserLabel = findViewById(R.id.browserLabel);
         limitsNote = findViewById(R.id.limitsNote);
         escapeHelp = findViewById(R.id.escapeHelp);
+        childNameInput = findViewById(R.id.childNameInput);
+        dailyLimitInput = findViewById(R.id.dailyLimitInput);
         escapeCorner = findViewById(R.id.escapeCornerCB);
         escapeBackHold = findViewById(R.id.escapeBackHoldCB);
+        screenTimeEnabled = findViewById(R.id.screenTimeEnabled);
+        bedtimeEnabled = findViewById(R.id.bedtimeEnabled);
         pickAppButton = findViewById(R.id.pickAppButton);
-        changePinButton = findViewById(R.id.changePinButton);
-        saveButton = findViewById(R.id.saveKidModeButton);
+        bedtimeStartButton = findViewById(R.id.bedtimeStartButton);
+        bedtimeEndButton = findViewById(R.id.bedtimeEndButton);
 
         limitsNote.setText(R.string.kid_mode_limits);
         escapeHelp.setText(R.string.kid_mode_escape_help);
 
         kidModeSwitch.setChecked(Prefs.isKidModeEnabled(this));
         boolean lockToApp = Prefs.isKidLockToApp(this);
-        lockLauncher.setChecked(!lockToApp);
+        lockKidHome.setChecked(!lockToApp);
         lockApp.setChecked(lockToApp);
         escapeCorner.setChecked(Prefs.isEscapeCornerEnabled(this));
         escapeBackHold.setChecked(Prefs.isEscapeBackHoldEnabled(this));
+        screenTimeEnabled.setChecked(Prefs.isScreenTimeEnabled(this));
+        bedtimeEnabled.setChecked(Prefs.isBedtimeEnabled(this));
+        childNameInput.setText(Prefs.getChildName(this));
+        dailyLimitInput.setText(String.valueOf(Prefs.getDailyLimitMinutes(this)));
+        bedtimeStartMinutes = Prefs.getBedtimeStartMinutes(this);
+        bedtimeEndMinutes = Prefs.getBedtimeEndMinutes(this);
         pendingAppPackage = Prefs.getKidAppPackage(this);
         pendingAppActivity = Prefs.getKidAppActivity(this);
         refreshKidAppLabel();
+        refreshBrowserLabel();
+        refreshBedtimeButtons();
         refreshEnabledState();
 
         kidModeSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -122,13 +145,42 @@ public class KidModeActivity extends AppCompatActivity {
         });
 
         View.OnClickListener radioClick = v -> refreshEnabledState();
-        lockLauncher.setOnClickListener(radioClick);
+        lockKidHome.setOnClickListener(radioClick);
         lockApp.setOnClickListener(radioClick);
 
         pickAppButton.setOnClickListener(v -> showAppPicker());
-        changePinButton.setOnClickListener(v -> {
-            if (!Prefs.hasKidPin(this)) {
-                PinDialogHelper.promptCreate(this, new PinDialogHelper.PinCallback() {
+        findViewById(R.id.manageAllowedApps).setOnClickListener(v ->
+                startActivity(new Intent(this, AllowedAppsActivity.class)));
+        findViewById(R.id.manageSites).setOnClickListener(v ->
+                startActivity(new Intent(this, SiteShortcutsActivity.class)));
+        findViewById(R.id.pickBrowser).setOnClickListener(v -> showBrowserPicker());
+
+        bedtimeStartButton.setOnClickListener(v -> pickTime(true));
+        bedtimeEndButton.setOnClickListener(v -> pickTime(false));
+
+        findViewById(R.id.changePinButton).setOnClickListener(v -> changePin());
+        findViewById(R.id.saveKidModeButton).setOnClickListener(v -> save());
+        findViewById(R.id.cancelKidModeButton).setOnClickListener(v -> finish());
+    }
+
+    private void changePin() {
+        if (!Prefs.hasKidPin(this)) {
+            PinDialogHelper.promptCreate(this, new PinDialogHelper.PinCallback() {
+                @Override
+                public void onSuccess() {
+                    Toast.makeText(KidModeActivity.this, R.string.pin_saved, Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onCancel() {
+                }
+            });
+            return;
+        }
+        PinDialogHelper.promptVerify(this, new PinDialogHelper.PinCallback() {
+            @Override
+            public void onSuccess() {
+                PinDialogHelper.promptCreate(KidModeActivity.this, new PinDialogHelper.PinCallback() {
                     @Override
                     public void onSuccess() {
                         Toast.makeText(KidModeActivity.this, R.string.pin_saved, Toast.LENGTH_SHORT).show();
@@ -138,41 +190,30 @@ public class KidModeActivity extends AppCompatActivity {
                     public void onCancel() {
                     }
                 });
-                return;
             }
-            PinDialogHelper.promptVerify(this, new PinDialogHelper.PinCallback() {
-                @Override
-                public void onSuccess() {
-                    PinDialogHelper.promptCreate(KidModeActivity.this, new PinDialogHelper.PinCallback() {
-                        @Override
-                        public void onSuccess() {
-                            Toast.makeText(KidModeActivity.this, R.string.pin_saved, Toast.LENGTH_SHORT).show();
-                        }
 
-                        @Override
-                        public void onCancel() {
-                        }
-                    });
-                }
-
-                @Override
-                public void onCancel() {
-                }
-            });
+            @Override
+            public void onCancel() {
+            }
         });
-
-        saveButton.setOnClickListener(v -> save());
-        findViewById(R.id.cancelKidModeButton).setOnClickListener(v -> finish());
     }
 
     private void refreshEnabledState() {
         boolean enabled = kidModeSwitch.isChecked();
-        lockLauncher.setEnabled(enabled);
+        lockKidHome.setEnabled(enabled);
         lockApp.setEnabled(enabled);
         pickAppButton.setEnabled(enabled && lockApp.isChecked());
+        findViewById(R.id.manageAllowedApps).setEnabled(enabled && lockKidHome.isChecked());
+        findViewById(R.id.manageSites).setEnabled(enabled && lockKidHome.isChecked());
+        findViewById(R.id.pickBrowser).setEnabled(enabled && lockKidHome.isChecked());
         escapeCorner.setEnabled(enabled);
         escapeBackHold.setEnabled(enabled);
-        changePinButton.setEnabled(true);
+        screenTimeEnabled.setEnabled(enabled);
+        bedtimeEnabled.setEnabled(enabled);
+        dailyLimitInput.setEnabled(enabled);
+        bedtimeStartButton.setEnabled(enabled);
+        bedtimeEndButton.setEnabled(enabled);
+        childNameInput.setEnabled(enabled);
     }
 
     private void refreshKidAppLabel() {
@@ -183,6 +224,39 @@ public class KidModeActivity extends AppCompatActivity {
         }
     }
 
+    private void refreshBrowserLabel() {
+        String pkg = Prefs.getBrowserPackage(this);
+        if (pkg == null || pkg.isEmpty()) {
+            browserLabel.setText(R.string.browser_default);
+        } else {
+            browserLabel.setText(getString(R.string.browser_selected, pkg));
+        }
+    }
+
+    private void refreshBedtimeButtons() {
+        bedtimeStartButton.setText(getString(R.string.bedtime_start_fmt, formatMinutes(bedtimeStartMinutes)));
+        bedtimeEndButton.setText(getString(R.string.bedtime_end_fmt, formatMinutes(bedtimeEndMinutes)));
+    }
+
+    private static String formatMinutes(int minutes) {
+        int h = ((minutes % (24 * 60)) + (24 * 60)) % (24 * 60) / 60;
+        int m = ((minutes % (24 * 60)) + (24 * 60)) % (24 * 60) % 60;
+        return String.format(Locale.getDefault(), "%02d:%02d", h, m);
+    }
+
+    private void pickTime(boolean start) {
+        int current = start ? bedtimeStartMinutes : bedtimeEndMinutes;
+        new TimePickerDialog(this, (view, hourOfDay, minute) -> {
+            int value = hourOfDay * 60 + minute;
+            if (start) {
+                bedtimeStartMinutes = value;
+            } else {
+                bedtimeEndMinutes = value;
+            }
+            refreshBedtimeButtons();
+        }, current / 60, current % 60, true).show();
+    }
+
     private void showAppPicker() {
         final List<ResolveInfo> apps = PackageUtils.getLaunchableApps(this);
         CharSequence[] labels = new CharSequence[apps.size()];
@@ -190,7 +264,6 @@ public class KidModeActivity extends AppCompatActivity {
             labels[i] = apps.get(i).loadLabel(getPackageManager())
                     + " (" + apps.get(i).activityInfo.packageName + ")";
         }
-
         new AlertDialog.Builder(this)
                 .setTitle(R.string.pick_kid_app)
                 .setItems(labels, (dialog, which) -> {
@@ -198,6 +271,29 @@ public class KidModeActivity extends AppCompatActivity {
                     pendingAppPackage = info.activityInfo.packageName;
                     pendingAppActivity = info.activityInfo.name;
                     refreshKidAppLabel();
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void showBrowserPicker() {
+        final List<ResolveInfo> browsers = KidHomeActivity.queryBrowsers(getPackageManager());
+        CharSequence[] labels = new CharSequence[browsers.size() + 1];
+        labels[0] = getString(R.string.browser_default);
+        for (int i = 0; i < browsers.size(); i++) {
+            labels[i + 1] = browsers.get(i).loadLabel(getPackageManager())
+                    + " (" + browsers.get(i).activityInfo.packageName + ")";
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.pick_browser)
+                .setItems(labels, (dialog, which) -> {
+                    if (which == 0) {
+                        Prefs.setBrowser(this, "", "");
+                    } else {
+                        ResolveInfo info = browsers.get(which - 1);
+                        Prefs.setBrowser(this, info.activityInfo.packageName, info.activityInfo.name);
+                    }
+                    refreshBrowserLabel();
                 })
                 .setNegativeButton(R.string.cancel, null)
                 .show();
@@ -236,20 +332,27 @@ public class KidModeActivity extends AppCompatActivity {
         boolean corner = escapeCorner.isChecked();
         boolean backHold = escapeBackHold.isChecked();
 
-        if (enable && !corner && !backHold) {
-            Toast.makeText(this, R.string.escape_option_required, Toast.LENGTH_LONG).show();
-            return;
+        Prefs.setChildName(this, childNameInput.getText() != null
+                ? childNameInput.getText().toString() : "");
+        Prefs.setEscapeOptions(this, corner, backHold);
+        Prefs.setScreenTimeEnabled(this, screenTimeEnabled.isChecked());
+        Prefs.setBedtimeEnabled(this, bedtimeEnabled.isChecked());
+        Prefs.setBedtimeWindow(this, bedtimeStartMinutes, bedtimeEndMinutes);
+        try {
+            int limit = Integer.parseInt(dailyLimitInput.getText() != null
+                    ? dailyLimitInput.getText().toString().trim() : "60");
+            Prefs.setDailyLimitMinutes(this, limit);
+        } catch (Exception e) {
+            Prefs.setDailyLimitMinutes(this, 60);
         }
 
-        Prefs.setEscapeOptions(this, corner, backHold);
-
         if (enable) {
-            if (!Prefs.hasKidPin(this)) {
-                Toast.makeText(this, R.string.pin_required, Toast.LENGTH_LONG).show();
+            if (!corner && !backHold) {
+                Toast.makeText(this, R.string.escape_option_required, Toast.LENGTH_LONG).show();
                 return;
             }
-            if (!Prefs.hasChosenLauncher(this) && !lockApp.isChecked()) {
-                Toast.makeText(this, R.string.please_select_launcher, Toast.LENGTH_LONG).show();
+            if (!Prefs.hasKidPin(this)) {
+                Toast.makeText(this, R.string.pin_required, Toast.LENGTH_LONG).show();
                 return;
             }
             if (lockApp.isChecked()) {
@@ -262,9 +365,12 @@ public class KidModeActivity extends AppCompatActivity {
                 Prefs.setKidLockToApp(this, true);
             } else {
                 Prefs.setKidLockToApp(this, false);
+                Prefs.ensureDefaultSiteSuggestions(this);
+                if (Prefs.getAllowedPackages(this).isEmpty() && Prefs.getSiteShortcuts(this).isEmpty()) {
+                    Toast.makeText(this, R.string.kid_home_empty_warning, Toast.LENGTH_LONG).show();
+                }
             }
             if (corner && !ensureOverlayIfNeeded()) {
-                // Still allow enabling; Back-hold remains as escape. Corner will activate once overlay is granted.
                 Toast.makeText(this, R.string.overlay_permission_later, Toast.LENGTH_LONG).show();
             }
             Prefs.setKidModeEnabled(this, true);
@@ -272,7 +378,6 @@ public class KidModeActivity extends AppCompatActivity {
             Toast.makeText(this, R.string.kid_mode_enabled, Toast.LENGTH_LONG).show();
             HomePress.perform(this, true);
         } else {
-            // Synchronous disable before any service bounce can re-read prefs.
             Prefs.setKidModeEnabled(this, false);
             SessionAuth.markUnlocked();
             PinAttemptTracker.reset();

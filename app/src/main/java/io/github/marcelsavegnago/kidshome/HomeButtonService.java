@@ -1,7 +1,10 @@
 package io.github.marcelsavegnago.kidshome;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.Handler;
@@ -14,8 +17,7 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 /**
- * Sticky helper service: optional overlay home detection, accessibility watchdog,
- * and kid-mode emergency corner overlay.
+ * Sticky helper: overlay home detection, a11y watchdog, escape corner, screen-time ticks.
  */
 public class HomeButtonService extends Service {
     private static final String TAG = "KidsHome.HomeButton";
@@ -24,6 +26,7 @@ public class HomeButtonService extends Service {
     private LinearLayout layout;
     private WindowManager windowManager;
     private EscapeOverlay escapeOverlay;
+    private BroadcastReceiver screenReceiver;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable watchdog = new Runnable() {
         @Override
@@ -32,6 +35,7 @@ public class HomeButtonService extends Service {
             if (escapeOverlay != null) {
                 escapeOverlay.refresh();
             }
+            ScreenTimeTracker.tick(HomeButtonService.this);
             handler.postDelayed(this, WATCHDOG_INTERVAL_MS);
         }
     };
@@ -52,7 +56,41 @@ public class HomeButtonService extends Service {
         }
 
         escapeOverlay.refresh();
+        registerScreenReceiver();
         handler.post(watchdog);
+        ScreenTimeTracker.tick(this);
+    }
+
+    private void registerScreenReceiver() {
+        screenReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent == null || intent.getAction() == null) {
+                    return;
+                }
+                String action = intent.getAction();
+                if (Intent.ACTION_SCREEN_OFF.equals(action)) {
+                    Prefs.flushScreenTime(context);
+                    Prefs.setLastScreenTickMs(context, 0L);
+                } else if (Intent.ACTION_SCREEN_ON.equals(action)
+                        || Intent.ACTION_USER_PRESENT.equals(action)) {
+                    ScreenTimeTracker.tick(context);
+                }
+            }
+        };
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        filter.addAction(Intent.ACTION_USER_PRESENT);
+        try {
+            if (Build.VERSION.SDK_INT >= 33) {
+                registerReceiver(screenReceiver, filter, Context.RECEIVER_EXPORTED);
+            } else {
+                registerReceiver(screenReceiver, filter);
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Unable to register screen receiver", e);
+        }
     }
 
     private void createOverlayWatcher() {
@@ -118,12 +156,20 @@ public class HomeButtonService extends Service {
         } else if (escapeOverlay != null) {
             escapeOverlay.refresh();
         }
+        ScreenTimeTracker.tick(this);
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
         handler.removeCallbacks(watchdog);
+        Prefs.flushScreenTime(this);
+        if (screenReceiver != null) {
+            try {
+                unregisterReceiver(screenReceiver);
+            } catch (Exception ignored) {
+            }
+        }
         if (escapeOverlay != null) {
             escapeOverlay.hide();
             escapeOverlay = null;

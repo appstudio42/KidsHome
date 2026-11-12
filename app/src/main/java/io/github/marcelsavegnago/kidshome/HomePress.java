@@ -21,16 +21,32 @@ public final class HomePress {
     public static Intent getDesiredIntent(Context context) {
         Context app = context.getApplicationContext();
 
+        if (Prefs.isKidModeEnabled(app) && ScreenTimeTracker.isBlocked(app)) {
+            Intent lock = new Intent(app, ScreenTimeLockActivity.class);
+            lock.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                    | Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    | Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                    | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            return lock;
+        }
+
         String packageName;
         String activityName;
 
-        if (Prefs.isKidModeEnabled(app) && Prefs.isKidLockToApp(app)) {
-            packageName = Prefs.getKidAppPackage(app);
-            activityName = Prefs.getKidAppActivity(app);
-            if (!PackageUtils.isActivityAvailable(app, packageName, activityName)) {
-                Log.w(TAG, "Kid app missing; falling back to launcher");
-                packageName = Prefs.getChosenLauncherPackage(app);
-                activityName = Prefs.getChosenLauncherActivity(app);
+        if (Prefs.isKidModeEnabled(app)) {
+            if (Prefs.isKidLockToApp(app)) {
+                packageName = Prefs.getKidAppPackage(app);
+                activityName = Prefs.getKidAppActivity(app);
+                if (!PackageUtils.isActivityAvailable(app, packageName, activityName)) {
+                    Log.w(TAG, "Kid app missing; falling back to kid home");
+                    Prefs.setKidLockToApp(app, false);
+                    packageName = app.getPackageName();
+                    activityName = KidHomeActivity.class.getName();
+                }
+            } else {
+                packageName = app.getPackageName();
+                activityName = KidHomeActivity.class.getName();
             }
         } else {
             packageName = Prefs.getChosenLauncherPackage(app);
@@ -44,7 +60,9 @@ public final class HomePress {
                 Prefs.setKidLockToApp(app, false);
             }
             packageName = app.getPackageName();
-            activityName = MainActivity.class.getName();
+            activityName = Prefs.isKidModeEnabled(app)
+                    ? KidHomeActivity.class.getName()
+                    : MainActivity.class.getName();
         }
 
         Intent intent = new Intent(Intent.ACTION_MAIN);
@@ -54,7 +72,6 @@ public final class HomePress {
                 | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
                 | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
                 | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        // Keep KidsHome itself out of recents when used as a temporary fallback only.
         if (!packageName.equals(app.getPackageName())) {
             intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
         }
@@ -65,13 +82,14 @@ public final class HomePress {
         return perform(context, false);
     }
 
-    /**
-     * @param force when true, skip debounce (used after boot / service reconnect).
-     */
     public static boolean perform(Context context, boolean force) {
         if (KidModeGate.isEscapeUiActive()) {
-            Log.d(TAG, "Skipping HomePress while emergency PIN UI is active");
+            Log.d(TAG, "Skipping HomePress while protected UI is active");
             return false;
+        }
+        if (Prefs.isKidModeEnabled(context) && ScreenTimeTracker.isBlocked(context)) {
+            ScreenTimeLockActivity.launch(context);
+            return true;
         }
         long now = System.currentTimeMillis();
         if (!force && now - lastActivateMs < DEBOUNCE_MS) {
@@ -81,7 +99,6 @@ public final class HomePress {
 
         Intent intent = getDesiredIntent(context);
         try {
-            // PendingIntent is slightly faster/more privileged on some Fire OS builds.
             int flags = PendingIntent.FLAG_UPDATE_CURRENT;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 flags |= PendingIntent.FLAG_IMMUTABLE;
@@ -101,9 +118,6 @@ public final class HomePress {
         }
     }
 
-    /**
-     * Warm the chosen launcher process so the next Home press is less likely to show Fire launcher.
-     */
     public static void warmTarget(Context context) {
         if (KidModeGate.isEscapeUiActive()) {
             return;
@@ -111,7 +125,6 @@ public final class HomePress {
         try {
             Intent intent = getDesiredIntent(context);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            // Launch then let AccServ keep redirecting if needed.
             context.startActivity(intent);
         } catch (Exception e) {
             Log.w(TAG, "Warm launch failed", e);

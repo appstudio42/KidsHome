@@ -1,6 +1,6 @@
 # KidsHome
 
-**KidsHome** is a lightweight Android accessibility helper that detects the Home button and opens a launcher (or a single kid app) of your choice. It is aimed at **Amazon Fire tablets** where the default launcher cannot be changed — notably Fire OS 7.x where `com.amazon.firelauncher` is protected and `cmd package set-home-activity` is ignored.
+**KidsHome** (v1.1.0) is a lightweight Android accessibility helper that detects the Home button and opens a kid home grid or a single kid app. It is aimed at **Amazon Fire tablets** where the default launcher cannot be changed — notably Fire OS 7.x where `com.amazon.firelauncher` is protected and `cmd package set-home-activity` is ignored.
 
 This project is a GPL-3 fork of [Meems33/LauncherHijack](https://github.com/Meems33/LauncherHijack) (Launcher Replacer), itself based on [BaronKiko/LauncherHijack](https://github.com/BaronKiko/LauncherHijack).
 
@@ -15,7 +15,8 @@ This project is a GPL-3 fork of [Meems33/LauncherHijack](https://github.com/Meem
 - Survives reboot (boot receiver) and tries to recover after process kills.
 - Warns you with a banner + notification if the accessibility service is turned off.
 - Falls back to KidsHome itself if the chosen launcher is uninstalled, so you are never left without a home.
-- Optional **Kid mode** (PIN-protected): keep Home/Recents bouncing back to the chosen launcher or a single app (e.g. YouTube Kids).
+- Optional **Kid mode** (PIN-protected): **kid home** (large-icon grid of allowed apps + website shortcuts) or lock to a single app.
+- **Screen time**: daily limit + bedtime window, 5‑minute warning, friendly lock screen, PIN to add +15/+30 min or disable for today. Usage persists across reboot/service kills.
 
 **Honest limits:** Kid mode is accessibility-based, **not** a device-owner / MDM lock. ADB, force-stop, or a determined child can still bypass it.
 
@@ -58,25 +59,23 @@ adb uninstall io.github.marcelsavegnago.kidshome
 ### Kid mode
 1. Open KidsHome → menu → **Kid mode**.
 2. Create a 4–8 digit PIN.
-3. Lock to the chosen launcher **or** pick a single app.
-4. Save. Home / Recents will keep returning to that target.
-5. Opening KidsHome settings or disabling kid mode requires the PIN.
+3. Choose **Kid home** (app grid) **or** lock to a single app.
+4. For kid home: set the child’s name, pick allowed apps, website shortcuts (Poki Kids / PBS Kids / Coolmath suggested), and a browser (auto-allowlisted).
+5. Optional screen time: daily minutes + bedtime window (device timezone; resets at midnight).
+6. Save. Home / Recents return to kid home or the single app. Settings are only reachable via the emergency PIN exit.
 
-#### Emergency exit (when locked to a single app)
-You may not be able to open KidsHome from the locked app. Use one of these parent escapes:
-
-1. **5 quick taps** in the **top-right corner** of the screen (needs overlay permission), or
+#### Emergency exit
+1. **5 quick taps** in the **top-right corner** (needs overlay permission), or
 2. **Hold Back for ~3 seconds**.
 
-Enter the parent PIN. Then choose **Disable kid mode**, **Open KidsHome settings**, or stay locked.
+Enter the parent PIN → disable kid mode, open settings, or stay locked.
 
-Grant overlay permission (for corner taps) via Settings → Apps → KidsHome → Display over other apps, or:
 ```bash
 adb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allow
 ```
-Back-hold works even without overlay permission. Escape options are configurable on the Kid mode screen.
 
-Wrong PINs trigger a progressive delay (1s → 30s). Disabling kid mode is written synchronously to storage so a service restart cannot re-enable a stale lock.
+#### Screen time lock
+When the daily limit or bedtime hits, a friendly full-screen message appears (“Time’s up for today!” / bedtime). Parent PIN can add **+15 / +30 min**, disable the limit for today, or open settings. Usage is flushed often so reboot / process death do not wipe the count.
 
 ### Known limitations on Fire OS
 - `com.amazon.firelauncher` cannot be disabled on many firmwares; hijack is the only option.
@@ -151,20 +150,21 @@ adb uninstall io.github.marcelsavegnago.kidshome
 ### Modo criança
 1. KidsHome → menu → **Modo criança**.
 2. Crie um PIN de 4–8 dígitos.
-3. Trave no launcher escolhido **ou** em um único app.
-4. Salvar. Home / Recentes voltam para esse destino.
-5. Abrir configurações ou desativar o modo exige o PIN.
+3. Escolha **Home infantil** (grade) **ou** um único app.
+4. Na home: nome da criança, apps permitidos, atalhos de sites (Poki / PBS / Coolmath) e navegador.
+5. Opcional: limite diário de tela + horário de dormir (fuso do aparelho; zera à meia-noite).
+6. Salvar. Configurações só pela saída de emergência com PIN.
 
-#### Saída de emergência (travado em um único app)
+#### Saída de emergência
 1. **5 toques rápidos** no **canto superior direito**, ou
 2. **Segurar Voltar ~3 segundos**.
-
-Digite o PIN. Depois escolha desativar o modo, abrir o KidsHome, ou continuar travado.
 
 ```bash
 adb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allow
 ```
-Segurar Voltar funciona sem overlay. PIN errado aplica atraso progressivo. Desativar o modo é gravado de forma síncrona para não “voltar a travar” após reinício do serviço.
+
+#### Bloqueio de tempo de tela
+Ao esgotar o limite ou no horário de dormir, aparece a tela amigável. Com PIN: +15/+30 min, desativar por hoje, ou abrir configurações. A contagem persiste após reboot/kill do serviço.
 
 **Limite:** baseado em acessibilidade — **não** é bloqueio de dono do dispositivo. ADB ou forçar parada ainda podem contornar.
 

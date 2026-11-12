@@ -5,6 +5,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * Central preference store for KidsHome.
  */
@@ -30,10 +35,24 @@ public final class Prefs {
     public static final String KEY_ESCAPE_CORNER = "EscapeCornerEnabled";
     public static final String KEY_ESCAPE_BACK_HOLD = "EscapeBackHoldEnabled";
 
-    /** Lock target: use the chosen home launcher. */
-    public static final int LOCK_TARGET_LAUNCHER = 0;
-    /** Lock target: use a single chosen app. */
-    public static final int LOCK_TARGET_APP = 1;
+    public static final String KEY_CHILD_NAME = "ChildName";
+    public static final String KEY_ALLOWED_PACKAGES = "AllowedPackages";
+    public static final String KEY_SITE_SHORTCUTS = "SiteShortcutsJson";
+    public static final String KEY_BROWSER_PACKAGE = "BrowserPackage";
+    public static final String KEY_BROWSER_ACTIVITY = "BrowserActivity";
+
+    public static final String KEY_SCREEN_TIME_ENABLED = "ScreenTimeEnabled";
+    public static final String KEY_DAILY_LIMIT_MINUTES = "DailyLimitMinutes";
+    public static final String KEY_BEDTIME_ENABLED = "BedtimeEnabled";
+    public static final String KEY_BEDTIME_START = "BedtimeStartMinutes";
+    public static final String KEY_BEDTIME_END = "BedtimeEndMinutes";
+    public static final String KEY_USED_MILLIS = "UsedMillisToday";
+    public static final String KEY_BONUS_MILLIS = "BonusMillisToday";
+    public static final String KEY_USAGE_DAY = "UsageDayKey";
+    public static final String KEY_LAST_TICK = "LastScreenTickMs";
+    public static final String KEY_WARN_SHOWN_DAY = "ScreenTimeWarnDay";
+    public static final String KEY_ST_DISABLED_DAY = "ScreenTimeDisabledDay";
+    public static final String KEY_BT_DISABLED_DAY = "BedtimeDisabledDay";
 
     private Prefs() {
     }
@@ -89,14 +108,8 @@ public final class Prefs {
         return get(context).getBoolean(KEY_KID_MODE, false);
     }
 
-    /**
-     * Persists kid-mode state synchronously ({@code commit}) so a service restart
-     * cannot re-read a stale "enabled" value after the parent disables it.
-     */
     public static void setKidModeEnabled(Context context, boolean enabled) {
-        SharedPreferences.Editor editor = get(context).edit().putBoolean(KEY_KID_MODE, enabled);
-        // commit() blocks until written to disk — intentional for disable/enable.
-        editor.commit();
+        get(context).edit().putBoolean(KEY_KID_MODE, enabled).commit();
     }
 
     public static boolean isEscapeCornerEnabled(Context context) {
@@ -125,7 +138,7 @@ public final class Prefs {
         get(context).edit()
                 .putString(KEY_KID_PIN_SALT, salt)
                 .putString(KEY_KID_PIN_HASH, hash)
-                .apply();
+                .commit();
     }
 
     public static boolean verifyKidPin(Context context, String pin) {
@@ -136,13 +149,6 @@ public final class Prefs {
             return false;
         }
         return PinHasher.verify(pin, salt, expected);
-    }
-
-    public static void clearKidPin(Context context) {
-        get(context).edit()
-                .remove(KEY_KID_PIN_HASH)
-                .remove(KEY_KID_PIN_SALT)
-                .apply();
     }
 
     public static boolean isKidLockToApp(Context context) {
@@ -166,6 +172,192 @@ public final class Prefs {
 
     public static String getKidAppActivity(Context context) {
         return get(context).getString(KEY_KID_APP_ACTIVITY, "");
+    }
+
+    public static String getChildName(Context context) {
+        return get(context).getString(KEY_CHILD_NAME, "");
+    }
+
+    public static void setChildName(Context context, String name) {
+        get(context).edit().putString(KEY_CHILD_NAME, name == null ? "" : name.trim()).commit();
+    }
+
+    public static Set<String> getAllowedPackages(Context context) {
+        Set<String> stored = get(context).getStringSet(KEY_ALLOWED_PACKAGES, null);
+        return stored == null ? new HashSet<>() : new HashSet<>(stored);
+    }
+
+    public static void setAllowedPackages(Context context, Set<String> packages) {
+        get(context).edit().putStringSet(KEY_ALLOWED_PACKAGES, new HashSet<>(packages)).commit();
+    }
+
+    public static List<SiteShortcut> getSiteShortcuts(Context context) {
+        return SiteShortcut.fromJson(get(context).getString(KEY_SITE_SHORTCUTS, ""));
+    }
+
+    public static void setSiteShortcuts(Context context, List<SiteShortcut> shortcuts) {
+        get(context).edit().putString(KEY_SITE_SHORTCUTS, SiteShortcut.toJson(shortcuts)).commit();
+    }
+
+    public static void ensureDefaultSiteSuggestions(Context context) {
+        if (!getSiteShortcuts(context).isEmpty()) {
+            return;
+        }
+        // Only seed once when empty so parents can delete them.
+        if (get(context).getBoolean("siteSuggestionsSeeded", false)) {
+            return;
+        }
+        setSiteShortcuts(context, SiteShortcut.defaultSuggestions());
+        get(context).edit().putBoolean("siteSuggestionsSeeded", true).commit();
+    }
+
+    public static String getBrowserPackage(Context context) {
+        return get(context).getString(KEY_BROWSER_PACKAGE, "");
+    }
+
+    public static String getBrowserActivity(Context context) {
+        return get(context).getString(KEY_BROWSER_ACTIVITY, "");
+    }
+
+    public static void setBrowser(Context context, String packageName, String activityName) {
+        get(context).edit()
+                .putString(KEY_BROWSER_PACKAGE, packageName == null ? "" : packageName)
+                .putString(KEY_BROWSER_ACTIVITY, activityName == null ? "" : activityName)
+                .commit();
+        if (packageName != null && !packageName.isEmpty()) {
+            Set<String> allowed = getAllowedPackages(context);
+            allowed.add(packageName);
+            setAllowedPackages(context, allowed);
+        }
+    }
+
+    public static boolean isScreenTimeEnabled(Context context) {
+        return get(context).getBoolean(KEY_SCREEN_TIME_ENABLED, false);
+    }
+
+    public static void setScreenTimeEnabled(Context context, boolean enabled) {
+        get(context).edit().putBoolean(KEY_SCREEN_TIME_ENABLED, enabled).commit();
+    }
+
+    public static int getDailyLimitMinutes(Context context) {
+        return get(context).getInt(KEY_DAILY_LIMIT_MINUTES, 60);
+    }
+
+    public static void setDailyLimitMinutes(Context context, int minutes) {
+        get(context).edit().putInt(KEY_DAILY_LIMIT_MINUTES, Math.max(1, minutes)).commit();
+    }
+
+    public static boolean isBedtimeEnabled(Context context) {
+        return get(context).getBoolean(KEY_BEDTIME_ENABLED, false);
+    }
+
+    public static void setBedtimeEnabled(Context context, boolean enabled) {
+        get(context).edit().putBoolean(KEY_BEDTIME_ENABLED, enabled).commit();
+    }
+
+    public static int getBedtimeStartMinutes(Context context) {
+        return get(context).getInt(KEY_BEDTIME_START, 20 * 60);
+    }
+
+    public static int getBedtimeEndMinutes(Context context) {
+        return get(context).getInt(KEY_BEDTIME_END, 7 * 60);
+    }
+
+    public static void setBedtimeWindow(Context context, int startMinutes, int endMinutes) {
+        get(context).edit()
+                .putInt(KEY_BEDTIME_START, startMinutes)
+                .putInt(KEY_BEDTIME_END, endMinutes)
+                .commit();
+    }
+
+    public static void ensureScreenTimeDay(Context context) {
+        String today = ScreenTimeState.dayKeyNow();
+        String stored = get(context).getString(KEY_USAGE_DAY, "");
+        if (today.equals(stored)) {
+            return;
+        }
+        get(context).edit()
+                .putString(KEY_USAGE_DAY, today)
+                .putLong(KEY_USED_MILLIS, 0L)
+                .putLong(KEY_BONUS_MILLIS, 0L)
+                .putString(KEY_WARN_SHOWN_DAY, "")
+                .putString(KEY_ST_DISABLED_DAY, "")
+                .putString(KEY_BT_DISABLED_DAY, "")
+                .putLong(KEY_LAST_TICK, 0L)
+                .commit();
+    }
+
+    public static long getUsedMillisToday(Context context) {
+        ensureScreenTimeDay(context);
+        return get(context).getLong(KEY_USED_MILLIS, 0L);
+    }
+
+    public static long getBonusMillisToday(Context context) {
+        ensureScreenTimeDay(context);
+        return get(context).getLong(KEY_BONUS_MILLIS, 0L);
+    }
+
+    public static void addUsedMillisToday(Context context, long delta) {
+        ensureScreenTimeDay(context);
+        long used = get(context).getLong(KEY_USED_MILLIS, 0L) + Math.max(0L, delta);
+        get(context).edit().putLong(KEY_USED_MILLIS, used).apply();
+    }
+
+    public static void addBonusMinutes(Context context, int minutes) {
+        ensureScreenTimeDay(context);
+        long bonus = get(context).getLong(KEY_BONUS_MILLIS, 0L) + minutes * 60L * 1000L;
+        get(context).edit().putLong(KEY_BONUS_MILLIS, bonus).commit();
+    }
+
+    public static long getLastScreenTickMs(Context context) {
+        return get(context).getLong(KEY_LAST_TICK, 0L);
+    }
+
+    public static void setLastScreenTickMs(Context context, long ms) {
+        get(context).edit().putLong(KEY_LAST_TICK, ms).apply();
+    }
+
+    public static void flushScreenTime(Context context) {
+        // Force a sync write of the latest usage counters.
+        SharedPreferences prefs = get(context);
+        prefs.edit()
+                .putLong(KEY_USED_MILLIS, prefs.getLong(KEY_USED_MILLIS, 0L))
+                .putLong(KEY_LAST_TICK, prefs.getLong(KEY_LAST_TICK, 0L))
+                .putString(KEY_USAGE_DAY, prefs.getString(KEY_USAGE_DAY, ScreenTimeState.dayKeyNow()))
+                .commit();
+    }
+
+    public static boolean wasScreenTimeWarningShownToday(Context context) {
+        ensureScreenTimeDay(context);
+        return ScreenTimeState.dayKeyNow().equals(get(context).getString(KEY_WARN_SHOWN_DAY, ""));
+    }
+
+    public static void setScreenTimeWarningShownToday(Context context, boolean shown) {
+        get(context).edit()
+                .putString(KEY_WARN_SHOWN_DAY, shown ? ScreenTimeState.dayKeyNow() : "")
+                .commit();
+    }
+
+    public static boolean isScreenTimeDisabledToday(Context context) {
+        ensureScreenTimeDay(context);
+        return ScreenTimeState.dayKeyNow().equals(get(context).getString(KEY_ST_DISABLED_DAY, ""));
+    }
+
+    public static void setScreenTimeDisabledToday(Context context, boolean disabled) {
+        get(context).edit()
+                .putString(KEY_ST_DISABLED_DAY, disabled ? ScreenTimeState.dayKeyNow() : "")
+                .commit();
+    }
+
+    public static boolean isBedtimeDisabledToday(Context context) {
+        ensureScreenTimeDay(context);
+        return ScreenTimeState.dayKeyNow().equals(get(context).getString(KEY_BT_DISABLED_DAY, ""));
+    }
+
+    public static void setBedtimeDisabledToday(Context context, boolean disabled) {
+        get(context).edit()
+                .putString(KEY_BT_DISABLED_DAY, disabled ? ScreenTimeState.dayKeyNow() : "")
+                .commit();
     }
 
     public static boolean hardwareDetection(Context context) {

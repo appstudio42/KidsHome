@@ -1,13 +1,13 @@
 package io.github.marcelsavegnago.kidshome;
 
 /**
- * In-process gate so AccServ / HomePress do not yank away the emergency PIN UI.
+ * In-process gate so AccServ / HomePress do not yank away PIN / screen-time lock UI.
  */
 public final class KidModeGate {
     private static volatile boolean escapeUiVisible;
+    private static volatile boolean screenLockUiVisible;
     private static volatile long escapeUiOpenedAtMs;
 
-    /** Keep the gate open briefly after the activity finishes so Home redirects don't race. */
     private static final long GRACE_AFTER_CLOSE_MS = 750L;
     private static volatile long graceUntilMs;
 
@@ -26,11 +26,25 @@ public final class KidModeGate {
         graceUntilMs = System.currentTimeMillis() + GRACE_AFTER_CLOSE_MS;
     }
 
+    public static void markScreenLockUiOpen() {
+        screenLockUiVisible = true;
+        graceUntilMs = 0L;
+    }
+
+    public static void markScreenLockUiClosed() {
+        screenLockUiVisible = false;
+        graceUntilMs = System.currentTimeMillis() + GRACE_AFTER_CLOSE_MS;
+    }
+
     public static boolean isEscapeUiActive() {
-        if (escapeUiVisible) {
+        if (escapeUiVisible || screenLockUiVisible) {
             return true;
         }
         return System.currentTimeMillis() < graceUntilMs;
+    }
+
+    public static boolean isScreenLockUiActive() {
+        return screenLockUiVisible;
     }
 
     public static long openedAtMs() {

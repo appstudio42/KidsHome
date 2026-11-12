@@ -39,15 +39,19 @@ public class BootReceiver extends BroadcastReceiver {
 
     private void onBootOrUpdate(Context context) {
         Log.i(TAG, "Boot/update received; starting services");
+        Prefs.ensureScreenTimeDay(context);
+        Prefs.flushScreenTime(context);
         ServiceMan.start(context);
         StatusNotifier.ensureChannel(context);
+        EscapeOverlayNotifier.requestRefresh(context);
 
         if (!AccessibilityHelper.isAccessibilityEnabled(context)) {
             StatusNotifier.notifyAccessibilityDisabled(context);
         }
 
-        // Warm the chosen launcher a few seconds after boot to reduce the first-Home cold start delay.
+        // Warm the chosen launcher / kid home a few seconds after boot.
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            ScreenTimeTracker.tick(context);
             if (Prefs.hasChosenLauncher(context) || Prefs.isKidModeEnabled(context)) {
                 HomePress.perform(context, true);
             }
@@ -77,8 +81,16 @@ public class BootReceiver extends BroadcastReceiver {
 
         String kidApp = Prefs.getKidAppPackage(context);
         if (removed.equals(kidApp)) {
-            Log.w(TAG, "Kid app uninstalled; disabling app-lock, keeping launcher lock if kid mode on");
+            Log.w(TAG, "Kid app uninstalled; disabling app-lock, keeping kid home if kid mode on");
             Prefs.setKidLockToApp(context, false);
+        }
+
+        java.util.Set<String> allowed = Prefs.getAllowedPackages(context);
+        if (allowed.remove(removed)) {
+            Prefs.setAllowedPackages(context, allowed);
+        }
+        if (removed.equals(Prefs.getBrowserPackage(context))) {
+            Prefs.setBrowser(context, "", "");
         }
     }
 }

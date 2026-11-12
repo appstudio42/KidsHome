@@ -81,6 +81,10 @@ public class AccServ extends AccessibilityService {
         if (!Prefs.isKidModeEnabled(this) || KidModeGate.isEscapeUiActive()) {
             return;
         }
+        if (ScreenTimeTracker.isBlocked(this)) {
+            HomePress.perform(this);
+            return;
+        }
         String packageName = lastApp;
         if (packageName == null || packageName.isEmpty()) {
             return;
@@ -93,7 +97,7 @@ public class AccServ extends AccessibilityService {
 
     private boolean isAllowedInKidMode(String packageName) {
         if (packageName.equals(getPackageName())) {
-            // KidsHome itself (including EscapePinActivity) is allowed; UI is PIN-gated.
+            // KidsHome itself (kid home / PIN / lock screens) is allowed; UI is PIN-gated.
             return true;
         }
         if (packageName.equals("com.android.systemui")
@@ -109,8 +113,13 @@ public class AccServ extends AccessibilityService {
             String kidApp = Prefs.getKidAppPackage(this);
             return packageName.equals(kidApp);
         }
-        String launcher = Prefs.getChosenLauncherPackage(this);
-        return packageName.equals(launcher);
+
+        // Kid-home mode: allowlisted apps + chosen browser.
+        if (Prefs.getAllowedPackages(this).contains(packageName)) {
+            return true;
+        }
+        String browser = Prefs.getBrowserPackage(this);
+        return browser != null && browser.equals(packageName);
     }
 
     private static boolean shouldHijackPackage(String packageName) {

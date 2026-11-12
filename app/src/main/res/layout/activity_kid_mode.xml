@@ -52,16 +52,24 @@
                 android:layout_alignParentEnd="true" />
         </RelativeLayout>
 
+        <EditText
+            android:id="@+id/childNameInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/child_name_hint"
+            android:inputType="textPersonName"
+            android:maxLines="1" />
+
         <RadioGroup
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp">
 
             <RadioButton
-                android:id="@+id/lockLauncher"
+                android:id="@+id/lockKidHome"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/lock_to_launcher" />
+                android:text="@string/lock_to_kid_home" />
 
             <RadioButton
                 android:id="@+id/lockApp"
@@ -81,8 +89,80 @@
             android:id="@+id/pickAppButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:text="@string/pick_kid_app" />
+
+        <Button
+            android:id="@+id/manageAllowedApps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/manage_allowed_apps" />
+
+        <Button
+            android:id="@+id/manageSites"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/manage_site_shortcuts" />
+
+        <Button
+            android:id="@+id/pickBrowser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/pick_browser" />
+
+        <TextView
+            android:id="@+id/browserLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/browser_default" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/screen_time_section"
+            android:textStyle="bold"
+            android:textSize="15sp" />
+
+        <CheckBox
+            android:id="@+id/screenTimeEnabled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/screen_time_enable" />
+
+        <EditText
+            android:id="@+id/dailyLimitInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/daily_limit_hint"
+            android:inputType="number"
+            android:maxLines="1" />
+
+        <CheckBox
+            android:id="@+id/bedtimeEnabled"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/bedtime_enable" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/bedtimeStartButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/bedtime_start" />
+
+            <Button
+                android:id="@+id/bedtimeEndButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/bedtime_end" />
+        </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
