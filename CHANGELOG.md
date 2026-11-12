@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.5.0
+
+Parent remote control over the local Wi‑Fi — tiny embedded HTTP page on the tablet, no cloud / accounts / phone app.
+
+### Added
+- **Remote control** parent hub section (off by default): enable a LAN web page on port **8642**, show URL + QR (pairing token), regenerate token.
+- Mobile-friendly HTML/CSS/JS page (browser language: **en** / **pt-BR**) with today’s usage, remaining time, per-app usage, stars, kid-mode/lock/schedule state; actions: add time, lock now, unlock; auto-refresh.
+- Security: pairing token or parent PIN → session cookie; PIN rate-limit/lockout; private LAN peers only; PIN never exposed; token regenerate revokes sessions.
+- Foreground service + low-priority notification while enabled; restarts on boot; handles Wi‑Fi IP changes in the notification URL.
+- Remote actions logged for the weekly report as **parent remote**.
+- Unit tests for auth, LAN filter, request handling, rate limiting, and time math.
+- Screenshots under `docs/screenshots/1.5.0/`.
+
+### Changed
+- Version **1.5.0** (`versionCode` 150).
+- Prefs schema **v3** migration for remote keys (keeps PIN / allowlist / limits).
+
+### Unchanged
+- `applicationId` `io.github.marcelsavegnago.kidshome` and release signing setup — `adb install -r` upgrades keep data.
+- GPL-3.0; F-Droid-friendly dependencies only (NanoHTTPD, ZXing core on Maven Central).
+
 ## 1.4.0
 
 Offline parent controls for routines, per-app limits, earn-time, and weekly usage — Material 3 Views UI, no Compose / no cloud.

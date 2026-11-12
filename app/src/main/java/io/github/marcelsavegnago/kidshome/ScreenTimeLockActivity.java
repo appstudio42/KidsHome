@@ -60,6 +60,13 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
             root.setBackgroundColor(ContextCompat.getColor(this, R.color.lock_bg_bedtime));
             getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.lock_bg_bedtime));
             getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.lock_bg_bedtime));
+        } else if (reason == ScreenTimeTracker.BlockReason.REMOTE) {
+            title.setText(R.string.remote_lock_title);
+            message.setText(R.string.remote_lock_message);
+            illustration.setImageResource(R.drawable.illust_remote_lock);
+            root.setBackgroundColor(ContextCompat.getColor(this, R.color.lock_bg_timeup));
+            getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.lock_bg_timeup));
+            getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.lock_bg_timeup));
         } else {
             title.setText(R.string.screen_time_lock_title);
             message.setText(R.string.screen_time_lock_message);
@@ -122,6 +129,29 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
                             Prefs.setBedtimeDisabledToday(this, true);
                             finishToHome();
                         } else if (which == 1) {
+                            disableKidMode();
+                        } else {
+                            openSettings();
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, null)
+                    .show();
+            return;
+        }
+
+        if (reason == ScreenTimeTracker.BlockReason.REMOTE) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.escape_unlocked_title)
+                    .setItems(new CharSequence[]{
+                            getString(R.string.remote_unlock_here),
+                            getString(R.string.escape_disable_kid_mode),
+                            getString(R.string.escape_open_settings)
+                    }, (d, which) -> {
+                        if (which == 0) {
+                            Prefs.setRemoteForceLocked(this, false);
+                            finishToHome();
+                        } else if (which == 1) {
+                            Prefs.setRemoteForceLocked(this, false);
                             disableKidMode();
                         } else {
                             openSettings();

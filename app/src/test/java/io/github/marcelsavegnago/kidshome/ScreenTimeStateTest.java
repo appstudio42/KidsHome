@@ -29,4 +29,12 @@ public class ScreenTimeStateTest {
         assertTrue(ScreenTimeState.isDailyLimitReached(70 * 60_000L, 0, 60 * 60_000L));
         assertFalse(ScreenTimeState.isDailyLimitReached(70 * 60_000L, 20 * 60_000L, 60 * 60_000L));
     }
+
+    @Test
+    public void bonusExtendsPastDailyLimitWhenUnused() {
+        // limit 60, used 25, bonus 30 → 65 left (not capped at 60).
+        long rem = ScreenTimeState.remainingMillis(25 * 60_000L, 30 * 60_000L, 60 * 60_000L);
+        assertEquals(65 * 60_000L, rem);
+        assertFalse(ScreenTimeState.isDailyLimitReached(25 * 60_000L, 30 * 60_000L, 60 * 60_000L));
+    }
 }

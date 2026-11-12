@@ -137,6 +137,10 @@ public final class ScreenTimeTracker {
         if (!Prefs.isKidModeEnabled(context)) {
             return BlockReason.NONE;
         }
+        // Parent remote "lock now" takes priority so the tablet shows the lock screen immediately.
+        if (Prefs.isRemoteForceLocked(context)) {
+            return BlockReason.REMOTE;
+        }
         RuleEngine.ScheduleDecision schedule = Prefs.currentScheduleDecision(context);
         if (RuleEngine.isAnyBedtimeActive(
                 Prefs.isBedtimeEnabled(context),
@@ -232,6 +236,7 @@ public final class ScreenTimeTracker {
     public enum BlockReason {
         NONE,
         DAILY_LIMIT,
-        BEDTIME
+        BEDTIME,
+        REMOTE
     }
 }

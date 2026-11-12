@@ -112,8 +112,8 @@ public final class RuleEngine {
             return Long.MAX_VALUE;
         }
         long limitMillis = limitMinutes * 60L * 1000L;
-        long effectiveUsed = Math.max(0L, usedMillis - Math.max(0L, bonusMillis));
-        return Math.max(0L, limitMillis - effectiveUsed);
+        // Bonus extends the per-app allowance (same rule as the daily total limit).
+        return Math.max(0L, limitMillis - Math.max(0L, usedMillis) + Math.max(0L, bonusMillis));
     }
 
     public static boolean isAppLimitReached(long usedMillis, long bonusMillis, int limitMinutes) {
