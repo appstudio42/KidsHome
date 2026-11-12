@@ -73,44 +73,30 @@ jobs:
               echo "keyAlias=${SIGNING_KEY_ALIAS}"
               echo "keyPassword=${SIGNING_KEY_PASSWORD}"
             } > "${GITHUB_WORKSPACE}/keystore.properties"
-            echo "SIGNED=true" >> "$GITHUB_ENV"
+            echo "SIGNED=release" >> "$GITHUB_ENV"
           else
-            echo "Signing secrets not set — will produce a debug-signed fallback APK"
-            echo "SIGNED=false" >> "$GITHUB_ENV"
+            echo "No SIGNING_* secrets — Gradle will sign release with keystore/debug.keystore (stable CI test key)"
+            if [ ! -f "${GITHUB_WORKSPACE}/keystore/debug.keystore" ]; then
+              echo "Missing keystore/debug.keystore in the repository"
+              exit 1
+            fi
+            echo "SIGNED=ci-debug" >> "$GITHUB_ENV"
           fi
 
       - name: Build release APK
         run: ./gradlew assembleRelease --stacktrace
 
-      - name: Fallback debug-sign if no release keystore
-        if: env.SIGNED == 'false'
+      - name: Name release artifact
         run: |
           set -euo pipefail
-          UNSIGNED=$(find app/build/outputs/apk/release -name '*.apk' | head -n1)
-          if [ -z "${UNSIGNED}" ]; then
-            echo "No release APK found"
-            exit 1
+          SRC=$(find app/build/outputs/apk/release -name '*.apk' ! -name '*-unsigned.apk' | head -n1)
+          if [ -z "${SRC}" ]; then
+            SRC=$(find app/build/outputs/apk/release -name '*.apk' | head -n1)
           fi
-          mkdir -p "${HOME}/.android"
-          DEBUG_KS="${HOME}/.android/debug.keystore"
-          if [ ! -f "${DEBUG_KS}" ]; then
-            keytool -genkeypair -v -keystore "${DEBUG_KS}" -storepass android -alias androiddebugkey \
-              -keypass android -keyalg RSA -keysize 2048 -validity 10000 \
-              -dname "CN=Android Debug,O=Android,C=US"
-          fi
-          OUT="app/build/outputs/apk/release/KidsHome-release.apk"
-          BUILD_TOOLS=$(ls -d "${ANDROID_SDK_ROOT}/build-tools/"* | sort -V | tail -n1)
-          "${BUILD_TOOLS}/zipalign" -f 4 "${UNSIGNED}" "${OUT}.aligned"
-          "${BUILD_TOOLS}/apksigner" sign --ks "${DEBUG_KS}" --ks-pass pass:android --key-pass pass:android \
-            --out "${OUT}" "${OUT}.aligned"
-          rm -f "${OUT}.aligned"
-          echo "Fallback debug-signed APK at ${OUT}"
-
-      - name: Name release artifact
-        if: env.SIGNED == 'true'
-        run: |
-          SRC=$(find app/build/outputs/apk/release -name '*.apk' | head -n1)
           cp "${SRC}" "app/build/outputs/apk/release/KidsHome-release.apk"
+          echo "Artifact from ${SRC} (signing=${SIGNED})"
+          BUILD_TOOLS=$(ls -d "${ANDROID_SDK_ROOT}/build-tools/"* | sort -V | tail -n1)
+          "${BUILD_TOOLS}/apksigner" verify --print-certs "app/build/outputs/apk/release/KidsHome-release.apk" || true
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
@@ -128,7 +114,7 @@ jobs:
           body: |
             KidsHome release artifact.
 
-            If repository signing secrets were not configured, this APK is **debug-signed** (installable for testing).
+            Without `SIGNING_*` secrets this APK is signed with the repo’s stable **CI test** keystore (`keystore/debug.keystore`). With secrets, it uses your release key.
 
             ## Install
             ```bash

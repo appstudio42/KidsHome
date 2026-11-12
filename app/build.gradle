@@ -8,6 +8,8 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+def ciDebugKeystore = rootProject.file("keystore/debug.keystore")
+
 android {
     namespace 'io.github.marcelsavegnago.kidshome'
     compileSdk 34
@@ -16,8 +18,8 @@ android {
         applicationId "io.github.marcelsavegnago.kidshome"
         minSdk 22
         targetSdk 28
-        versionCode 110
-        versionName "1.1.0"
+        versionCode 111
+        versionName "1.1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // Keep the APK lean for 1 GB Fire tablets.
@@ -25,6 +27,14 @@ android {
     }
 
     signingConfigs {
+        // Stable test key checked into the repo — same signature across CI runs.
+        // NOT for production. See keystore/README.md.
+        ciDebug {
+            storeFile ciDebugKeystore
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
         release {
             if (keystorePropertiesFile.exists()) {
                 storeFile rootProject.file(keystoreProperties['storeFile'])
@@ -46,11 +56,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             if (keystorePropertiesFile.exists()) {
                 signingConfig signingConfigs.release
+            } else if (ciDebugKeystore.exists()) {
+                signingConfig signingConfigs.ciDebug
             }
         }
         debug {
             applicationIdSuffix ".debug"
             versionNameSuffix "-debug"
+            if (ciDebugKeystore.exists()) {
+                signingConfig signingConfigs.ciDebug
+            }
         }
     }
 

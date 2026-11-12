@@ -13,4 +13,5 @@ keystore.properties
 release.keystore
 *.jks
 *.keystore
+!keystore/debug.keystore
 .cxx/

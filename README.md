@@ -90,7 +90,12 @@ When the daily limit or bedtime hits, a friendly full-screen message appears (�
 ```
 Requires JDK 17+ and Android SDK (compileSdk 34). `minSdk 22`, `targetSdk 28` (sideload-friendly on Fire OS 7 / Android 9, still installable on newer devices).
 
-### CI signing secrets (optional)
+### CI signing
+| Mode | When | Signature |
+|------|------|-----------|
+| **Stable CI test key** | No `SIGNING_*` secrets | `keystore/debug.keystore` (committed; password `android` / alias `androiddebugkey`) — **same across all CI runs**, so `adb install -r` upgrades keep settings |
+| **Release key** | Secrets set (see below) | Your private keystore |
+
 | Secret | Purpose |
 |--------|---------|
 | `SIGNING_KEYSTORE_BASE64` | Base64-encoded `.jks` / `.keystore` file |
@@ -98,7 +103,9 @@ Requires JDK 17+ and Android SDK (compileSdk 34). `minSdk 22`, `targetSdk 28` (s
 | `SIGNING_KEY_STORE_PASSWORD` | Keystore password |
 | `SIGNING_KEY_PASSWORD` | Key password |
 
-If these are missing, CI still publishes a **debug-signed** installable APK.
+The committed debug keystore is **test-only**, not for production (see `keystore/README.md`).
+
+**Switching** between the CI test key and a release key (or any other key) requires uninstalling once (`adb uninstall io.github.marcelsavegnago.kidshome`) — app data/settings are lost on that one-time reinstall.
 
 ### Credits & license
 - BaronKiko — original LauncherHijack
@@ -173,6 +180,9 @@ Ao esgotar o limite ou no horário de dormir, aparece a tela amigável. Com PIN:
 - O pacote antigo `com.baronkiko.launcherhijack` está na denylist da Amazon.
 - Após o sistema matar o processo (pouca RAM), o primeiro Home pode demorar; pressione de novo se necessário.
 - Não substitui um MDM / controle parental enterprise.
+
+### Assinatura do CI
+Sem secrets `SIGNING_*`, o CI assina com `keystore/debug.keystore` (chave de **teste** fixa no repo — mesma assinatura entre builds, upgrades com `adb install -r` preservam dados). Com secrets, usa a chave de release. **Trocar** entre chave de teste e de release exige desinstalar uma vez (perde configurações). Detalhes em `keystore/README.md`.
 
 ### Créditos e licença
 BaronKiko, Meems33 / WhiteRaven777. KidsHome — GPL-3 ([LICENSE](LICENSE)).
