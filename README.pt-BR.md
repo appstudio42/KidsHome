@@ -87,6 +87,11 @@ Desligado por padrão. No hub dos responsáveis abra **Controle remoto**, ative 
 | ![Remote settings pt-BR](docs/screenshots/1.5.0/05-pt-remote-settings-qr.png) | ![Remote page pt-BR](docs/screenshots/1.5.0/06-pt-remote-phone-page.png) | ![Remote lock pt-BR](docs/screenshots/1.5.0/07-pt-remote-lock-tablet.png) | ![Phone locked pt-BR](docs/screenshots/1.5.0/08-pt-remote-phone-locked.png) |
 | Configurações + QR | Uso e estado | Bloqueio remoto | Modo criança ligado · bloqueio remoto |
 
+| Celular · bloqueado (EN) | Bloqueio no tablet (EN) |
+|:---:|:---:|
+| ![Phone locked EN](docs/screenshots/1.5.0/09-remote-phone-locked.png) | ![Remote lock EN](docs/screenshots/1.5.0/04-remote-lock-tablet.png) |
+| Modo criança ligado · bloqueio remoto | Pausado por um responsável |
+
 ## Dispositivos suportados
 
 | Modo | Melhor para | Como funciona |

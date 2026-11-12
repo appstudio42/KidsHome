@@ -37,6 +37,8 @@
       added: "Time added",
       lockedNow: "Tablet locked",
       unlockedNow: "Remote lock cleared",
+      lockBannerTitle: "Locked",
+      lockBannerHint: "The tablet is locked. Unlock when ready — you can still add time.",
       appLimit: "limit %n% min"
     },
     "pt-BR": {
@@ -74,6 +76,8 @@
       added: "Tempo adicionado",
       lockedNow: "Tablet bloqueado",
       unlockedNow: "Bloqueio remoto removido",
+      lockBannerTitle: "Bloqueado",
+      lockBannerHint: "O tablet está bloqueado. Desbloqueie quando quiser — ainda dá para adicionar tempo.",
       appLimit: "limite %n% min"
     }
   };
@@ -161,19 +165,36 @@
       .replace("%remaining%", String(state.remainingMinutes));
   }
 
+  function lockReasonLabel(state) {
+    if (state.blockReason === "remote") return t.remote;
+    if (state.blockReason === "bedtime") return t.bedtime;
+    if (state.blockReason === "daily_limit") return t.daily;
+    return t.locked;
+  }
+
   function renderState(state) {
     var chip = $("stateChip");
+    var dash = $("dashboard");
+    var banner = $("lockBanner");
     var parts = [];
     parts.push(state.kidMode ? t.kidOn : t.kidOff);
     if (state.locked) {
-      if (state.blockReason === "remote") parts.push(t.remote);
-      else if (state.blockReason === "bedtime") parts.push(t.bedtime);
-      else if (state.blockReason === "daily_limit") parts.push(t.daily);
-      else parts.push(t.locked);
+      parts.push(lockReasonLabel(state));
       chip.className = "chip bad";
+      dash.classList.add("is-locked");
+      banner.hidden = false;
+      $("lockBannerTitle").textContent = t.lockBannerTitle;
+      $("lockBannerHint").textContent = t.lockBannerHint;
+      // Unlock is the primary action while locked; add-time stays available.
+      $("btnUnlock").className = "btn primary";
+      $("btnLock").className = "btn secondary";
     } else {
       parts.push(t.unlocked);
       chip.className = "chip ok";
+      dash.classList.remove("is-locked");
+      banner.hidden = true;
+      $("btnUnlock").className = "btn teal";
+      $("btnLock").className = "btn danger";
     }
     if (state.scheduleActive) parts.push(t.schedule);
     chip.textContent = parts.join(" · ");

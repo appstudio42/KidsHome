@@ -1,9 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="108" height="108" role="img" aria-label="KidsHome">
-  <circle cx="54" cy="54" r="54" fill="#FFF8F3"/>
-  <path fill="#FFF8F3" d="M54 26 L82 50 L82 78 Q82 83 77 83 L31 83 Q26 83 26 78 L26 50 Z"/>
-  <path fill="#E86A5B" opacity="0.28" d="M54 26 L82 50 L26 50 Z"/>
-  <path fill="#5FA8A0" d="M54 26 L82 50 L26 50 Z"/>
-  <circle cx="43.5" cy="57" r="6.2" fill="#5FA8A0"/>
-  <circle cx="64.5" cy="57" r="6.2" fill="#5FA8A0"/>
-  <path d="M38.5 67.5 C46 77 62 77 69.5 67.5" fill="none" stroke="#E86A5B" stroke-width="6.5" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="KidsHome">
+  <defs>
+    <linearGradient id="bg" x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#E86A5B"/>
+      <stop offset="0.55" stop-color="#E8B84A"/>
+      <stop offset="1" stop-color="#5FA8A0"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#bg)"/>
+  <path fill="#FFF8F3" d="M256 96 L420 236 L420 400 Q420 428 392 428 L120 428 Q92 428 92 400 L92 236 Z"/>
+  <path fill="#E86A5B" opacity="0.22" d="M256 96 L420 236 L92 236 Z"/>
+  <circle cx="198" cy="274" r="32" fill="#5FA8A0"/>
+  <circle cx="314" cy="274" r="32" fill="#5FA8A0"/>
+  <path d="M180 336 C214 386 298 386 332 336" fill="none" stroke="#E86A5B" stroke-width="34" stroke-linecap="round"/>
 </svg>
