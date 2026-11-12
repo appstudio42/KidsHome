@@ -13,11 +13,12 @@
         android:importantForAccessibility="no" />
 
     <LinearLayout
+        android:id="@+id/kidHomeContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:paddingStart="@dimen/space_md"
-        android:paddingTop="@dimen/space_lg"
+        android:paddingTop="@dimen/space_md"
         android:paddingEnd="@dimen/space_md"
         android:paddingBottom="@dimen/space_md">
 
@@ -69,29 +70,29 @@
                     tools:text="Time left: 45 min" />
             </LinearLayout>
 
-            <FrameLayout
+            <io.github.marcelsavegnago.kidshome.RemainingTimeRing
+                android:id="@+id/kidHomeTimeRing"
                 android:layout_width="@dimen/time_ring_size"
                 android:layout_height="@dimen/time_ring_size"
-                android:contentDescription="@string/cd_time_remaining">
-
-                <io.github.marcelsavegnago.kidshome.RemainingTimeRing
-                    android:id="@+id/kidHomeTimeRing"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </FrameLayout>
+                android:contentDescription="@string/cd_time_remaining" />
         </LinearLayout>
 
         <GridView
             android:id="@+id/kidHomeGrid"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="@dimen/space_md"
+            android:layout_marginTop="@dimen/space_sm"
             android:layout_weight="1"
+            android:clipChildren="false"
             android:clipToPadding="false"
+            android:fadeScrollbars="false"
             android:gravity="center"
             android:horizontalSpacing="@dimen/space_sm"
             android:listSelector="@android:color/transparent"
             android:numColumns="3"
+            android:paddingBottom="@dimen/space_md"
+            android:scrollbarStyle="outsideOverlay"
+            android:scrollbars="vertical"
             android:stretchMode="columnWidth"
             android:verticalSpacing="@dimen/space_sm" />
     </LinearLayout>

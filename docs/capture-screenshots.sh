@@ -17,6 +17,40 @@ APP_UID="$(adb shell stat -c %u /data/data/$PKG 2>/dev/null | tr -d '\r')"
 
 mkdir -p "$SHOT" "$MEDIA" "$RAW"
 
+# Prefer kid-friendly launchable packages present on the emulator. Never include Settings.
+pick_demo_packages() {
+    # Kid-facing only — never Settings / Gmail / Calendar / Music.
+    local candidates=(
+    "com.google.android.apps.youtube.kids"
+    "com.google.android.youtube"
+    "com.android.chrome"
+    "com.android.camera2"
+    "com.google.android.GoogleCamera"
+    "com.google.android.apps.photos"
+    "com.google.android.apps.maps"
+  )
+  local chosen=()
+  local pkg
+  for pkg in "${candidates[@]}"; do
+    if adb shell pm path "$pkg" >/dev/null 2>&1; then
+      chosen+=("$pkg")
+    fi
+    # Cap at 4 apps so + 2 site shortcuts = 2 full rows (no clipped third row).
+    if [ "${#chosen[@]}" -ge 4 ]; then
+      break
+    fi
+  done
+  DEMO_PACKAGES_XML=""
+  for pkg in "${chosen[@]}"; do
+    DEMO_PACKAGES_XML+="    <string>${pkg}</string>"$'\n'
+  done
+  if [ -z "$DEMO_PACKAGES_XML" ]; then
+    DEMO_PACKAGES_XML=$'    <string>com.android.chrome</string>\n    <string>com.android.camera2</string>\n    <string>com.google.android.apps.photos</string>\n'
+  fi
+}
+
+pick_demo_packages
+
 write_prefs() {
   local extra="${1:-}"
   adb shell am force-stop "$PKG"
@@ -34,14 +68,8 @@ write_prefs() {
   <int name="PrefsVersion" value="1" />
   <boolean name="KidLockToApp" value="false" />
   <set name="AllowedPackages">
-    <string>com.android.settings</string>
-    <string>com.android.chrome</string>
-    <string>com.android.camera2</string>
-    <string>com.google.android.apps.photos</string>
-    <string>com.google.android.deskclock</string>
-    <string>com.google.android.calendar</string>
-  </set>
-  <string name="SiteShortcutsJson">[{"id":"poki","name":"Poki Kids","url":"https://kids.poki.com/"},{"id":"pbs","name":"PBS Kids","url":"https://pbskids.org/games"},{"id":"coolmath","name":"Coolmath","url":"https://www.coolmathgames.com/"}]</string>
+${DEMO_PACKAGES_XML}  </set>
+  <string name="SiteShortcutsJson">[{"id":"poki","name":"Poki Kids","url":"https://kids.poki.com/"},{"id":"pbs","name":"PBS Kids","url":"https://pbskids.org/games"}]</string>
   <boolean name="siteSuggestionsSeeded" value="true" />
   <string name="BrowserPackage">com.android.chrome</string>
   <string name="BrowserActivity">com.google.android.apps.chrome.Main</string>
@@ -66,11 +94,11 @@ EOF
 
 optimize_png() {
   local src="$1" dest="$2"
-  # Keep the full landscape frame (status bar + content). Avoid North crops that
-  # clip the PIN keypad / bottom actions on 1280x800 tablets.
+  # Keep enough colors that fine UI (PIN digits, icons) stays crisp in README shots.
   convert "$src" -strip "PNG32:/tmp/kh-crop.png"
   if command -v pngquant >/dev/null; then
-    pngquant --force --quality=70-95 --output "$dest" /tmp/kh-crop.png || cp /tmp/kh-crop.png "$dest"
+    pngquant --force --quality=85-100 --speed 1 --output "$dest" /tmp/kh-crop.png \
+      || cp /tmp/kh-crop.png "$dest"
   else
     cp /tmp/kh-crop.png "$dest"
   fi
@@ -85,27 +113,54 @@ screencap() {
   echo "Wrote ${SHOT}/${name}.png ($(identify -format '%wx%h %b' "${SHOT}/${name}.png"))"
 }
 
+# Dismiss the one-time "Viewing full screen / Got it" immersive cling if shown.
+dismiss_immersive_cling() {
+  local dump="/sdcard/kh-ui.xml"
+  adb shell uiautomator dump "$dump" >/dev/null 2>&1 || return 0
+  local line
+  line="$(adb shell cat "$dump" 2>/dev/null | tr '>' '\n' | grep 'resource-id="android:id/ok"' | head -1 || true)"
+  if [ -z "$line" ]; then
+    return 0
+  fi
+  local coords
+  coords="$(printf '%s' "$line" | sed -n 's/.*bounds="\[\([0-9]*\),\([0-9]*\)\]\[\([0-9]*\),\([0-9]*\)\]".*/\1 \2 \3 \4/p')"
+  if [ -n "$coords" ]; then
+    # shellcheck disable=SC2086
+    set -- $coords
+    local cx=$(( ($1 + $3) / 2 ))
+    local cy=$(( ($2 + $4) / 2 ))
+    adb shell input tap "$cx" "$cy" >/dev/null 2>&1 || true
+    sleep 0.5
+  fi
+}
+
 echo "Capturing screenshots for $PKG …"
 adb shell appops set "$PKG" SYSTEM_ALERT_WINDOW allow || true
 adb shell settings put global window_animation_scale 0 || true
 adb shell settings put global transition_animation_scale 0 || true
 adb shell settings put global animator_duration_scale 0 || true
-# Hide gesture/taskbar chrome on API 34 tablets so content fills the frame.
-adb shell settings put global policy_control immersive.navigation=* || true
-trap 'adb shell settings delete global policy_control >/dev/null 2>&1 || true' EXIT
+# Skip the one-time "Viewing full screen" immersive confirmation dialog.
+# Quote carefully — unquoted * is rejected by `settings` on API 34.
+adb shell "settings put secure immersive_mode_confirmations '*'" || true
 
 write_prefs ""
 adb shell am start -n "$PKG/$CLS.KidHomeActivity"
-screencap "01-kid-home"
+sleep 1.2
+dismiss_immersive_cling
+screencap "01-kid-home" 1.6
 
 write_prefs '<long name="UsedMillisToday" value="3600000" />'
 adb shell am start -n "$PKG/$CLS.KidHomeActivity"
-screencap "02-time-up"
+sleep 1.0
+dismiss_immersive_cling
+screencap "02-time-up" 1.6
 
 write_prefs ""
 adb shell am force-stop "$PKG"
 adb shell am start -n "$PKG/$CLS.EscapePinActivity"
-screencap "03-pin-entry" 2.8
+sleep 1.0
+dismiss_immersive_cling
+screencap "03-pin-entry" 1.6
 
 write_prefs '<boolean name="KidModeEnabled" value="false" />
   <boolean name="BedtimeEnabled" value="true" />

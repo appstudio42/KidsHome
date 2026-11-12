@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Compact controls so kid / PIN UIs fit gesture-nav tablets (short height). -->
-    <dimen name="pin_key_size">52dp</dimen>
-    <dimen name="space_lg">16dp</dimen>
-    <dimen name="space_xl">20dp</dimen>
-    <dimen name="kid_tile_min">96dp</dimen>
-    <dimen name="kid_icon_size">56dp</dimen>
+    <!-- Compact controls so kid / PIN UIs fit Fire 7 landscape (1024x600) and short tablets. -->
+    <dimen name="pin_key_size">56dp</dimen>
+    <dimen name="pin_key_text">20sp</dimen>
+    <dimen name="space_lg">12dp</dimen>
+    <dimen name="space_xl">16dp</dimen>
+    <dimen name="kid_tile_min">88dp</dimen>
+    <dimen name="kid_icon_size">52dp</dimen>
+    <dimen name="lock_illust_size">96dp</dimen>
+    <dimen name="lock_title_text">22sp</dimen>
+    <dimen name="lock_message_text">14sp</dimen>
+    <dimen name="time_ring_size">52dp</dimen>
 </resources>

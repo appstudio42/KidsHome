@@ -35,8 +35,9 @@
         <item name="materialButtonStyle">@style/Widget.KidsHome.Button</item>
         <item name="materialCardViewStyle">@style/Widget.KidsHome.Card</item>
         <item name="toolbarStyle">@style/Widget.KidsHome.Toolbar</item>
-        <item name="android:statusBarColor">@color/md_primary</item>
-        <item name="android:navigationBarColor">@color/md_surface</item>
+        <!-- Track themed primary so Dynamic Color and the app bar stay in sync. -->
+        <item name="android:statusBarColor">?attr/colorPrimary</item>
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
 
@@ -96,10 +97,10 @@
     </style>
 
     <style name="Widget.KidsHome.Toolbar" parent="Widget.Material3.Toolbar">
-        <item name="titleTextColor">@color/md_on_primary</item>
-        <item name="subtitleTextColor">@color/md_on_primary</item>
-        <item name="android:background">@color/md_primary</item>
-        <item name="navigationIconTint">@color/md_on_primary</item>
+        <item name="titleTextColor">?attr/colorOnPrimary</item>
+        <item name="subtitleTextColor">?attr/colorOnPrimary</item>
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="navigationIconTint">?attr/colorOnPrimary</item>
     </style>
 
     <style name="TextAppearance.KidsHome.Display" parent="TextAppearance.Material3.HeadlineMedium">
@@ -117,14 +118,23 @@
 
     <style name="TextAppearance.KidsHome.Body" parent="TextAppearance.Material3.BodyMedium" />
 
-    <style name="Widget.KidsHome.PinKey" parent="Widget.Material3.Button.OutlinedButton">
+    <!-- Empty parent so dotted Widget.KidsHome.* names resolve under AAPT. -->
+    <style name="Widget.KidsHome" parent="android:Widget" />
+
+    <!-- Plain TextView keys — MaterialButton insets clip digits in circular keys. -->
+    <style name="Widget.KidsHome.PinKey" parent="Widget.KidsHome">
         <item name="android:layout_width">@dimen/pin_key_size</item>
         <item name="android:layout_height">@dimen/pin_key_size</item>
-        <item name="android:insetTop">0dp</item>
-        <item name="android:insetBottom">0dp</item>
-        <item name="android:textSize">24sp</item>
+        <item name="android:background">@drawable/bg_pin_key</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:gravity">center</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textSize">@dimen/pin_key_text</item>
         <item name="android:textStyle">bold</item>
-        <item name="cornerRadius">36dp</item>
-        <item name="strokeColor">@color/md_outline_variant</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
     </style>
 </resources>

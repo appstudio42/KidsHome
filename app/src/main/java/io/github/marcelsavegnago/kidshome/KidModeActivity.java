@@ -84,6 +84,7 @@ public class KidModeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_kid_mode);
         MaterialToolbar toolbar = findViewById(R.id.kidModeToolbar);
         setSupportActionBar(toolbar);
+        ThemeHelper.applySystemBars(this);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }

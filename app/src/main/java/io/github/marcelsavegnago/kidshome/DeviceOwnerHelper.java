@@ -70,6 +70,16 @@ public final class DeviceOwnerHelper {
             Log.e(TAG, "setLockTaskPackages failed", e);
         }
 
+        // Block Home / Overview / notifications / system info on API 28+ (Fire OS 7 = 28).
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            try {
+                manager.setLockTaskFeatures(admin, DevicePolicyManager.LOCK_TASK_FEATURE_NONE);
+                Log.i(TAG, "Lock task features = NONE");
+            } catch (Exception e) {
+                Log.w(TAG, "setLockTaskFeatures failed", e);
+            }
+        }
+
         try {
             IntentFilter filter = new IntentFilter(Intent.ACTION_MAIN);
             filter.addCategory(Intent.CATEGORY_HOME);

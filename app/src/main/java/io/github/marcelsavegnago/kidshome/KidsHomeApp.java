@@ -2,21 +2,16 @@ package io.github.marcelsavegnago.kidshome;
 
 import android.app.Application;
 
-import com.google.android.material.color.DynamicColors;
-
 /**
- * Applies Material You dynamic color on Android 12+ when the system supports it.
- * Older devices (including Fire OS 7) keep the cheerful static seed palette.
+ * Application entry. Uses the cheerful static teal/coral Material 3 seed palette.
+ * Dynamic Color is intentionally not applied: on tablets it remaps the app bar to
+ * wallpaper purple while the status bar often keeps the seed teal, causing a clash.
+ * Fire OS devices also lack Dynamic Color, so the static seed stays consistent.
  */
 public class KidsHomeApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
         Prefs.migrateIfNeeded(this);
-        try {
-            DynamicColors.applyToActivitiesIfAvailable(this);
-        } catch (Throwable ignored) {
-            // Dynamic color is best-effort; static theme remains.
-        }
     }
 }

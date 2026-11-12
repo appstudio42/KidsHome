@@ -61,6 +61,7 @@ public class SetupActivity extends AppCompatActivity {
 
     private void inflateUi() {
         setContentView(R.layout.activity_setup);
+        ThemeHelper.applySystemBars(this);
         setTitle(R.string.setup_title);
 
         deviceInfo = findViewById(R.id.setupDeviceInfo);

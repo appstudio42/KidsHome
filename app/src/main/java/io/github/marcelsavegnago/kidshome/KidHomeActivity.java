@@ -63,6 +63,8 @@ public class KidHomeActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_kid_home);
+        ImmersiveHelper.enter(this);
+        ImmersiveHelper.applyContentInsets(findViewById(R.id.kidHomeContent));
 
         FrameLayout root = findViewById(R.id.kidHomeRoot);
         root.setBackground(loadWallpaperDrawable());
@@ -73,6 +75,8 @@ public class KidHomeActivity extends AppCompatActivity {
         timeRing = findViewById(R.id.kidHomeTimeRing);
         GridView grid = findViewById(R.id.kidHomeGrid);
         adapter = new KidHomeAdapter(this);
+        // Prefer 3 columns; on very short/wide Fire 7 landscape keep tiles readable.
+        grid.setNumColumns(3);
         grid.setAdapter(adapter);
         grid.setOnItemClickListener((parent, view, position, id) -> {
             MotionHelper.bouncePress(view, this);
@@ -99,6 +103,7 @@ public class KidHomeActivity extends AppCompatActivity {
             ScreenTimeLockActivity.launch(this);
             return;
         }
+        ImmersiveHelper.enter(this);
         DeviceOwnerHelper.startLockTaskIfNeeded(this);
         refreshHeader();
         refreshGrid();
@@ -167,6 +172,7 @@ public class KidHomeActivity extends AppCompatActivity {
         }
         if (!Prefs.isScreenTimeEnabled(this) || Prefs.isScreenTimeDisabledToday(this)) {
             timeRing.setProgress(1f);
+            timeRing.setCenterLabel("∞");
             timeRing.setContentDescription(getString(R.string.screen_time_off));
             return;
         }
@@ -174,6 +180,11 @@ public class KidHomeActivity extends AppCompatActivity {
         long remaining = ScreenTimeTracker.remainingMillis(this);
         float fraction = limit <= 0L ? 0f : Math.max(0f, Math.min(1f, remaining / (float) limit));
         timeRing.setProgress(fraction);
+        long minutes = Math.max(0L, (remaining + 59_999L) / 60_000L);
+        String label = minutes >= 60
+                ? (minutes / 60) + "h"
+                : String.valueOf(minutes);
+        timeRing.setCenterLabel(label);
         timeRing.setContentDescription(ScreenTimeTracker.formatRemaining(this));
     }
 

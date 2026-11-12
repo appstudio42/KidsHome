@@ -43,6 +43,9 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
         KidModeGate.markScreenLockUiOpen();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_screen_time_lock);
+        ImmersiveHelper.enter(this);
+        // Inset the ScrollView so the unlock button stays reachable when bars peek.
+        ImmersiveHelper.applyContentInsets(findViewById(R.id.lockRoot));
 
         TextView title = findViewById(R.id.lockTitle);
         TextView message = findViewById(R.id.lockMessage);
@@ -73,6 +76,7 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        ImmersiveHelper.enter(this);
         KidModeGate.markScreenLockUiOpen();
         if (!ScreenTimeTracker.isBlocked(this)) {
             finishToHome();

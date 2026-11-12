@@ -5,19 +5,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/lock_bg_timeup"
+    android:clipToPadding="false"
     android:fillViewport="true">
 
     <LinearLayout
+        android:id="@+id/lockContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:padding="@dimen/space_xl">
+        android:paddingStart="@dimen/space_lg"
+        android:paddingTop="@dimen/space_md"
+        android:paddingEnd="@dimen/space_lg"
+        android:paddingBottom="@dimen/space_lg">
 
         <ImageView
             android:id="@+id/lockIllustration"
-            android:layout_width="160dp"
-            android:layout_height="160dp"
+            android:layout_width="@dimen/lock_illust_size"
+            android:layout_height="@dimen/lock_illust_size"
             android:contentDescription="@string/cd_lock_illustration"
             android:src="@drawable/illust_time_up" />
 
@@ -25,29 +30,30 @@
             android:id="@+id/lockTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_lg"
+            android:layout_marginTop="@dimen/space_md"
             android:gravity="center"
             android:text="@string/screen_time_lock_title"
             android:textColor="@color/lock_on_bg"
-            android:textSize="28sp"
+            android:textSize="@dimen/lock_title_text"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/lockMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_md"
+            android:layout_marginTop="@dimen/space_sm"
             android:gravity="center"
             android:text="@string/screen_time_lock_message"
             android:textColor="@color/lock_on_bg_muted"
-            android:textSize="16sp" />
+            android:textSize="@dimen/lock_message_text" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/lockParentUnlock"
             style="@style/Widget.KidsHome.Button.Tonal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/space_xl"
+            android:layout_marginTop="@dimen/space_lg"
+            android:layout_marginBottom="@dimen/space_md"
             android:minHeight="@dimen/touch_min"
             android:text="@string/parent_unlock"
             tools:ignore="TouchTargetSizeCheck" />

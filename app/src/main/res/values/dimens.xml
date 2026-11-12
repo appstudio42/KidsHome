@@ -23,7 +23,11 @@
     <dimen name="kid_header_avatar">56dp</dimen>
     <dimen name="time_ring_size">56dp</dimen>
     <dimen name="pin_key_size">72dp</dimen>
+    <dimen name="pin_key_text">22sp</dimen>
     <dimen name="pin_dot_size">14dp</dimen>
     <dimen name="card_elevation">2dp</dimen>
     <dimen name="section_card_radius">20dp</dimen>
+    <dimen name="lock_illust_size">140dp</dimen>
+    <dimen name="lock_title_text">26sp</dimen>
+    <dimen name="lock_message_text">15sp</dimen>
 </resources>

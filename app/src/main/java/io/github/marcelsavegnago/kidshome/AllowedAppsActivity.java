@@ -59,6 +59,7 @@ public class AllowedAppsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_allowed_apps);
         MaterialToolbar toolbar = findViewById(R.id.allowedAppsToolbar);
         setSupportActionBar(toolbar);
+        ThemeHelper.applySystemBars(this);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }

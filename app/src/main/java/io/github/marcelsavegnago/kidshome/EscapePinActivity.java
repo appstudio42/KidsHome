@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -42,6 +43,11 @@ public class EscapePinActivity extends AppCompatActivity {
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_escape_pin);
+        ImmersiveHelper.enter(this);
+        View content = findViewById(android.R.id.content);
+        if (content instanceof android.view.ViewGroup && ((android.view.ViewGroup) content).getChildCount() > 0) {
+            ImmersiveHelper.applyContentInsets(((android.view.ViewGroup) content).getChildAt(0));
+        }
         setTitle(R.string.escape_pin_title);
 
         pinInput = findViewById(R.id.escapePinInput);
@@ -70,6 +76,7 @@ public class EscapePinActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        ImmersiveHelper.enter(this);
         KidModeGate.markEscapeUiOpen();
         refreshLockoutState();
     }

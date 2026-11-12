@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         MaterialToolbar toolbar = findViewById(R.id.mainToolbar);
         setSupportActionBar(toolbar);
+        ThemeHelper.applySystemBars(this);
 
         listApps = findViewById(R.id.lvApps);
         statusBanner = findViewById(R.id.statusBanner);

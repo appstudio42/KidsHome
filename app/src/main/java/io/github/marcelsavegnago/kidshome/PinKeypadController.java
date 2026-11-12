@@ -5,8 +5,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.google.android.material.button.MaterialButton;
-
 /**
  * Wires the numeric PIN keypad + dots to a hidden EditText.
  */
@@ -34,11 +32,8 @@ public final class PinKeypadController {
         bindKey(root, R.id.pinKey7, "7");
         bindKey(root, R.id.pinKey8, "8");
         bindKey(root, R.id.pinKey9, "9");
-        MaterialButton back = root.findViewById(R.id.pinKeyBack);
+        View back = root.findViewById(R.id.pinKeyBack);
         if (back != null) {
-            back.setIconResource(R.drawable.ic_backspace);
-            back.setIconGravity(MaterialButton.ICON_GRAVITY_TEXT_START);
-            back.setIconPadding(0);
             back.setOnClickListener(v -> {
                 HapticHelper.tick(v);
                 CharSequence text = input.getText();
