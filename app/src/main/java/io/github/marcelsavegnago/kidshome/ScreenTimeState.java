@@ -41,9 +41,15 @@ public final class ScreenTimeState {
         return nowMinutes >= startMinutes || nowMinutes < endMinutes;
     }
 
+    /**
+     * Remaining allowance for today. Bonus minutes extend the daily limit rather than
+     * being clamped by it — e.g. limit 60, used 25, bonus 30 → 65 remaining (not 60).
+     */
     public static long remainingMillis(long usedMillis, long bonusMillis, long dailyLimitMillis) {
-        long effectiveUsed = Math.max(0L, usedMillis - bonusMillis);
-        return Math.max(0L, dailyLimitMillis - effectiveUsed);
+        long used = Math.max(0L, usedMillis);
+        long bonus = Math.max(0L, bonusMillis);
+        long limit = Math.max(0L, dailyLimitMillis);
+        return Math.max(0L, limit - used + bonus);
     }
 
     public static boolean isDailyLimitReached(long usedMillis, long bonusMillis, long dailyLimitMillis) {

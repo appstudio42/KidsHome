@@ -20,7 +20,17 @@ public class RemoteTimeMathTest {
         long used = 50L * 60_000L;
         long bonus = 20L * 60_000L;
         assertEquals(30L, RemoteTimeMath.remainingMinutes(used, bonus, 60));
-        assertEquals(50L, RemoteTimeMath.effectiveUsedMinutes(used, 0L));
+        assertEquals(50L, RemoteTimeMath.usedMinutes(used));
+    }
+
+    @Test
+    public void bonusExtendsDisplayedTotalAndRemaining() {
+        // Matches remote screenshots: 25 used / 60 base, +30 → 25/90 with 65 left.
+        long used = 25L * 60_000L;
+        long bonus = 30L * 60_000L;
+        assertEquals(65L, RemoteTimeMath.remainingMinutes(used, bonus, 60));
+        assertEquals(90, RemoteTimeMath.effectiveLimitMinutes(60, 30L));
+        assertEquals(25L, RemoteTimeMath.usedMinutes(used));
     }
 
     @Test

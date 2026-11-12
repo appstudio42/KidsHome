@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="160dp"
+    android:height="160dp"
+    android:viewportWidth="160"
+    android:viewportHeight="160">
+    <!-- Cream disc -->
+    <path
+        android:fillColor="#FFF8F3"
+        android:pathData="M80,16a64,64 0 1,0 0,128a64,64 0 1,0 0,-128z" />
+    <!-- House body -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M52,62 L108,62 L108,100 Q108,104 104,104 L56,104 Q52,104 52,100 Z" />
+    <!-- Roof (teal) -->
+    <path
+        android:fillColor="#5FA8A0"
+        android:pathData="M80,36 L112,64 L48,64 Z" />
+    <!-- Soft coral roof wash -->
+    <path
+        android:fillColor="#47E86A5B"
+        android:pathData="M80,36 L112,64 L48,64 Z" />
+    <!-- Eyes -->
+    <path
+        android:fillColor="#5FA8A0"
+        android:pathData="M68,74a7,7 0 1,0 0,14a7,7 0 1,0 0,-14z" />
+    <path
+        android:fillColor="#5FA8A0"
+        android:pathData="M92,74a7,7 0 1,0 0,14a7,7 0 1,0 0,-14z" />
+    <!-- Smile (filled arc, no stroke — min API 22 safe) -->
+    <path
+        android:fillColor="#E86A5B"
+        android:pathData="M62,88 C72,102 88,102 98,88 C94,96 86,100 80,100 C74,100 66,96 62,88 Z" />
+    <!-- Coral pause bars -->
+    <path
+        android:fillColor="#E86A5B"
+        android:pathData="M60,116h14v24h-14z" />
+    <path
+        android:fillColor="#E86A5B"
+        android:pathData="M86,116h14v24h-14z" />
+</vector>

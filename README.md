@@ -62,6 +62,11 @@ Real captures from an Android tablet emulator (1280×800) with demo child name *
 | ![Remote settings](docs/screenshots/1.5.0/01-remote-settings-qr.png) | ![Remote page](docs/screenshots/1.5.0/02-remote-phone-page.png) | ![After add](docs/screenshots/1.5.0/03-remote-after-add-time.png) | ![Remote lock](docs/screenshots/1.5.0/04-remote-lock-tablet.png) |
 | URL + QR in parent settings | Usage & state on phone | Time added remotely | Lock now on tablet |
 
+| Remote settings (pt-BR) | Phone page (pt-BR) | Lock screen (pt-BR) | Phone · kid mode locked (pt-BR) |
+|:---:|:---:|:---:|:---:|
+| ![Remote settings pt-BR](docs/screenshots/1.5.0/05-pt-remote-settings-qr.png) | ![Remote page pt-BR](docs/screenshots/1.5.0/06-pt-remote-phone-page.png) | ![Remote lock pt-BR](docs/screenshots/1.5.0/07-pt-remote-lock-tablet.png) | ![Phone locked pt-BR](docs/screenshots/1.5.0/08-pt-remote-phone-locked.png) |
+| Settings + QR | Usage & state | Tablet lock | Kid mode on · remote lock |
+
 ## Features
 
 - **Three enforcement modes** (auto-detected, with manual override):

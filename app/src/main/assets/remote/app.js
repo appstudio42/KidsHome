@@ -78,7 +78,15 @@
     }
   };
 
+  function queryParam(name) {
+    var m = new RegExp("[?&]" + name + "=([^&]+)").exec(location.search || "");
+    return m ? decodeURIComponent(m[1]) : "";
+  }
+
   function pickLang() {
+    var forced = (queryParam("lang") || "").toLowerCase();
+    if (forced.indexOf("pt") === 0) return "pt-BR";
+    if (forced.indexOf("en") === 0) return "en";
     var lang = (navigator.language || "en").toLowerCase();
     if (lang.indexOf("pt") === 0) return "pt-BR";
     return "en";
@@ -176,6 +184,7 @@
       .replace("%total%", String(state.starsTotal))
       .replace("%today%", String(state.starsToday));
 
+    // dailyLimitMinutes is today's total allowance (base limit + bonus).
     var pct = 0;
     if (state.screenTimeEnabled && state.dailyLimitMinutes > 0) {
       pct = Math.min(100, Math.round((state.usedMinutes / state.dailyLimitMinutes) * 100));

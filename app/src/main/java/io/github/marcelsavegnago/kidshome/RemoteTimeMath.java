@@ -30,13 +30,31 @@ public final class RemoteTimeMath {
     }
 
     /**
-     * Effective used minutes after subtracting bonus (never negative).
+     * Raw used minutes (wall-clock usage today), not reduced by bonus.
      */
-    public static long effectiveUsedMinutes(long usedMillis, long bonusMillis) {
-        long effective = Math.max(0L, usedMillis - Math.max(0L, bonusMillis));
-        return effective / 60_000L;
+    public static long usedMinutes(long usedMillis) {
+        return millisToWholeMinutes(Math.max(0L, usedMillis));
     }
 
+    /**
+     * Today's total allowance shown to parents: configured daily limit plus bonus minutes.
+     * Example: limit 60 + bonus 30 → 90.
+     */
+    public static int effectiveLimitMinutes(int dailyLimitMinutes, long bonusMinutes) {
+        if (dailyLimitMinutes <= 0) {
+            return 0;
+        }
+        long total = (long) dailyLimitMinutes + Math.max(0L, bonusMinutes);
+        if (total > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+        return (int) total;
+    }
+
+    /**
+     * Remaining minutes after usage, with bonus extending past the base daily limit.
+     * Example: used 25, bonus 30, limit 60 → 65 left (display total 90).
+     */
     public static long remainingMinutes(long usedMillis, long bonusMillis, int dailyLimitMinutes) {
         if (dailyLimitMinutes <= 0) {
             return 0L;

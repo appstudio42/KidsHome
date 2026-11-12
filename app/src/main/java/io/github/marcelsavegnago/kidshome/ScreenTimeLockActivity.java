@@ -63,7 +63,7 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
         } else if (reason == ScreenTimeTracker.BlockReason.REMOTE) {
             title.setText(R.string.remote_lock_title);
             message.setText(R.string.remote_lock_message);
-            illustration.setImageResource(R.drawable.illust_time_up);
+            illustration.setImageResource(R.drawable.illust_remote_lock);
             root.setBackgroundColor(ContextCompat.getColor(this, R.color.lock_bg_timeup));
             getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.lock_bg_timeup));
             getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.lock_bg_timeup));

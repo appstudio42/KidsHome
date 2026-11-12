@@ -44,13 +44,25 @@ html, body {
   padding: 28px 18px 48px;
 }
 
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: rise 0.7s ease both;
+}
+.brand-logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(232, 106, 91, 0.22);
+  background: #FFF8F3;
+}
 .brand-mark {
   margin: 0;
   font-size: 1.7rem;
   font-weight: 800;
   letter-spacing: 0.02em;
   color: var(--coral);
-  animation: rise 0.7s ease both;
 }
 
 .brand h1 {

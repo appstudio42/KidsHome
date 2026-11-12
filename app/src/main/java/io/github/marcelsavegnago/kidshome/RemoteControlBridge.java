@@ -38,12 +38,14 @@ public final class RemoteControlBridge implements RemoteRequestHandler.DeviceBri
 
         long used = Prefs.getUsedMillisToday(app);
         long bonus = Prefs.getBonusMillisToday(app);
-        int limit = Prefs.getDailyLimitMinutes(app);
+        int baseLimit = Prefs.getDailyLimitMinutes(app);
+        long bonusMin = RemoteTimeMath.millisToWholeMinutes(bonus);
+        int effectiveLimit = RemoteTimeMath.effectiveLimitMinutes(baseLimit, bonusMin);
         long remainingMin;
         if (!Prefs.isScreenTimeEnabled(app) || Prefs.isScreenTimeDisabledToday(app)) {
             remainingMin = Long.MAX_VALUE;
         } else {
-            remainingMin = RemoteTimeMath.remainingMinutes(used, bonus, limit);
+            remainingMin = RemoteTimeMath.remainingMinutes(used, bonus, baseLimit);
         }
 
         Map<String, Long> usedMap = Prefs.getAppUsedMillisToday(app);
@@ -80,9 +82,10 @@ public final class RemoteControlBridge implements RemoteRequestHandler.DeviceBri
                 scheduleActive,
                 reasonKey,
                 Prefs.isScreenTimeEnabled(app) && !Prefs.isScreenTimeDisabledToday(app),
-                limit,
-                RemoteTimeMath.effectiveUsedMinutes(used, 0L),
-                bonus / 60_000L,
+                // Parent page shows today's total allowance (base limit + bonus).
+                effectiveLimit,
+                RemoteTimeMath.usedMinutes(used),
+                bonusMin,
                 remainingMin == Long.MAX_VALUE ? -1L : remainingMin,
                 Prefs.getStarsTotal(app),
                 Prefs.getStarsToday(app),
