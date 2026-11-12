@@ -12,6 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
 
     steps:
       - name: Checkout
@@ -28,11 +31,22 @@ jobs:
         run: |
           set -euo pipefail
           export ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME}}"
+          export ANDROID_HOME="${ANDROID_HOME:-${ANDROID_SDK_ROOT}}"
           echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}"
-          # Accept licenses non-interactively; ignore leftover prompts.
-          yes | sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" --licenses >/tmp/sdk-licenses.log || true
-          # Do not install the deprecated 'tools' package (removed from current repos).
-          sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" \
+          SDKMANAGER="$(find "${ANDROID_SDK_ROOT}/cmdline-tools" -type f -name sdkmanager 2>/dev/null | sort | tail -n1 || true)"
+          if [ -z "${SDKMANAGER}" ]; then
+            echo "cmdline-tools sdkmanager not found; downloading..."
+            mkdir -p "${ANDROID_SDK_ROOT}/cmdline-tools"
+            curl -fsSL -o /tmp/cmdtools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+            rm -rf "${ANDROID_SDK_ROOT}/cmdline-tools/latest"
+            unzip -q /tmp/cmdtools.zip -d "${ANDROID_SDK_ROOT}/cmdline-tools"
+            mv "${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools" "${ANDROID_SDK_ROOT}/cmdline-tools/latest"
+            SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+          fi
+          echo "Using sdkmanager at ${SDKMANAGER}"
+          yes | "${SDKMANAGER}" --sdk_root="${ANDROID_SDK_ROOT}" --licenses >/tmp/sdk-licenses.log || true
+          # Avoid the deprecated 'tools' package (removed from current repos).
+          "${SDKMANAGER}" --sdk_root="${ANDROID_SDK_ROOT}" \
             "platform-tools" \
             "platforms;android-34" \
             "build-tools;34.0.0"
