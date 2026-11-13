@@ -12,6 +12,7 @@ public class KidsHomeApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        PinAttemptTracker.attach(this);
         Prefs.migrateIfNeeded(this);
     }
 }

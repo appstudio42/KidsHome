@@ -63,6 +63,7 @@ public class EscapePinActivity extends AppCompatActivity {
         submitButton.setOnClickListener(v -> attemptPin());
         cancelButton.setOnClickListener(v -> returnToLockedTarget());
 
+        PinAttemptTracker.attach(this);
         refreshLockoutState();
         MotionHelper.fadeInUp(statusText, this);
     }

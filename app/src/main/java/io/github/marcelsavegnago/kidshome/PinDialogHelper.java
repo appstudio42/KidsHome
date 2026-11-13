@@ -19,6 +19,13 @@ public final class PinDialogHelper {
     }
 
     public static void promptVerify(Activity activity, PinCallback callback) {
+        PinAttemptTracker.attach(activity);
+        if (PinAttemptTracker.isLockedOut()) {
+            showLockout(activity);
+            callback.onCancel();
+            return;
+        }
+
         final EditText input = new EditText(activity);
         input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
         input.setHint(R.string.pin_hint);
@@ -30,12 +37,22 @@ public final class PinDialogHelper {
                 .setCancelable(false)
                 .setNegativeButton(R.string.cancel, (d, w) -> callback.onCancel())
                 .setPositiveButton(R.string.ok, (d, w) -> {
+                    if (PinAttemptTracker.isLockedOut()) {
+                        showLockout(activity);
+                        callback.onCancel();
+                        return;
+                    }
                     String pin = input.getText() != null ? input.getText().toString() : "";
                     if (Prefs.verifyKidPin(activity, pin)) {
+                        PinAttemptTracker.reset();
                         SessionAuth.markUnlocked();
                         callback.onSuccess();
                     } else {
-                        Toast.makeText(activity, R.string.pin_wrong, Toast.LENGTH_SHORT).show();
+                        long delay = PinAttemptTracker.registerFailure();
+                        int seconds = (int) Math.ceil(delay / 1000.0);
+                        Toast.makeText(activity,
+                                activity.getString(R.string.escape_pin_wrong_wait, seconds),
+                                Toast.LENGTH_LONG).show();
                         callback.onCancel();
                     }
                 })
@@ -82,6 +99,13 @@ public final class PinDialogHelper {
                     callback.onSuccess();
                 })
                 .show();
+    }
+
+    private static void showLockout(Activity activity) {
+        int seconds = (int) Math.ceil(PinAttemptTracker.remainingLockMs() / 1000.0);
+        Toast.makeText(activity,
+                activity.getString(R.string.escape_pin_locked_out, seconds),
+                Toast.LENGTH_LONG).show();
     }
 
     private static LinearLayout wrap(Activity activity, EditText input) {

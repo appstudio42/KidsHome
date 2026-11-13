@@ -458,6 +458,7 @@ public class KidModeActivity extends AppCompatActivity {
             EnforcementController.onKidModeDisabled(this);
             Prefs.setKidModeEnabled(this, false);
             SessionAuth.markUnlocked();
+            PinAttemptTracker.attach(this);
             PinAttemptTracker.reset();
             KidModeGate.markEscapeUiClosed();
             EscapeOverlayNotifier.requestRefresh(this);

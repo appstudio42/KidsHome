@@ -96,7 +96,16 @@ public final class RemoteControlBridge implements RemoteRequestHandler.DeviceBri
 
     @Override
     public boolean verifyPin(String pin) {
-        return Prefs.verifyKidPin(app, pin);
+        PinAttemptTracker.attach(app);
+        if (PinAttemptTracker.isLockedOut()) {
+            return false;
+        }
+        if (Prefs.verifyKidPin(app, pin)) {
+            PinAttemptTracker.reset();
+            return true;
+        }
+        PinAttemptTracker.registerFailure();
+        return false;
     }
 
     @Override

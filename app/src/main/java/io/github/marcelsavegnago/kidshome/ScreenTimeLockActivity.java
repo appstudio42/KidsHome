@@ -99,6 +99,11 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
     }
 
     private void promptPin(ScreenTimeTracker.BlockReason reason) {
+        PinAttemptTracker.attach(this);
+        if (PinAttemptTracker.isLockedOut()) {
+            showPinLockout();
+            return;
+        }
         final EditText input = new EditText(this);
         input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER
                 | android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD);
@@ -107,16 +112,30 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
                 .setView(input)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok, (d, w) -> {
-                    String pin = input.getText() != null ? input.getText().toString() : "";
-                    if (!Prefs.verifyKidPin(this, pin)) {
-                        HapticHelper.error(this);
-                        Toast.makeText(this, R.string.pin_wrong, Toast.LENGTH_SHORT).show();
+                    if (PinAttemptTracker.isLockedOut()) {
+                        showPinLockout();
                         return;
                     }
+                    String pin = input.getText() != null ? input.getText().toString() : "";
+                    if (!Prefs.verifyKidPin(this, pin)) {
+                        long delay = PinAttemptTracker.registerFailure();
+                        int seconds = (int) Math.ceil(delay / 1000.0);
+                        HapticHelper.error(this);
+                        Toast.makeText(this,
+                                getString(R.string.escape_pin_wrong_wait, seconds),
+                                Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                    PinAttemptTracker.reset();
                     SessionAuth.markUnlocked();
                     showParentChoices(reason);
                 })
                 .show();
+    }
+
+    private void showPinLockout() {
+        int seconds = (int) Math.ceil(PinAttemptTracker.remainingLockMs() / 1000.0);
+        Toast.makeText(this, getString(R.string.escape_pin_locked_out, seconds), Toast.LENGTH_LONG).show();
     }
 
     private void showParentChoices(ScreenTimeTracker.BlockReason reason) {
