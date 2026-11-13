@@ -71,4 +71,27 @@ public class RemoteAuthTest {
         assertTrue(auth.matchesToken("abc123token"));
         assertFalse(auth.matchesToken("other"));
     }
+
+    @Test
+    public void sessionCookieIsHttpOnlyStrictAndBounded() {
+        String header = RemoteAuth.sessionCookieHeader("sess-1");
+        assertTrue(header.startsWith(RemoteAuth.COOKIE_NAME + "=sess-1;"));
+        assertTrue(header.contains("Path=/"));
+        assertTrue(header.contains("HttpOnly"));
+        assertTrue(header.contains("SameSite=Strict"));
+        assertTrue(header.contains("Max-Age=" + (RemoteAuth.SESSION_TTL_MS / 1000L)));
+        assertTrue(RemoteAuth.SESSION_TTL_MS >= 60L * 60L * 1000L);
+        assertTrue(RemoteAuth.SESSION_TTL_MS <= 24L * 60L * 60L * 1000L);
+        assertFalse(header.toLowerCase().contains("secure"));
+    }
+
+    @Test
+    public void clearCookieMatchesSessionFlags() {
+        String header = RemoteAuth.clearSessionCookieHeader();
+        assertTrue(header.startsWith(RemoteAuth.COOKIE_NAME + "=;"));
+        assertTrue(header.contains("Path=/"));
+        assertTrue(header.contains("Max-Age=0"));
+        assertTrue(header.contains("HttpOnly"));
+        assertTrue(header.contains("SameSite=Strict"));
+    }
 }

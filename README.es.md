@@ -76,7 +76,7 @@ Capturas reales de un emulador Android tablet (1280×800) con el nombre de ejemp
 
 ## Control remoto
 
-Desactivado por defecto. En el hub parental abre **Control remoto**, actívalo y escanea el QR (o abre `http://<ip-tablet>:8642`) desde un teléfono en la **misma Wi‑Fi**. La página muestra el uso de hoy, estrellas y el estado; puedes añadir +15/+30/+60 min, **Bloquear ahora** o **Desbloquear**. Auth con token del QR o PIN (el PIN nunca se muestra). Sin nube. Las acciones aparecen en el informe semanal como **control remoto**.
+Desactivado por defecto. En el hub parental abre **Control remoto**, actívalo y escanea el QR (o abre `http://<ip-tablet>:8642`) desde un teléfono en la **misma Wi‑Fi**. La página muestra el uso de hoy, estrellas y el estado; puedes añadir +15/+30/+60 min, **Bloquear ahora** o **Desbloquear**. El enlace del QR cambia el token una sola vez por una cookie de sesión y redirige a una URL sin el token. Después vale la cookie; si la sesión caduca, escanea el QR otra vez o introduce el PIN (el PIN nunca se muestra). Sin nube. Las acciones aparecen en el informe semanal como **control remoto**.
 
 | Ajustes | Página móvil | Tras +tiempo | Bloqueo remoto |
 |:---:|:---:|:---:|:---:|

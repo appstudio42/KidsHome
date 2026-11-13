@@ -89,7 +89,7 @@ Real captures from an Android tablet emulator (1280×800) with demo child name *
 
 ## Remote control
 
-Off by default. In the parent hub open **Remote control**, enable it, then scan the QR (or open `http://<tablet-ip>:8642`) from a phone on the **same Wi‑Fi**. The page shows today’s usage, stars, and tablet state; parents can add +15/+30/+60 minutes (or custom), **Lock now**, or **Unlock**. Auth uses the QR pairing token or the parent PIN (PIN is never shown). Sessions use a cookie; PIN attempts are rate-limited; regenerating the token revokes sessions. Only private LAN peers are accepted. Actions appear in the weekly report as **parent remote**. FOSS stack (NanoHTTPD + ZXing core) — F-Droid friendly, no accounts/cloud.
+Off by default. In the parent hub open **Remote control**, enable it, then scan the QR (or open `http://<tablet-ip>:8642`) from a phone on the **same Wi‑Fi**. The page shows today’s usage, stars, and tablet state; parents can add +15/+30/+60 minutes (or custom), **Lock now**, or **Unlock**. The QR pairing link exchanges its token once for an HttpOnly session cookie and redirects to a URL without the token. After that the page uses the cookie; if the session is gone, scan the QR again or sign in with the parent PIN (the PIN is never shown, and the token is not accepted in the query string). PIN attempts are rate-limited; regenerating the token revokes sessions. Only private LAN peers are accepted. Actions appear in the weekly report as **parent remote**. FOSS stack (NanoHTTPD + ZXing core) — F-Droid friendly, no accounts/cloud.
 
 ## Supported devices
 

@@ -76,7 +76,7 @@ Captures réelles depuis un émulateur Android tablette (1280×800) avec le pré
 
 ## Contrôle distant
 
-Désactivé par défaut. Dans le hub parental, ouvrez **Contrôle distant**, activez-le, puis scannez le QR (ou ouvrez `http://<ip-tablette>:8642`) depuis un téléphone sur le **même Wi‑Fi**. La page affiche l’usage du jour, les étoiles et l’état ; ajoutez +15/+30/+60 min, **Verrouiller maintenant** ou **Déverrouiller**. Auth via jeton QR ou PIN (le PIN n’est jamais affiché). Pas de cloud. Les actions apparaissent dans le rapport hebdomadaire comme **contrôle distant**.
+Désactivé par défaut. Dans le hub parental, ouvrez **Contrôle distant**, activez-le, puis scannez le QR (ou ouvrez `http://<ip-tablette>:8642`) depuis un téléphone sur le **même Wi‑Fi**. La page affiche l’usage du jour, les étoiles et l’état ; ajoutez +15/+30/+60 min, **Verrouiller maintenant** ou **Déverrouiller**. Le lien du QR échange le jeton une seule fois contre un cookie de session, puis redirige vers une URL sans jeton. Ensuite la page utilise le cookie ; si la session est terminée, scannez à nouveau le QR ou saisissez le PIN (le PIN n’est jamais affiché). Pas de cloud. Les actions apparaissent dans le rapport hebdomadaire comme **contrôle distant**.
 
 | Réglages | Page téléphone | Après +temps | Verrou distant |
 |:---:|:---:|:---:|:---:|

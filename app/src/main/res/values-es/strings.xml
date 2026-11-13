@@ -333,7 +333,7 @@ Activo ahora: %2$s</string>
     <string name="remote_url_copied">URL de emparejamiento copiada</string>
     <string name="remote_regenerate_token">Regenerar token de emparejamiento</string>
     <string name="remote_token_regenerated">Token regenerado — sesiones anteriores revocadas</string>
-    <string name="remote_security_note">Las solicitudes necesitan el token del QR o el PIN. El PIN nunca se muestra. Solo se aceptan direcciones LAN privadas. Regenerar el token cierra todas las sesiones.</string>
+    <string name="remote_security_note">El enlace del QR inicia sesión una sola vez; después la página usa una cookie de sesión y quita el token de la dirección. Si el teléfono cierra la sesión, escanea el QR otra vez o introduce el PIN. El PIN nunca se muestra. Solo se aceptan direcciones LAN privadas. Regenerar el token cierra todas las sesiones.</string>
     <string name="remote_no_wifi">Conecta esta tablet al Wi‑Fi para obtener una URL</string>
     <string name="remote_no_wifi_hint">Únete al mismo Wi‑Fi que el teléfono y vuelve a abrir esta pantalla.</string>
     <string name="remote_notification_channel">Control remoto</string>

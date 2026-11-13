@@ -320,7 +320,7 @@
     <string name="remote_url_copied">Kopplungs-URL kopiert</string>
     <string name="remote_regenerate_token">Kopplungstoken neu erzeugen</string>
     <string name="remote_token_regenerated">Token neu erzeugt — alte Sitzungen widerrufen</string>
-    <string name="remote_security_note">Anfragen brauchen das QR-Token oder die Eltern-PIN. Die PIN wird nie angezeigt. Nur private LAN-Adressen werden akzeptiert. Token neu erzeugen meldet alle ab.</string>
+    <string name="remote_security_note">Der QR-Link meldet den Browser einmal an; danach nutzt die Seite ein Sitzungscookie und entfernt das Token aus der Adresse. Bei Abmeldung den QR erneut scannen oder die Eltern-PIN eingeben. Die PIN wird nie angezeigt. Nur private LAN-Adressen werden akzeptiert. Token neu erzeugen meldet alle ab.</string>
     <string name="remote_no_wifi">Verbinden Sie dieses Tablet mit WLAN, um eine URL zu erhalten</string>
     <string name="remote_no_wifi_hint">Treten Sie demselben WLAN wie das Telefon bei und öffnen Sie diesen Bildschirm erneut.</string>
     <string name="remote_notification_channel">Fernbedienung</string>

@@ -10,8 +10,27 @@ import java.util.concurrent.ConcurrentHashMap;
  * Pure JVM logic — no Android dependencies (unit-test friendly).
  */
 public final class RemoteAuth {
+    /** Parent remote session lifetime. Long enough for an evening at home, not a permanent credential. */
     public static final long SESSION_TTL_MS = 12L * 60L * 60L * 1000L; // 12 hours
     public static final String COOKIE_NAME = "kh_session";
+
+    /**
+     * Session cookie for the LAN page.
+     * HttpOnly so page scripts cannot read it, SameSite=Strict so other sites cannot send it.
+     * Secure is intentionally absent: the page is plain HTTP on the local network, and the
+     * Secure flag would make browsers drop the cookie.
+     */
+    public static String sessionCookieHeader(String sessionId) {
+        long maxAge = SESSION_TTL_MS / 1000L;
+        return COOKIE_NAME + "=" + sessionId
+                + "; Path=/; Max-Age=" + maxAge
+                + "; HttpOnly; SameSite=Strict";
+    }
+
+    /** Clears the session cookie with the same flags used when it was set. */
+    public static String clearSessionCookieHeader() {
+        return COOKIE_NAME + "=; Path=/; Max-Age=0; HttpOnly; SameSite=Strict";
+    }
 
     public enum FailureReason {
         NONE,

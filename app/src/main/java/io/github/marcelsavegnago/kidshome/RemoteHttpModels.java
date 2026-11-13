@@ -73,6 +73,7 @@ public final class RemoteHttpModels {
         public static Response html(String html) {
             Map<String, String> headers = new LinkedHashMap<>();
             headers.put("Cache-Control", "no-store");
+            headers.put("Referrer-Policy", "no-referrer");
             return new Response(200, "text/html; charset=utf-8", html, headers);
         }
 

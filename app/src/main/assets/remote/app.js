@@ -6,7 +6,7 @@
       title: "Remote control",
       subtitle: "Same Wi‑Fi · no cloud · no accounts",
       loginTitle: "Parent login",
-      loginHint: "Open the QR from tablet settings, or enter the parent PIN.",
+      loginHint: "Scan the QR again, or enter the parent PIN. The pairing link only starts a session.",
       lblToken: "Pairing token",
       lblPin: "Parent PIN",
       login: "Sign in",
@@ -45,7 +45,7 @@
       title: "Controle remoto",
       subtitle: "Mesmo Wi‑Fi · sem nuvem · sem contas",
       loginTitle: "Login dos responsáveis",
-      loginHint: "Abra o QR nas configurações do tablet ou digite o PIN.",
+      loginHint: "Escaneie o QR de novo ou digite o PIN. O link de pareamento só inicia a sessão.",
       lblToken: "Token de pareamento",
       lblPin: "PIN dos responsáveis",
       login: "Entrar",
@@ -127,9 +127,27 @@
     toast._timer = setTimeout(function () { el.hidden = true; }, 2200);
   }
 
-  function queryToken() {
-    var m = /[?&]t=([^&]+)/.exec(location.search || "");
-    return m ? decodeURIComponent(m[1]) : "";
+  function stripPairingTokenFromAddressBar() {
+    var search = location.search || "";
+    if (!search || search === "?") return;
+    var parts = search.replace(/^\?/, "").split("&");
+    var kept = [];
+    var dropped = false;
+    for (var i = 0; i < parts.length; i++) {
+      var part = parts[i];
+      if (!part) continue;
+      var rawKey = (part.split("=")[0] || "").replace(/\+/g, " ");
+      var key = rawKey;
+      try { key = decodeURIComponent(rawKey); } catch (e) { key = rawKey; }
+      if (key === "t") {
+        dropped = true;
+        continue;
+      }
+      kept.push(part);
+    }
+    if (!dropped || !window.history || !history.replaceState) return;
+    var next = location.pathname + (kept.length ? "?" + kept.join("&") : "") + (location.hash || "");
+    history.replaceState(null, "", next);
   }
 
   async function api(path, options) {
@@ -258,7 +276,7 @@
 
   async function login() {
     $("loginError").hidden = true;
-    var token = ($("token").value || "").trim() || queryToken();
+    var token = ($("token").value || "").trim();
     var pin = ($("pin").value || "").trim();
     var body = token ? { token: token } : { pin: pin };
     var res = await api("/api/login", { method: "POST", body: body });
@@ -287,8 +305,7 @@
 
   function wire() {
     applyI18n();
-    var qt = queryToken();
-    if (qt) $("token").value = qt;
+    stripPairingTokenFromAddressBar();
 
     $("btnLogin").addEventListener("click", login);
     $("pin").addEventListener("keydown", function (e) {
@@ -324,12 +341,7 @@
       if (res.ok) { renderState(res.data); toast(t.unlockedNow); }
     });
 
-    refresh().then(function (ok) {
-      if (!ok && qt) {
-        // QR landing may already have set the cookie via server; otherwise show login.
-        showLogin(true);
-      }
-    });
+    refresh();
     setInterval(function () {
       if (!$("dashboard").hidden) refresh();
     }, 4000);

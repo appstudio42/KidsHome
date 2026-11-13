@@ -339,7 +339,7 @@
     <string name="remote_url_copied">Pairing URL copied</string>
     <string name="remote_regenerate_token">Regenerate pairing token</string>
     <string name="remote_token_regenerated">Token regenerated — old sessions revoked</string>
-    <string name="remote_security_note">Requests need the QR token or parent PIN. The PIN is never shown. Only private LAN addresses are accepted. Regenerating the token signs everyone out.</string>
+    <string name="remote_security_note">The QR link signs the browser in once, then the page uses a session cookie and drops the token from the address. If the phone is signed out, scan the QR again or enter the parent PIN. The PIN is never shown. Only private LAN addresses are accepted. Regenerating the token signs everyone out.</string>
     <string name="remote_no_wifi">Connect this tablet to Wi‑Fi to get a URL</string>
     <string name="remote_no_wifi_hint">Join the same Wi‑Fi as your phone, then reopen this screen.</string>
     <string name="remote_notification_channel">Remote control</string>
