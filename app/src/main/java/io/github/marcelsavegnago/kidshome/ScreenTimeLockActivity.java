@@ -1,5 +1,6 @@
 package io.github.marcelsavegnago.kidshome;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -92,6 +93,7 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
     }
 
     @Override
+    @SuppressLint("MissingSuperCall")
     public void onBackPressed() {
         // Stay on the lock screen until PIN unlock.
     }

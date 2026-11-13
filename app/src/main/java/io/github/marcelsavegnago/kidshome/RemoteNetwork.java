@@ -9,6 +9,8 @@ import android.net.NetworkCapabilities;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 
+import androidx.annotation.RequiresApi;
+
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -77,6 +79,7 @@ public final class RemoteNetwork {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     private static String ipv4FromConnectivityManager(Context context) {
         try {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

@@ -1,5 +1,6 @@
 package io.github.marcelsavegnago.kidshome;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -81,6 +82,7 @@ public class EscapePinActivity extends AppCompatActivity {
     }
 
     @Override
+    @SuppressLint("MissingSuperCall")
     public void onBackPressed() {
         returnToLockedTarget();
     }

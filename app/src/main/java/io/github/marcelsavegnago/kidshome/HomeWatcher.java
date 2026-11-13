@@ -4,8 +4,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.util.Log;
+
+import androidx.core.content.ContextCompat;
 
 /**
  * Listens for ACTION_CLOSE_SYSTEM_DIALOGS (home / recents).
@@ -35,11 +36,9 @@ public class HomeWatcher {
             return;
         }
         try {
-            if (Build.VERSION.SDK_INT >= 33) {
-                context.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED);
-            } else {
-                context.registerReceiver(receiver, filter);
-            }
+            // System dialog broadcasts (home / recents) come from outside the app.
+            ContextCompat.registerReceiver(
+                    context, receiver, filter, ContextCompat.RECEIVER_EXPORTED);
             registered = true;
         } catch (Exception e) {
             Log.w(TAG, "Unable to register home watcher", e);
