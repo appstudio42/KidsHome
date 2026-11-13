@@ -162,6 +162,7 @@ public class KidHomeActivity extends AppCompatActivity {
     }
 
     @Override
+    @SuppressLint("MissingSuperCall")
     public void onBackPressed() {
         // Kid home is the root — ignore Back (escape is hold-Back / corner taps).
     }

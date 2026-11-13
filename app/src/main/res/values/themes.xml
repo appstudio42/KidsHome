@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!--
       Material 3 (Material You look) with a cheerful static seed palette.
       On Android 12+ KidsHomeApp applies DynamicColors when available.
@@ -38,7 +38,7 @@
         <!-- Track themed primary so Dynamic Color and the app bar stay in sync. -->
         <item name="android:statusBarColor">?attr/colorPrimary</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
     </style>
 
     <!-- Back-compat alias used by the manifest -->
