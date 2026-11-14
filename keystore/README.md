@@ -11,7 +11,11 @@ without release secrets produces an APK with the **same signature**. That lets y
 | Key alias | `androiddebugkey` |
 | Key password | `android` |
 
-**Do not** use this key for Play Store / public “production” distribution. When
-`SIGNING_*` repository secrets are configured, CI signs with your private release
-keystore instead. Switching from this test key to a release key (or the reverse)
+**Do not** use this key for Play Store, F-Droid, or other public distribution.
+F-Droid signs its own builds. `assembleRelease` uses this keystore only when
+Gradle is invoked with `-PciSignRelease=true` and `keystore.properties` is
+absent. GitHub Actions passes that property when `SIGNING_*` secrets are not
+set. With those secrets, CI writes `keystore.properties` and signs with your
+private release keystore instead. A plain `./gradlew assembleRelease` produces
+an unsigned APK. Switching from this test key to a release key (or the reverse)
 requires uninstalling the app once (settings will be lost).

@@ -1,0 +1,15 @@
+KidsHome turns a spare Android phone, tablet, or Amazon Fire into a home screen for a child. Parents choose which apps and websites appear, set a daily screen-time limit, and lock the device at bedtime. A PIN protects the parent area.
+
+The app picks an enforcement mode for the device, or you can override it:
+
+- Accessibility Home hijack for Amazon Fire tablets, which cannot replace the default launcher
+- Default launcher on regular Android
+- Device Owner lock-task, set up once with ADB on a device that has no accounts
+
+The kid home shows large tiles, a remaining-time ring, and stars earned from simple tasks. Per-app limits and weekday schedules can narrow what is available. A weekly report stays on the device and can be exported as CSV.
+
+Optional remote control serves a small page on the home Wi-Fi (port 8642). It is off by default, accepts only private LAN peers, and does not use a cloud account. From a phone browser, a parent can add time, lock, or unlock.
+
+There are no ads, analytics, or Google Play Services. Website icons are loaded from the site you added. Screen time, the PIN, and usage history stay on the device.
+
+Maintained by App Studio 42. Licensed under the GNU GPL v3.

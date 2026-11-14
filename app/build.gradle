@@ -9,6 +9,9 @@ if (keystorePropertiesFile.exists()) {
 }
 
 def ciDebugKeystore = rootProject.file("keystore/debug.keystore")
+// CI passes -PciSignRelease=true to sign with the committed test key.
+// A plain assembleRelease stays unsigned so F-Droid can sign the APK.
+def ciSignRelease = "true" == findProperty("ciSignRelease")?.toString()
 
 android {
     namespace 'io.github.marcelsavegnago.kidshome'
@@ -56,9 +59,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             if (keystorePropertiesFile.exists()) {
                 signingConfig signingConfigs.release
-            } else if (ciDebugKeystore.exists()) {
+            } else if (ciSignRelease && ciDebugKeystore.exists()) {
                 signingConfig signingConfigs.ciDebug
             }
+            // Omit the git stamp. It differs between checkouts and breaks an F-Droid rebuild.
+            vcsInfo.include = false
         }
         debug {
             applicationIdSuffix ".debug"
@@ -66,6 +71,7 @@ android {
             if (ciDebugKeystore.exists()) {
                 signingConfig signingConfigs.ciDebug
             }
+            vcsInfo.include = false
         }
     }
 
@@ -78,6 +84,13 @@ android {
         resources {
             excludes += ['META-INF/INDEX.LIST', 'META-INF/*.kotlin_module']
         }
+    }
+
+    // Dependency metadata is machine-independent only if omitted. F-Droid rebuilds
+    // compare the APK without this file.
+    dependenciesInfo {
+        includeInApk false
+        includeInBundle false
     }
 
     lint {

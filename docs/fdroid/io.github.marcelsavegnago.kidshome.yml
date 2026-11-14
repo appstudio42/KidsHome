@@ -1,0 +1,66 @@
+# Draft fdroiddata recipe for KidsHome. Do not submit this file as-is.
+#
+# Before opening an RFP / metadata merge request on fdroiddata:
+# 1. Replace commit with the full 40-character SHA that should be built.
+#    Tag v1.5.1 predates the unsigned-release fix, the Gradle 8.9 wrapper
+#    jar, and the favicon change. Do not point commit at that tag.
+# 2. Leave Binaries unset until a GitHub release is built from that same
+#    commit. The existing v1.5.1 APK will not match this tree.
+# 3. Confirm `fdroid lint`, `fdroid build`, and `fdroid scanner` locally
+#    or in CI. This repository does not submit anything to F-Droid.
+#
+# Build needs JDK 17 and compileSdk 34. assembleRelease is unsigned unless
+# keystore.properties exists or -PciSignRelease=true is passed. F-Droid
+# must not pass that property. vcsInfo and dependenciesInfo are disabled
+# so the APK does not embed the local git checkout. There is no product
+# flavor; `gradle: yes` runs assembleRelease from the repository root
+# (settings.gradle is there, so subdir must stay unset).
+#
+# Reviewer notes:
+# - No Google Play Services, Firebase, analytics, or proprietary SDK.
+#   Dependencies are AndroidX, Material (Apache-2.0), NanoHTTPD (Apache-2.0),
+#   and ZXing core (Apache-2.0). org.json:json is testImplementation only
+#   (JSON license) and is not in the APK; the app uses the platform org.json.
+# - Favicons are loaded from the same host as the parent-configured site.
+#   Default site tiles (Poki, PBS Kids, Coolmath) are optional bookmarks.
+# - Accessibility service hijacks Home on Amazon Fire, where the default
+#   launcher cannot be replaced, and can optionally bounce non-allowed apps.
+#   It is not used to read screen content for tracking.
+# - Device Admin / Device Owner is an optional kiosk the parent provisions
+#   once with `dpm set-device-owner`. It is not required to use the app.
+# - keystore/debug.keystore is a published CI test key. Release builds ignore
+#   it unless -PciSignRelease=true. F-Droid should sign with its own key.
+# - AppIcon/RawLogo.psd is design source and is not packaged in the APK.
+# - Official Gradle wrapper 8.9:
+#   SHA-256 498495120a03b9a6ab5d155f5de3c8f0d986a449153702fb80fc80e134484f17
+#   Distribution gradle-8.9-bin.zip:
+#   SHA-256 d725d707bfabd4dfdc958c624003b3c80accc03f7037b5122c4b1d0ef15cecab
+
+Categories:
+  - Launcher
+  - Digital Wellbeing
+  - System
+License: GPL-3.0-only
+AuthorName: Marcel Savegnago
+AuthorEmail: marcel.savegnago@gmail.com
+WebSite: https://appstudio42.github.io
+SourceCode: https://github.com/appstudio42/KidsHome
+IssueTracker: https://github.com/appstudio42/KidsHome/issues
+Changelog: https://github.com/appstudio42/KidsHome/blob/HEAD/CHANGELOG.md
+
+AutoName: KidsHome
+
+RepoType: git
+Repo: https://github.com/appstudio42/KidsHome.git
+
+Builds:
+  - versionName: '1.5.1'
+    versionCode: 151
+    commit: REPLACE_WITH_MERGE_COMMIT_SHA
+    gradle:
+      - yes
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: '1.5.1'
+CurrentVersionCode: 151

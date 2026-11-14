@@ -1,0 +1,3 @@
+Overnight lock screens no longer keep the display awake or charge the next day's screen time. Usage is not counted while the device is blocked or a KidsHome lock screen is showing.
+
+Website icons are loaded from the site itself.

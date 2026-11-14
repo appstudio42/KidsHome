@@ -1,0 +1,15 @@
+O KidsHome transforma um celular, tablet Android ou Amazon Fire reserva em uma tela inicial para a criança. Os responsáveis escolhem quais apps e sites aparecem, definem um limite diário de tempo de tela e bloqueiam o aparelho na hora de dormir. Um PIN protege a área dos pais.
+
+O app escolhe o modo de enforcement do aparelho, ou você pode substituir:
+
+- Sequestro do botão Home por acessibilidade nos tablets Amazon Fire, que não permitem trocar o launcher padrão
+- Launcher padrão no Android comum
+- Device Owner com lock task, configurado uma vez por ADB em um aparelho sem contas
+
+A tela da criança mostra ícones grandes, um anel com o tempo restante e estrelas ganhas em tarefas simples. Limites por app e horários na semana podem restringir o que fica disponível. O relatório semanal fica no aparelho e pode ser exportado em CSV.
+
+O controle remoto opcional serve uma página pequena no Wi-Fi de casa (porta 8642). Vem desligado, aceita só pares de rede local privada e não usa conta na nuvem. Pelo navegador do celular, um responsável pode acrescentar tempo, bloquear ou desbloquear.
+
+Não há anúncios, analytics nem Google Play Services. Os ícones dos sites vêm do próprio site que você adicionou. Tempo de tela, PIN e histórico de uso ficam no aparelho.
+
+Mantido pelo App Studio 42. Licenciado sob a GNU GPL v3.

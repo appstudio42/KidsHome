@@ -78,7 +78,7 @@ jobs:
             } > "${GITHUB_WORKSPACE}/keystore.properties"
             echo "SIGNED=release" >> "$GITHUB_ENV"
           else
-            echo "No SIGNING_* secrets — Gradle will sign release with keystore/debug.keystore (stable CI test key)"
+            echo "No SIGNING_* secrets — Gradle will sign release with keystore/debug.keystore when -PciSignRelease=true"
             if [ ! -f "${GITHUB_WORKSPACE}/keystore/debug.keystore" ]; then
               echo "Missing keystore/debug.keystore in the repository"
               exit 1
@@ -87,7 +87,7 @@ jobs:
           fi
 
       - name: Build release APK
-        run: ./gradlew assembleRelease --stacktrace
+        run: ./gradlew assembleRelease --stacktrace -PciSignRelease=true
 
       - name: Name release artifact
         run: |
