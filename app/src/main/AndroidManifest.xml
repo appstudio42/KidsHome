@@ -16,6 +16,8 @@
     <!-- Fire tablets are a primary target; Fire TV remains optional. Phones/tablets OK. -->
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-feature android:name="android.software.leanback" android:required="false" />
+    <!-- Wi-Fi is optional: Ethernet-only TVs and devices without Wi-Fi must stay installable. -->
+    <uses-feature android:name="android.hardware.wifi" android:required="false" />
 
     <!-- Package visibility for listing launchers / apps / browsers on Android 11+. -->
     <queries>

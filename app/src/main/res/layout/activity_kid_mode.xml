@@ -255,6 +255,7 @@
                         android:id="@+id/dailyLimitInput"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
+                        android:hint="@string/daily_limit_hint"
                         android:importantForAccessibility="no"
                         android:inputType="number"
                         android:visibility="gone" />

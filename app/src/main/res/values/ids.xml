@@ -3,4 +3,5 @@
     <item name="kh_inset_padding_base" type="id" />
     <item name="kh_insets_attach_hook" type="id" />
     <item name="kh_immersive_window" type="id" />
+    <item name="favicon_bind_key" type="id" />
 </resources>

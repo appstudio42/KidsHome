@@ -221,6 +221,7 @@
     <string name="cd_lock_illustration">Illustration amicale de verrouillage</string>
     <string name="cd_pin_dots">Progression du PIN</string>
     <string name="cd_pin_backspace">Effacer le dernier chiffre</string>
+    <string name="cd_escape_overlay">Sortie d\'urgence de KidsHome</string>
     <string name="cd_child_avatar">Avatar de l’enfant %1$s</string>
     <string name="cd_allowed_app_row">Autoriser l’app %1$s</string>
     <!-- v1.4.0 -->
