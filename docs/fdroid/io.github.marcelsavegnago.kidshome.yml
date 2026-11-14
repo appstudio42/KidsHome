@@ -1,13 +1,15 @@
-# Draft fdroiddata recipe for KidsHome. Do not submit this file as-is.
+# Draft fdroiddata recipe for KidsHome. Do not submit this file upstream
+# until `fdroid lint`, `fdroid build`, and `fdroid scanner` have been run.
+# This repository does not submit anything to F-Droid.
 #
-# Before opening an RFP / metadata merge request on fdroiddata:
-# 1. Replace commit with the full 40-character SHA that should be built.
-#    Tag v1.5.1 predates the unsigned-release fix, the Gradle 8.9 wrapper
-#    jar, and the favicon change. Do not point commit at that tag.
-# 2. Leave Binaries unset until a GitHub release is built from that same
-#    commit. The existing v1.5.1 APK will not match this tree.
-# 3. Confirm `fdroid lint`, `fdroid build`, and `fdroid scanner` locally
-#    or in CI. This repository does not submit anything to F-Droid.
+# commit is the squash merge of the F-Droid prep onto master
+# (14267f684d75b49c03d560461881e0eac4213a4b). Tag v1.5.1 predates the
+# unsigned-release fix, the Gradle 8.9 wrapper jar, and the favicon change.
+# Do not point commit at that tag.
+#
+# Leave Binaries unset until a GitHub release is built from
+# 14267f684d75b49c03d560461881e0eac4213a4b. The existing v1.5.1 APK will
+# not match this tree.
 #
 # Build needs JDK 17 and compileSdk 34. assembleRelease is unsigned unless
 # keystore.properties exists or -PciSignRelease=true is passed. F-Droid
@@ -56,7 +58,7 @@ Repo: https://github.com/appstudio42/KidsHome.git
 Builds:
   - versionName: '1.5.1'
     versionCode: 151
-    commit: REPLACE_WITH_MERGE_COMMIT_SHA
+    commit: 14267f684d75b49c03d560461881e0eac4213a4b
     gradle:
       - yes
 
