@@ -221,6 +221,7 @@
     <string name="cd_lock_illustration">Freundliche Sperrillustration</string>
     <string name="cd_pin_dots">PIN-Fortschritt</string>
     <string name="cd_pin_backspace">Letzte Ziffer löschen</string>
+    <string name="cd_escape_overlay">KidsHome-Notausstieg</string>
     <string name="cd_child_avatar">Kinder-Avatar %1$s</string>
     <string name="cd_allowed_app_row">App erlauben %1$s</string>
     <!-- v1.4.0 -->

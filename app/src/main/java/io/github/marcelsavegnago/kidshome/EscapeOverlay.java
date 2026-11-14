@@ -65,7 +65,7 @@ public final class EscapeOverlay {
 
         hotspot = new View(appContext);
         hotspot.setBackgroundColor(Color.TRANSPARENT);
-        hotspot.setContentDescription("KidsHome escape");
+        hotspot.setContentDescription(appContext.getString(R.string.cd_escape_overlay));
         hotspot.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 onTap();

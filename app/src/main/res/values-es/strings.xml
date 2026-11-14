@@ -234,6 +234,7 @@ Activo ahora: %2$s</string>
     <string name="cd_lock_illustration">Ilustración amigable de bloqueo</string>
     <string name="cd_pin_dots">Progreso del PIN</string>
     <string name="cd_pin_backspace">Borrar último dígito</string>
+    <string name="cd_escape_overlay">Salida de emergencia de KidsHome</string>
     <string name="cd_child_avatar">Avatar del niño %1$s</string>
     <string name="cd_allowed_app_row">Permitir app %1$s</string>
     <!-- v1.4.0 -->

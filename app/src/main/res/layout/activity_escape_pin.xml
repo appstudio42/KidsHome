@@ -43,6 +43,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_sm"
                     android:gravity="center"
+                    android:labelFor="@+id/escapePinInput"
                     android:text="@string/escape_pin_message"
                     android:textAppearance="@style/TextAppearance.KidsHome.Body"
                     android:textColor="?attr/colorOnSurfaceVariant" />

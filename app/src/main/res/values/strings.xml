@@ -233,6 +233,7 @@
     <string name="cd_lock_illustration">Friendly lock illustration</string>
     <string name="cd_pin_dots">PIN progress</string>
     <string name="cd_pin_backspace">Delete last digit</string>
+    <string name="cd_escape_overlay">KidsHome emergency exit</string>
     <string name="cd_child_avatar">Child avatar %1$s</string>
     <string name="cd_allowed_app_row">Allow app %1$s</string>
 
