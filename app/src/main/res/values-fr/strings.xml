@@ -47,6 +47,7 @@
     <string name="pin_new_hint">Nouveau PIN</string>
     <string name="pin_confirm_hint">Confirmer le PIN</string>
     <string name="pin_wrong">PIN incorrect</string>
+    <string name="pin_checking">Vérification du PIN...</string>
     <string name="pin_invalid">Le PIN doit comporter 4 à 8 chiffres</string>
     <string name="pin_mismatch">Les PIN ne correspondent pas</string>
     <string name="pin_saved">PIN enregistré</string>

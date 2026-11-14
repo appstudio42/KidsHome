@@ -17,6 +17,7 @@ public final class PinKeypadController {
     private final LinearLayout dots;
     private final int maxLength;
     private Listener listener;
+    private boolean inputEnabled = true;
 
     public PinKeypadController(View root, EditText input, LinearLayout dots, int maxLength) {
         this.input = input;
@@ -35,6 +36,9 @@ public final class PinKeypadController {
         View back = root.findViewById(R.id.pinKeyBack);
         if (back != null) {
             back.setOnClickListener(v -> {
+                if (!inputEnabled) {
+                    return;
+                }
                 HapticHelper.tick(v);
                 CharSequence text = input.getText();
                 if (text != null && text.length() > 0) {
@@ -64,12 +68,20 @@ public final class PinKeypadController {
         return input.getText() != null ? input.getText().toString() : "";
     }
 
+    /** Ignores key and backspace presses while a PIN check is in progress. */
+    public void setInputEnabled(boolean enabled) {
+        inputEnabled = enabled;
+    }
+
     private void bindKey(View root, int id, String digit) {
         View key = root.findViewById(id);
         if (key == null) {
             return;
         }
         key.setOnClickListener(v -> {
+            if (!inputEnabled) {
+                return;
+            }
             HapticHelper.tick(v);
             String current = getPin();
             if (current.length() >= maxLength) {
