@@ -39,16 +39,25 @@
         <package android:name="com.amazon.launcher" />
     </queries>
 
+    <!--
+        The parent PIN hash, its legacy salt, and the LAN remote token live in
+        SharedPreferences. Cloud backup is off. fullBackupContent and
+        dataExtractionRules also exclude every domain so an Android 12+
+        device-to-device transfer cannot copy those secrets either.
+    -->
     <application
         android:name=".KidsHomeApp"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:banner="@drawable/tv_banner"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning">
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:targetApi="31">
 
         <activity
             android:name=".MainActivity"

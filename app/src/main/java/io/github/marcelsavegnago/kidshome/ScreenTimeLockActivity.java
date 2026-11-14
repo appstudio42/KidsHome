@@ -1,9 +1,11 @@
 package io.github.marcelsavegnago.kidshome;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -122,17 +124,49 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
         final EditText input = new EditText(this);
         input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER
                 | android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD);
-        Dialogs.builder(this)
+        final boolean[] handled = {false};
+        AlertDialog dialog = Dialogs.builder(this)
                 .setTitle(R.string.pin_enter_title)
                 .setView(input)
                 .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.ok, (d, w) -> {
-                    if (PinAttemptTracker.isLockedOut()) {
-                        showPinLockout();
+                .setPositiveButton(R.string.ok, null)
+                .create();
+        dialog.setOnDismissListener(d -> {
+            if (!handled[0]) {
+                handled[0] = true;
+            }
+        });
+        dialog.setOnShowListener(d -> {
+            Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            if (positive == null) {
+                return;
+            }
+            positive.setOnClickListener(v -> {
+                if (isFinishing() || isDestroyed() || handled[0]) {
+                    return;
+                }
+                if (PinAttemptTracker.isLockedOut()) {
+                    handled[0] = true;
+                    dialog.dismiss();
+                    showPinLockout();
+                    return;
+                }
+                String pin = input.getText() != null ? input.getText().toString() : "";
+                input.setEnabled(false);
+                positive.setEnabled(false);
+                positive.setText(R.string.pin_checking);
+                if (negative != null) {
+                    negative.setEnabled(false);
+                }
+                dialog.setCancelable(false);
+                PinTasks.verifyKidPin(this, pin, ok -> {
+                    if (isFinishing() || isDestroyed() || handled[0]) {
                         return;
                     }
-                    String pin = input.getText() != null ? input.getText().toString() : "";
-                    if (!Prefs.verifyKidPin(this, pin)) {
+                    handled[0] = true;
+                    dialog.dismiss();
+                    if (!ok) {
                         long delay = PinAttemptTracker.registerFailure();
                         int seconds = (int) Math.ceil(delay / 1000.0);
                         HapticHelper.error(this);
@@ -144,8 +178,10 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
                     PinAttemptTracker.reset();
                     SessionAuth.markUnlocked();
                     showParentChoices(reason);
-                })
-                .show();
+                });
+            });
+        });
+        dialog.show();
     }
 
     private void showPinLockout() {

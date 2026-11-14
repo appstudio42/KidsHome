@@ -25,6 +25,7 @@ public class EscapePinActivity extends AppCompatActivity {
     private ViewShakeTarget shakeTarget;
     private PinKeypadController keypad;
     private boolean finishingToKidApp;
+    private boolean checkingPin;
 
     private static final class ViewShakeTarget {
         final android.view.View view;
@@ -92,6 +93,9 @@ public class EscapePinActivity extends AppCompatActivity {
     }
 
     private void refreshLockoutState() {
+        if (checkingPin) {
+            return;
+        }
         if (PinAttemptTracker.isLockedOut()) {
             long remain = PinAttemptTracker.remainingLockMs();
             submitButton.setEnabled(false);
@@ -108,32 +112,56 @@ public class EscapePinActivity extends AppCompatActivity {
     }
 
     private void attemptPin() {
+        if (checkingPin) {
+            return;
+        }
         if (PinAttemptTracker.isLockedOut()) {
             refreshLockoutState();
             return;
         }
         String pin = keypad != null ? keypad.getPin() : "";
-        if (Prefs.verifyKidPin(this, pin)) {
-            PinAttemptTracker.reset();
-            SessionAuth.markUnlocked();
-            showParentOptions();
-            return;
-        }
+        setChecking(true);
+        PinTasks.verifyKidPin(this, pin, ok -> {
+            if (isFinishing() || isDestroyed()) {
+                return;
+            }
+            setChecking(false);
+            if (ok) {
+                PinAttemptTracker.reset();
+                SessionAuth.markUnlocked();
+                showParentOptions();
+                return;
+            }
 
+            if (keypad != null) {
+                keypad.clear();
+            } else {
+                pinInput.setText("");
+            }
+            long delay = PinAttemptTracker.registerFailure();
+            HapticHelper.error(this);
+            if (shakeTarget != null) {
+                MotionHelper.shake(shakeTarget.view, this);
+            }
+            Toast.makeText(this, R.string.pin_wrong, Toast.LENGTH_SHORT).show();
+            statusText.setText(getString(R.string.escape_pin_wrong_wait, (int) Math.ceil(delay / 1000.0)));
+            submitButton.setEnabled(false);
+            handler.postDelayed(this::refreshLockoutState, delay);
+        });
+    }
+
+    private void setChecking(boolean checking) {
+        checkingPin = checking;
+        submitButton.setEnabled(!checking);
+        submitButton.setText(checking ? R.string.pin_checking : R.string.unlock);
+        statusText.setText(checking ? R.string.pin_checking : R.string.escape_pin_message);
+        View cancel = findViewById(R.id.escapeCancel);
+        if (cancel != null) {
+            cancel.setEnabled(!checking);
+        }
         if (keypad != null) {
-            keypad.clear();
-        } else {
-            pinInput.setText("");
+            keypad.setInputEnabled(!checking);
         }
-        long delay = PinAttemptTracker.registerFailure();
-        HapticHelper.error(this);
-        if (shakeTarget != null) {
-            MotionHelper.shake(shakeTarget.view, this);
-        }
-        Toast.makeText(this, R.string.pin_wrong, Toast.LENGTH_SHORT).show();
-        statusText.setText(getString(R.string.escape_pin_wrong_wait, (int) Math.ceil(delay / 1000.0)));
-        submitButton.setEnabled(false);
-        handler.postDelayed(this::refreshLockoutState, delay);
     }
 
     private void showParentOptions() {

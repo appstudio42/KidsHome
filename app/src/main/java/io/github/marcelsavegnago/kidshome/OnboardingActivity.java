@@ -38,6 +38,7 @@ public class OnboardingActivity extends AppCompatActivity {
     private String pendingName = "";
     private String pendingAvatar = ChildAvatars.DEFAULT;
     private int pendingLimitMinutes = 60;
+    private boolean finishing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,9 +116,33 @@ public class OnboardingActivity extends AppCompatActivity {
     }
 
     private void finishOnboarding() {
-        if (!pendingPin.isEmpty()) {
-            Prefs.setKidPin(this, pendingPin);
+        if (finishing) {
+            return;
         }
+        finishing = true;
+        nextButton.setEnabled(false);
+        backButton.setEnabled(false);
+        if (pendingPin.isEmpty()) {
+            commitOnboarding();
+            return;
+        }
+        nextButton.setText(R.string.pin_checking);
+        PinTasks.setKidPin(this, pendingPin, saved -> {
+            if (isFinishing() || isDestroyed()) {
+                return;
+            }
+            if (!saved) {
+                finishing = false;
+                nextButton.setEnabled(true);
+                backButton.setEnabled(true);
+                nextButton.setText(R.string.done);
+                return;
+            }
+            commitOnboarding();
+        });
+    }
+
+    private void commitOnboarding() {
         Prefs.setChildProfile(this, pendingName, pendingAvatar);
         Prefs.setDailyLimitMinutes(this, pendingLimitMinutes);
         Prefs.setScreenTimeEnabled(this, true);

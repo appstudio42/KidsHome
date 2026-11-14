@@ -30,7 +30,9 @@ public final class Prefs {
     public static final String KEY_DEFAULTS_LOADED = "defaultsLoaded";
 
     public static final String KEY_KID_MODE = "KidModeEnabled";
+    /** Versioned PBKDF2 record ({@code v1:iterations:saltHex:hashHex}), or a legacy SHA-256 hex. */
     public static final String KEY_KID_PIN_HASH = "KidPinHash";
+    /** Legacy salt only. Versioned records embed the salt and this key is removed. */
     public static final String KEY_KID_PIN_SALT = "KidPinSalt";
     public static final String KEY_KID_LOCK_TO_APP = "KidLockToApp";
     public static final String KEY_KID_APP_PACKAGE = "KidAppPackage";
@@ -89,6 +91,9 @@ public final class Prefs {
     public static final String KEY_REMOTE_TOKEN = "RemoteControlToken";
     public static final String KEY_REMOTE_FORCE_LOCK = "RemoteForceLock";
     public static final String KEY_REMOTE_ACTION_LOG_JSON = "RemoteActionLogJson";
+
+    /** Serializes PIN read/upgrade/write so a check and a save cannot tear the record. */
+    private static final Object PIN_LOCK = new Object();
 
     private Prefs() {
     }
@@ -313,25 +318,53 @@ public final class Prefs {
         return hash != null && !hash.isEmpty();
     }
 
+    /**
+     * Stores a versioned PBKDF2 record. Blocks on the KDF and on {@code commit()}.
+     * UI callers must use {@link PinTasks#setKidPin} so this stays off the main thread.
+     */
     @SuppressLint("ApplySharedPref")
     public static void setKidPin(Context context, String pin) {
-        String salt = PinHasher.newSalt();
-        String hash = PinHasher.hash(pin, salt);
-        // commit() so a process kill cannot drop a PIN the parent just set.
-        get(context).edit()
-                .putString(KEY_KID_PIN_SALT, salt)
-                .putString(KEY_KID_PIN_HASH, hash)
-                .commit();
+        synchronized (PIN_LOCK) {
+            String record = PinHasher.hash(pin);
+            // commit() so a process kill cannot drop a PIN the parent just set.
+            get(context).edit()
+                    .putString(KEY_KID_PIN_HASH, record)
+                    .remove(KEY_KID_PIN_SALT)
+                    .commit();
+        }
     }
 
+    /**
+     * Checks {@code pin}. A legacy salted SHA-256 match is rewritten to a versioned
+     * record before this returns, so the next check uses PBKDF2. Blocks on the KDF.
+     * UI callers must use {@link PinTasks#verifyKidPin}.
+     */
+    @SuppressLint("ApplySharedPref")
     public static boolean verifyKidPin(Context context, String pin) {
-        SharedPreferences prefs = get(context);
-        String salt = prefs.getString(KEY_KID_PIN_SALT, "");
-        String expected = prefs.getString(KEY_KID_PIN_HASH, "");
-        if (salt.isEmpty() || expected.isEmpty()) {
-            return false;
+        synchronized (PIN_LOCK) {
+            SharedPreferences prefs = get(context);
+            String stored = prefs.getString(KEY_KID_PIN_HASH, "");
+            if (stored == null || stored.isEmpty() || pin == null) {
+                return false;
+            }
+            if (PinHasher.isVersionedRecord(stored)) {
+                boolean ok = PinHasher.verify(pin, stored);
+                if (ok && prefs.contains(KEY_KID_PIN_SALT)) {
+                    prefs.edit().remove(KEY_KID_PIN_SALT).commit();
+                }
+                return ok;
+            }
+            String salt = prefs.getString(KEY_KID_PIN_SALT, "");
+            if (salt == null || salt.isEmpty() || !PinHasher.verifyLegacy(pin, salt, stored)) {
+                return false;
+            }
+            String upgraded = PinHasher.hash(pin);
+            prefs.edit()
+                    .putString(KEY_KID_PIN_HASH, upgraded)
+                    .remove(KEY_KID_PIN_SALT)
+                    .commit();
+            return true;
         }
-        return PinHasher.verify(pin, salt, expected);
     }
 
     public static boolean isKidLockToApp(Context context) {

@@ -1,6 +1,7 @@
 package io.github.marcelsavegnago.kidshome;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 
 import androidx.test.core.app.ApplicationProvider;
 
@@ -44,11 +45,58 @@ public class PrefsPersistenceTest {
     public void pinChangeReplacesThePreviousPin() {
         Prefs.setKidPin(context, "1234");
         assertTrue(Prefs.hasKidPin(context));
+        assertTrue(storedPin().startsWith("v1:" + PinHasher.DEFAULT_ITERATIONS + ":"));
+        assertFalse(Prefs.get(context).contains(Prefs.KEY_KID_PIN_SALT));
         assertTrue(Prefs.verifyKidPin(context, "1234"));
 
         Prefs.setKidPin(context, "9876");
         assertFalse(Prefs.verifyKidPin(context, "1234"));
         assertTrue(Prefs.verifyKidPin(context, "9876"));
+        assertTrue(storedPin().startsWith("v1:" + PinHasher.DEFAULT_ITERATIONS + ":"));
+    }
+
+    @Test
+    public void legacyPinMigratesWithoutTouchingAttemptTracker() {
+        PinAttemptTracker.resetForTests();
+        String salt = "00112233445566778899aabbccddeeff";
+        String legacy = "f377124b2c2ffeb096001d94cb0e3df86fbe20ad9981335bc624b960d4d80924";
+        Prefs.get(context).edit()
+                .putString(Prefs.KEY_KID_PIN_SALT, salt)
+                .putString(Prefs.KEY_KID_PIN_HASH, legacy)
+                .commit();
+
+        assertEquals(1_000L, PinAttemptTracker.registerFailure());
+        assertFalse(Prefs.verifyKidPin(context, "0000"));
+        assertEquals(legacy, storedPin());
+        assertEquals(salt, Prefs.get(context).getString(Prefs.KEY_KID_PIN_SALT, ""));
+        assertEquals(1, PinAttemptTracker.failureCount());
+        assertTrue(PinAttemptTracker.isLockedOut());
+
+        assertTrue(Prefs.verifyKidPin(context, "1234"));
+        String upgraded = storedPin();
+        assertTrue(upgraded.startsWith("v1:" + PinHasher.DEFAULT_ITERATIONS + ":"));
+        assertNotEquals(legacy, upgraded);
+        assertFalse(Prefs.get(context).contains(Prefs.KEY_KID_PIN_SALT));
+        assertEquals(1, PinAttemptTracker.failureCount());
+        assertTrue(PinAttemptTracker.isLockedOut());
+
+        assertTrue(Prefs.verifyKidPin(context, "1234"));
+        assertEquals(upgraded, storedPin());
+        assertFalse(Prefs.verifyKidPin(context, "1235"));
+        PinAttemptTracker.registerFailure();
+        assertEquals(2, PinAttemptTracker.failureCount());
+        PinAttemptTracker.reset();
+        assertFalse(PinAttemptTracker.isLockedOut());
+        assertEquals(0, PinAttemptTracker.failureCount());
+    }
+
+    @Test
+    @Config(sdk = 35)
+    public void backupIsDisabled() {
+        ApplicationInfo info = context.getApplicationInfo();
+        assertEquals(0, info.flags & ApplicationInfo.FLAG_ALLOW_BACKUP);
+        assertNotNull(context.getResources().getXml(R.xml.backup_rules));
+        assertNotNull(context.getResources().getXml(R.xml.data_extraction_rules));
     }
 
     @Test
@@ -151,5 +199,9 @@ public class PrefsPersistenceTest {
         assertNotEquals(created, rotated);
         assertEquals(rotated, Prefs.getRemoteToken(context));
         assertFalse(Prefs.isRemoteForceLocked(context));
+    }
+
+    private String storedPin() {
+        return Prefs.get(context).getString(Prefs.KEY_KID_PIN_HASH, "");
     }
 }
