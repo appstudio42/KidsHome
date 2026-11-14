@@ -1,5 +1,6 @@
 package io.github.marcelsavegnago.kidshome;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -98,7 +99,7 @@ public final class Prefs {
 
     public static void setEnforcementModePreference(Context context, EnforcementMode mode) {
         EnforcementMode value = mode == null ? EnforcementMode.AUTO : mode;
-        get(context).edit().putString(KEY_ENFORCEMENT_MODE, value.toPrefsValue()).commit();
+        get(context).edit().putString(KEY_ENFORCEMENT_MODE, value.toPrefsValue()).apply();
     }
 
     /**
@@ -110,7 +111,7 @@ public final class Prefs {
     }
 
     public static void setAccessibilityExtraBlocking(Context context, boolean enabled) {
-        get(context).edit().putBoolean(KEY_A11Y_EXTRA_BLOCKING, enabled).commit();
+        get(context).edit().putBoolean(KEY_A11Y_EXTRA_BLOCKING, enabled).apply();
     }
 
     public static boolean isLockTaskDisableStatusBar(Context context) {
@@ -118,7 +119,7 @@ public final class Prefs {
     }
 
     public static void setLockTaskDisableStatusBar(Context context, boolean disable) {
-        get(context).edit().putBoolean(KEY_LOCK_TASK_DISABLE_STATUS_BAR, disable).commit();
+        get(context).edit().putBoolean(KEY_LOCK_TASK_DISABLE_STATUS_BAR, disable).apply();
     }
 
     public static boolean isLockTaskDisableKeyguard(Context context) {
@@ -126,7 +127,7 @@ public final class Prefs {
     }
 
     public static void setLockTaskDisableKeyguard(Context context, boolean disable) {
-        get(context).edit().putBoolean(KEY_LOCK_TASK_DISABLE_KEYGUARD, disable).commit();
+        get(context).edit().putBoolean(KEY_LOCK_TASK_DISABLE_KEYGUARD, disable).apply();
     }
 
     public static SharedPreferences get(Context context) {
@@ -210,7 +211,7 @@ public final class Prefs {
             }
         }
         editor.putInt(KEY_PREFS_VERSION, CURRENT_PREFS_VERSION);
-        editor.commit();
+        editor.apply();
     }
 
     public static boolean isOnboardingDone(Context context) {
@@ -219,7 +220,7 @@ public final class Prefs {
     }
 
     public static void setOnboardingDone(Context context, boolean done) {
-        get(context).edit().putBoolean(KEY_ONBOARDING_DONE, done).commit();
+        get(context).edit().putBoolean(KEY_ONBOARDING_DONE, done).apply();
     }
 
     public static boolean isTouchSoundsEnabled(Context context) {
@@ -227,7 +228,7 @@ public final class Prefs {
     }
 
     public static void setTouchSoundsEnabled(Context context, boolean enabled) {
-        get(context).edit().putBoolean(KEY_TOUCH_SOUNDS, enabled).commit();
+        get(context).edit().putBoolean(KEY_TOUCH_SOUNDS, enabled).apply();
     }
 
     public static String getChildAvatar(Context context) {
@@ -235,7 +236,7 @@ public final class Prefs {
     }
 
     public static void setChildAvatar(Context context, String avatar) {
-        get(context).edit().putString(KEY_CHILD_AVATAR, ChildAvatars.sanitize(avatar)).commit();
+        get(context).edit().putString(KEY_CHILD_AVATAR, ChildAvatars.sanitize(avatar)).apply();
     }
 
     public static boolean isDefaultsLoaded(Context context) {
@@ -285,7 +286,10 @@ public final class Prefs {
         return get(context).getBoolean(KEY_KID_MODE, false);
     }
 
+    @SuppressLint("ApplySharedPref")
     public static void setKidModeEnabled(Context context, boolean enabled) {
+        // commit() so kid mode is on disk before return. A kill right after enable
+        // must not leave the device unlocked; the accessibility service re-reads this flag.
         get(context).edit().putBoolean(KEY_KID_MODE, enabled).commit();
     }
 
@@ -301,7 +305,7 @@ public final class Prefs {
         get(context).edit()
                 .putBoolean(KEY_ESCAPE_CORNER, corner)
                 .putBoolean(KEY_ESCAPE_BACK_HOLD, backHold)
-                .commit();
+                .apply();
     }
 
     public static boolean hasKidPin(Context context) {
@@ -309,9 +313,11 @@ public final class Prefs {
         return hash != null && !hash.isEmpty();
     }
 
+    @SuppressLint("ApplySharedPref")
     public static void setKidPin(Context context, String pin) {
         String salt = PinHasher.newSalt();
         String hash = PinHasher.hash(pin, salt);
+        // commit() so a process kill cannot drop a PIN the parent just set.
         get(context).edit()
                 .putString(KEY_KID_PIN_SALT, salt)
                 .putString(KEY_KID_PIN_HASH, hash)
@@ -333,14 +339,14 @@ public final class Prefs {
     }
 
     public static void setKidLockToApp(Context context, boolean lockToApp) {
-        get(context).edit().putBoolean(KEY_KID_LOCK_TO_APP, lockToApp).commit();
+        get(context).edit().putBoolean(KEY_KID_LOCK_TO_APP, lockToApp).apply();
     }
 
     public static void setKidApp(Context context, String packageName, String activityName) {
         get(context).edit()
                 .putString(KEY_KID_APP_PACKAGE, packageName)
                 .putString(KEY_KID_APP_ACTIVITY, activityName)
-                .commit();
+                .apply();
     }
 
     public static String getKidAppPackage(Context context) {
@@ -356,14 +362,14 @@ public final class Prefs {
     }
 
     public static void setChildName(Context context, String name) {
-        get(context).edit().putString(KEY_CHILD_NAME, name == null ? "" : name.trim()).commit();
+        get(context).edit().putString(KEY_CHILD_NAME, name == null ? "" : name.trim()).apply();
     }
 
     public static void setChildProfile(Context context, String name, String avatar) {
         get(context).edit()
                 .putString(KEY_CHILD_NAME, name == null ? "" : name.trim())
                 .putString(KEY_CHILD_AVATAR, ChildAvatars.sanitize(avatar))
-                .commit();
+                .apply();
     }
 
     public static Set<String> getAllowedPackages(Context context) {
@@ -372,7 +378,7 @@ public final class Prefs {
     }
 
     public static void setAllowedPackages(Context context, Set<String> packages) {
-        get(context).edit().putStringSet(KEY_ALLOWED_PACKAGES, new HashSet<>(packages)).commit();
+        get(context).edit().putStringSet(KEY_ALLOWED_PACKAGES, new HashSet<>(packages)).apply();
     }
 
     public static List<SiteShortcut> getSiteShortcuts(Context context) {
@@ -380,7 +386,7 @@ public final class Prefs {
     }
 
     public static void setSiteShortcuts(Context context, List<SiteShortcut> shortcuts) {
-        get(context).edit().putString(KEY_SITE_SHORTCUTS, SiteShortcut.toJson(shortcuts)).commit();
+        get(context).edit().putString(KEY_SITE_SHORTCUTS, SiteShortcut.toJson(shortcuts)).apply();
     }
 
     public static void ensureDefaultSiteSuggestions(Context context) {
@@ -392,7 +398,7 @@ public final class Prefs {
             return;
         }
         setSiteShortcuts(context, SiteShortcut.defaultSuggestions());
-        get(context).edit().putBoolean("siteSuggestionsSeeded", true).commit();
+        get(context).edit().putBoolean("siteSuggestionsSeeded", true).apply();
     }
 
     public static String getBrowserPackage(Context context) {
@@ -407,7 +413,7 @@ public final class Prefs {
         get(context).edit()
                 .putString(KEY_BROWSER_PACKAGE, packageName == null ? "" : packageName)
                 .putString(KEY_BROWSER_ACTIVITY, activityName == null ? "" : activityName)
-                .commit();
+                .apply();
         if (packageName != null && !packageName.isEmpty()) {
             Set<String> allowed = getAllowedPackages(context);
             allowed.add(packageName);
@@ -421,7 +427,7 @@ public final class Prefs {
     }
 
     public static void setScreenTimeEnabled(Context context, boolean enabled) {
-        get(context).edit().putBoolean(KEY_SCREEN_TIME_ENABLED, enabled).commit();
+        get(context).edit().putBoolean(KEY_SCREEN_TIME_ENABLED, enabled).apply();
     }
 
     public static int getDailyLimitMinutes(Context context) {
@@ -429,7 +435,7 @@ public final class Prefs {
     }
 
     public static void setDailyLimitMinutes(Context context, int minutes) {
-        get(context).edit().putInt(KEY_DAILY_LIMIT_MINUTES, Math.max(1, minutes)).commit();
+        get(context).edit().putInt(KEY_DAILY_LIMIT_MINUTES, Math.max(1, minutes)).apply();
     }
 
     public static boolean isBedtimeEnabled(Context context) {
@@ -437,7 +443,7 @@ public final class Prefs {
     }
 
     public static void setBedtimeEnabled(Context context, boolean enabled) {
-        get(context).edit().putBoolean(KEY_BEDTIME_ENABLED, enabled).commit();
+        get(context).edit().putBoolean(KEY_BEDTIME_ENABLED, enabled).apply();
     }
 
     public static int getBedtimeStartMinutes(Context context) {
@@ -452,7 +458,7 @@ public final class Prefs {
         get(context).edit()
                 .putInt(KEY_BEDTIME_START, startMinutes)
                 .putInt(KEY_BEDTIME_END, endMinutes)
-                .commit();
+                .apply();
     }
 
     public static void ensureScreenTimeDay(Context context) {
@@ -482,7 +488,7 @@ public final class Prefs {
                 .putString(KEY_BT_DISABLED_DAY, "")
                 .putLong(KEY_LAST_TICK, 0L)
                 .putString(KEY_FOREGROUND_PKG, "")
-                .commit();
+                .apply();
     }
 
     private static void archiveDayLocked(
@@ -519,7 +525,7 @@ public final class Prefs {
         history = UsageHistory.prune(history, ScreenTimeState.dayKeyNow());
         get(context).edit()
                 .putString(KEY_USAGE_HISTORY_JSON, UsageHistory.toJson(history))
-                .commit();
+                .apply();
     }
 
     public static long getUsedMillisToday(Context context) {
@@ -541,7 +547,7 @@ public final class Prefs {
     public static void addBonusMinutes(Context context, int minutes) {
         ensureScreenTimeDay(context);
         long bonus = get(context).getLong(KEY_BONUS_MILLIS, 0L) + minutes * 60L * 1000L;
-        get(context).edit().putLong(KEY_BONUS_MILLIS, bonus).commit();
+        get(context).edit().putLong(KEY_BONUS_MILLIS, bonus).apply();
     }
 
     public static long getLastScreenTickMs(Context context) {
@@ -552,8 +558,10 @@ public final class Prefs {
         get(context).edit().putLong(KEY_LAST_TICK, ms).apply();
     }
 
+    @SuppressLint("ApplySharedPref")
     public static void flushScreenTime(Context context) {
-        // Force a sync write of the latest usage counters.
+        // commit() flushes usage counters written with apply(). Screen off, onPause,
+        // and service teardown can kill the process before an async write finishes.
         SharedPreferences prefs = get(context);
         prefs.edit()
                 .putLong(KEY_USED_MILLIS, prefs.getLong(KEY_USED_MILLIS, 0L))
@@ -570,7 +578,7 @@ public final class Prefs {
     public static void setScreenTimeWarningShownToday(Context context, boolean shown) {
         get(context).edit()
                 .putString(KEY_WARN_SHOWN_DAY, shown ? ScreenTimeState.dayKeyNow() : "")
-                .commit();
+                .apply();
     }
 
     public static boolean isScreenTimeDisabledToday(Context context) {
@@ -581,7 +589,7 @@ public final class Prefs {
     public static void setScreenTimeDisabledToday(Context context, boolean disabled) {
         get(context).edit()
                 .putString(KEY_ST_DISABLED_DAY, disabled ? ScreenTimeState.dayKeyNow() : "")
-                .commit();
+                .apply();
     }
 
     public static boolean isBedtimeDisabledToday(Context context) {
@@ -592,7 +600,7 @@ public final class Prefs {
     public static void setBedtimeDisabledToday(Context context, boolean disabled) {
         get(context).edit()
                 .putString(KEY_BT_DISABLED_DAY, disabled ? ScreenTimeState.dayKeyNow() : "")
-                .commit();
+                .apply();
     }
 
     public static boolean hardwareDetection(Context context) {
@@ -652,7 +660,7 @@ public final class Prefs {
     }
 
     public static void setSchedulesEnabled(Context context, boolean enabled) {
-        get(context).edit().putBoolean(KEY_SCHEDULES_ENABLED, enabled).commit();
+        get(context).edit().putBoolean(KEY_SCHEDULES_ENABLED, enabled).apply();
     }
 
     public static List<ScheduleWindow> getSchedules(Context context) {
@@ -663,7 +671,7 @@ public final class Prefs {
         get(context).edit()
                 .putString(KEY_SCHEDULES_JSON, ScheduleWindow.toJson(windows == null
                         ? new ArrayList<ScheduleWindow>() : windows))
-                .commit();
+                .apply();
     }
 
     public static Map<String, AppCategory> getAppCategories(Context context) {
@@ -673,7 +681,7 @@ public final class Prefs {
     public static void setAppCategories(Context context, Map<String, AppCategory> categories) {
         get(context).edit()
                 .putString(KEY_APP_CATEGORIES_JSON, PrefsMaps.categoryMapToJson(categories))
-                .commit();
+                .apply();
     }
 
     public static void setAppCategory(Context context, String packageName, AppCategory category) {
@@ -696,7 +704,7 @@ public final class Prefs {
     public static void setAppLimits(Context context, Map<String, Integer> limits) {
         get(context).edit()
                 .putString(KEY_APP_LIMITS_JSON, PrefsMaps.intMapToJson(limits))
-                .commit();
+                .apply();
     }
 
     public static void setAppLimitMinutes(Context context, String packageName, int minutes) {
@@ -755,7 +763,7 @@ public final class Prefs {
         Map<String, Long> map = getAppBonusMillisToday(context);
         long prev = map.containsKey(packageName) ? map.get(packageName) : 0L;
         map.put(packageName, RuleEngine.addBonusMillis(prev, minutes));
-        get(context).edit().putString(KEY_APP_BONUS_JSON, PrefsMaps.longMapToJson(map)).commit();
+        get(context).edit().putString(KEY_APP_BONUS_JSON, PrefsMaps.longMapToJson(map)).apply();
     }
 
     public static long remainingAppMillis(Context context, String packageName) {
@@ -785,7 +793,7 @@ public final class Prefs {
         get(context).edit()
                 .putString(KEY_EARN_TASKS_JSON, EarnTask.toJson(tasks == null
                         ? new ArrayList<EarnTask>() : tasks))
-                .commit();
+                .apply();
     }
 
     public static Map<String, Boolean> getEarnTasksDoneToday(Context context) {
@@ -843,7 +851,7 @@ public final class Prefs {
         }
         // Keep today's stars mirrored in live history entry.
         bumpTodayStarsInHistory(context, getStarsToday(context) + 1);
-        editor.commit();
+        editor.apply();
         return match.rewardMinutes;
     }
 
@@ -859,13 +867,13 @@ public final class Prefs {
         } else {
             addAppBonusMinutes(context, targetPackageOrTotal, minutes);
         }
-        get(context).edit().putInt(KEY_PENDING_CELEBRATION, minutes).commit();
+        get(context).edit().putInt(KEY_PENDING_CELEBRATION, minutes).apply();
     }
 
     public static int consumePendingCelebration(Context context) {
         int minutes = get(context).getInt(KEY_PENDING_CELEBRATION, 0);
         if (minutes > 0) {
-            get(context).edit().putInt(KEY_PENDING_CELEBRATION, 0).commit();
+            get(context).edit().putInt(KEY_PENDING_CELEBRATION, 0).apply();
         }
         return minutes;
     }
@@ -897,14 +905,14 @@ public final class Prefs {
                 ScreenTimeState.dayKeyNow());
         get(context).edit()
                 .putString(KEY_USAGE_HISTORY_JSON, UsageHistory.toJson(pruned))
-                .commit();
+                .apply();
     }
 
     public static void clearUsageHistory(Context context) {
         get(context).edit()
                 .putString(KEY_USAGE_HISTORY_JSON, "{\"days\":{}}")
                 .putString(KEY_REMOTE_ACTION_LOG_JSON, "{\"entries\":[]}")
-                .commit();
+                .apply();
     }
 
     /**
@@ -958,7 +966,7 @@ public final class Prefs {
         if (!enabled) {
             editor.putBoolean(KEY_REMOTE_FORCE_LOCK, false);
         }
-        editor.commit();
+        editor.apply();
     }
 
     public static int getRemoteControlPort(Context context) {
@@ -972,7 +980,7 @@ public final class Prefs {
 
     public static void setRemoteControlPort(Context context, int port) {
         int safe = (port < 1024 || port > 65535) ? RemoteRequestHandler.DEFAULT_PORT : port;
-        get(context).edit().putInt(KEY_REMOTE_PORT, safe).commit();
+        get(context).edit().putInt(KEY_REMOTE_PORT, safe).apply();
     }
 
     /**
@@ -983,7 +991,7 @@ public final class Prefs {
         String token = get(context).getString(KEY_REMOTE_TOKEN, "");
         if (token == null || token.isEmpty()) {
             token = RemoteAuth.generateToken();
-            get(context).edit().putString(KEY_REMOTE_TOKEN, token).commit();
+            get(context).edit().putString(KEY_REMOTE_TOKEN, token).apply();
         }
         return token;
     }
@@ -994,8 +1002,10 @@ public final class Prefs {
     }
 
     /** Regenerates the pairing token and clears any remote force-lock. Sessions are revoked by the server. */
+    @SuppressLint("ApplySharedPref")
     public static String regenerateRemoteToken(Context context) {
         String token = RemoteAuth.generateToken();
+        // commit() so the previous pairing token is invalid on disk immediately.
         get(context).edit()
                 .putString(KEY_REMOTE_TOKEN, token)
                 .putBoolean(KEY_REMOTE_FORCE_LOCK, false)
@@ -1007,7 +1017,9 @@ public final class Prefs {
         return get(context).getBoolean(KEY_REMOTE_FORCE_LOCK, false);
     }
 
+    @SuppressLint("ApplySharedPref")
     public static void setRemoteForceLocked(Context context, boolean locked) {
+        // commit() so a remote lock or unlock survives process death.
         get(context).edit().putBoolean(KEY_REMOTE_FORCE_LOCK, locked).commit();
     }
 
@@ -1029,13 +1041,13 @@ public final class Prefs {
                 existing, entry, UsageHistory.RETAIN_DAYS);
         get(context).edit()
                 .putString(KEY_REMOTE_ACTION_LOG_JSON, RemoteActionLog.toJson(next))
-                .commit();
+                .apply();
     }
 
     public static void clearRemoteActionLog(Context context) {
         get(context).edit()
                 .putString(KEY_REMOTE_ACTION_LOG_JSON, "{\"entries\":[]}")
-                .commit();
+                .apply();
     }
 
     private static void ensureDefaults(Context context) {
