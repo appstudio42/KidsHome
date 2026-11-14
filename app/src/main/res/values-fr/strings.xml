@@ -320,7 +320,7 @@
     <string name="remote_url_copied">URL d’appairage copiée</string>
     <string name="remote_regenerate_token">Régénérer le jeton d’appairage</string>
     <string name="remote_token_regenerated">Jeton régénéré — sessions précédentes révoquées</string>
-    <string name="remote_security_note">Les requêtes exigent le jeton du QR ou le code PIN. Le PIN n’est jamais affiché. Seules les adresses LAN privées sont acceptées. Régénérer le jeton déconnecte tout le monde.</string>
+    <string name="remote_security_note">Le lien du QR connecte le navigateur une seule fois ; ensuite la page utilise un cookie de session et retire le jeton de l’adresse. En cas de déconnexion, scannez à nouveau le QR ou saisissez le PIN. Le PIN n’est jamais affiché. Seules les adresses LAN privées sont acceptées. Régénérer le jeton déconnecte tout le monde.</string>
     <string name="remote_no_wifi">Connectez cette tablette au Wi‑Fi pour obtenir une URL</string>
     <string name="remote_no_wifi_hint">Rejoignez le même Wi‑Fi que le téléphone, puis rouvrez cet écran.</string>
     <string name="remote_notification_channel">Contrôle distant</string>

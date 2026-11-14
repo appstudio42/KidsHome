@@ -76,7 +76,7 @@ Capturas reais de um emulador Android tablet (1280×800) com o nome de exemplo *
 
 ## Controle remoto
 
-Desligado por padrão. No hub dos responsáveis abra **Controle remoto**, ative e escaneie o QR (ou abra `http://<ip-do-tablet>:8642`) no celular na **mesma rede Wi‑Fi**. A página mostra o uso de hoje, estrelas e o estado do tablet; dá para adicionar +15/+30/+60 min (ou personalizado), **Bloquear agora** ou **Desbloquear**. Autenticação com o token do QR ou o PIN (o PIN nunca aparece). Sessões com cookie; tentativas de PIN com bloqueio progressivo; regenerar o token encerra as sessões. Só peers de rede local privada. As ações aparecem no relatório semanal como **controle remoto**.
+Desligado por padrão. No hub dos responsáveis abra **Controle remoto**, ative e escaneie o QR (ou abra `http://<ip-do-tablet>:8642`) no celular na **mesma rede Wi‑Fi**. A página mostra o uso de hoje, estrelas e o estado do tablet; dá para adicionar +15/+30/+60 min (ou personalizado), **Bloquear agora** ou **Desbloquear**. O link de pareamento do QR troca o token uma única vez por um cookie de sessão HttpOnly e redireciona para um URL sem o token. Depois a página usa o cookie; se a sessão acabar, escaneie o QR de novo ou entre com o PIN (o PIN nunca aparece, e o token não é aceito na query). Tentativas de PIN têm bloqueio progressivo; regenerar o token encerra as sessões. Só peers de rede local privada. As ações aparecem no relatório semanal como **controle remoto**.
 
 | Configurações | Página no celular | Após +tempo | Bloqueio remoto |
 |:---:|:---:|:---:|:---:|

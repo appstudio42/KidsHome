@@ -60,10 +60,10 @@ public final class RemoteRequestHandler {
         }
         if (!isAuthenticated(request)) {
             if ("GET".equals(request.method) && "/api/state".equals(path)) {
-                return RemoteHttpModels.Response.json(401, "{\"error\":\"unauthorized\"}");
+                return unauthorized();
             }
             if ("POST".equals(request.method) && path.startsWith("/api/")) {
-                return RemoteHttpModels.Response.json(401, "{\"error\":\"unauthorized\"}");
+                return unauthorized();
             }
         }
         if ("GET".equals(request.method) && "/api/state".equals(path)) {
@@ -86,22 +86,31 @@ public final class RemoteRequestHandler {
     }
 
     private RemoteHttpModels.Response serveIndex(RemoteHttpModels.Request request) {
+        // One-time exchange only: ?t= becomes a session cookie, then a clean URL.
+        // The token is never left on the page that loads scripts or calls the API.
+        if (rawQueryHasKey(request.query, "t")) {
+            return exchangePairingToken(request);
+        }
         String html = bridge.readAsset("index.html");
         if (html == null || html.isEmpty()) {
             return RemoteHttpModels.Response.text(500, "missing page");
         }
-        // Auto-login via pairing token in query (?t=...) so scanning the QR is enough.
+        return RemoteHttpModels.Response.html(html);
+    }
+
+    private RemoteHttpModels.Response exchangePairingToken(RemoteHttpModels.Request request) {
+        Map<String, String> headers = new LinkedHashMap<>();
+        headers.put("Cache-Control", "no-store");
+        headers.put("Referrer-Policy", "no-referrer");
+        headers.put("Location", locationWithoutPairingToken(request.query));
         String token = queryParam(request.query, "t");
-        if (token != null && !token.isEmpty() && !isAuthenticated(request)) {
+        if (token != null && !token.isEmpty() && !hasValidSession(request)) {
             RemoteAuth.AuthResult result = auth.tryToken(token);
             if (result.success) {
-                Map<String, String> headers = new LinkedHashMap<>();
-                headers.put("Cache-Control", "no-store");
-                headers.put("Set-Cookie", sessionCookie(result.sessionId));
-                return new RemoteHttpModels.Response(200, "text/html; charset=utf-8", html, headers);
+                headers.put("Set-Cookie", RemoteAuth.sessionCookieHeader(result.sessionId));
             }
         }
-        return RemoteHttpModels.Response.html(html);
+        return new RemoteHttpModels.Response(302, "text/plain; charset=utf-8", "", headers);
     }
 
     private RemoteHttpModels.Response serveAsset(String relative) {
@@ -151,7 +160,7 @@ public final class RemoteRequestHandler {
         }
         Map<String, String> headers = new LinkedHashMap<>();
         headers.put("Cache-Control", "no-store");
-        headers.put("Set-Cookie", sessionCookie(result.sessionId));
+        headers.put("Set-Cookie", RemoteAuth.sessionCookieHeader(result.sessionId));
         return new RemoteHttpModels.Response(
                 200,
                 "application/json; charset=utf-8",
@@ -165,7 +174,7 @@ public final class RemoteRequestHandler {
         auth.revokeSession(session);
         Map<String, String> headers = new LinkedHashMap<>();
         headers.put("Cache-Control", "no-store");
-        headers.put("Set-Cookie", RemoteAuth.COOKIE_NAME + "=; Path=/; Max-Age=0; HttpOnly");
+        headers.put("Set-Cookie", RemoteAuth.clearSessionCookieHeader());
         return new RemoteHttpModels.Response(200, "application/json; charset=utf-8", "{\"ok\":true}", headers);
     }
 
@@ -185,23 +194,26 @@ public final class RemoteRequestHandler {
     }
 
     private boolean isAuthenticated(RemoteHttpModels.Request request) {
-        String session = request.cookies.get(RemoteAuth.COOKIE_NAME);
-        if (auth.isValidSession(session)) {
+        if (hasValidSession(request)) {
             return true;
         }
-        // Accept pairing token as Bearer / query without minting a new session each call.
+        // Query-string tokens are not credentials. A non-browser client that already
+        // sends Authorization: Bearer keeps working; that header is not a URL.
         String authHeader = header(request, "authorization");
         if (authHeader != null && authHeader.toLowerCase(Locale.US).startsWith("bearer ")) {
             return auth.matchesToken(authHeader.substring(7).trim());
         }
-        String qToken = queryParam(request.query, "t");
-        return qToken != null && !qToken.isEmpty() && auth.matchesToken(qToken);
+        return false;
     }
 
-    private static String sessionCookie(String sessionId) {
-        long maxAge = RemoteAuth.SESSION_TTL_MS / 1000L;
-        return RemoteAuth.COOKIE_NAME + "=" + sessionId
-                + "; Path=/; Max-Age=" + maxAge + "; HttpOnly; SameSite=Strict";
+    private boolean hasValidSession(RemoteHttpModels.Request request) {
+        String session = request.cookies.get(RemoteAuth.COOKIE_NAME);
+        return auth.isValidSession(session);
+    }
+
+    /** Session missing. Clients re-pair with POST /api/login (token or PIN) or by opening the QR link. */
+    private static RemoteHttpModels.Response unauthorized() {
+        return RemoteHttpModels.Response.json(401, "{\"error\":\"unauthorized\",\"reauth\":\"/api/login\"}");
     }
 
     private static String normalizePath(String path) {
@@ -218,20 +230,95 @@ public final class RemoteRequestHandler {
         return path.isEmpty() ? "/" : path;
     }
 
+    /** True when the key is present even if its value is empty. */
+    private static boolean rawQueryHasKey(String query, String key) {
+        if (query == null || query.isEmpty() || key == null) {
+            return false;
+        }
+        String[] parts = query.split("&");
+        for (String part : parts) {
+            if (part.isEmpty()) {
+                continue;
+            }
+            int eq = part.indexOf('=');
+            String k = eq >= 0 ? part.substring(0, eq) : part;
+            if (containsCrlf(k)) {
+                continue;
+            }
+            if (key.equals(urlDecode(k))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Landing redirect that drops the pairing token and keeps other parameters (for example lang).
+     * Always a same-origin path. Parts with CR/LF are dropped so the Location header cannot be split.
+     */
+    static String locationWithoutPairingToken(String query) {
+        if (query == null || query.isEmpty()) {
+            return "/";
+        }
+        StringBuilder kept = new StringBuilder();
+        String[] parts = query.split("&");
+        for (String part : parts) {
+            if (part.isEmpty() || containsCrlf(part)) {
+                continue;
+            }
+            int eq = part.indexOf('=');
+            String rawKey = eq >= 0 ? part.substring(0, eq) : part;
+            String rawVal = eq >= 0 ? part.substring(eq + 1) : null;
+            String key = urlDecode(rawKey);
+            if (key.isEmpty() || "t".equals(key) || containsCrlf(key)) {
+                continue;
+            }
+            String value = rawVal == null ? null : urlDecode(rawVal);
+            if (value != null && containsCrlf(value)) {
+                continue;
+            }
+            if (kept.length() > 0) {
+                kept.append('&');
+            }
+            kept.append(urlEncode(key));
+            if (value != null) {
+                kept.append('=').append(urlEncode(value));
+            }
+        }
+        if (kept.length() == 0) {
+            return "/";
+        }
+        String location = "/?" + kept;
+        if (containsCrlf(location) || !location.startsWith("/")) {
+            return "/";
+        }
+        return location;
+    }
+
     private static String queryParam(String query, String key) {
         if (query == null || query.isEmpty() || key == null) {
             return null;
         }
         String[] parts = query.split("&");
         for (String part : parts) {
+            if (part.isEmpty() || containsCrlf(part)) {
+                continue;
+            }
             int eq = part.indexOf('=');
             String k = eq >= 0 ? part.substring(0, eq) : part;
             String v = eq >= 0 ? part.substring(eq + 1) : "";
             if (key.equals(urlDecode(k))) {
-                return urlDecode(v);
+                String decoded = urlDecode(v);
+                if (!decoded.isEmpty()) {
+                    return decoded;
+                }
             }
         }
         return null;
+    }
+
+    private static boolean containsCrlf(String value) {
+        return value != null && (value.indexOf('\r') >= 0 || value.indexOf('\n') >= 0);
     }
 
     private static String header(RemoteHttpModels.Request request, String name) {
@@ -256,6 +343,14 @@ public final class RemoteRequestHandler {
             return java.net.URLDecoder.decode(value, "UTF-8");
         } catch (Exception e) {
             return value;
+        }
+    }
+
+    private static String urlEncode(String value) {
+        try {
+            return java.net.URLEncoder.encode(value, "UTF-8");
+        } catch (Exception e) {
+            return "";
         }
     }
 }

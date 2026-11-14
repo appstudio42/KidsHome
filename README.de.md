@@ -76,7 +76,7 @@ Echte Aufnahmen von einem Android-Tablet-Emulator (1280×800) mit dem Demo-Kinde
 
 ## Fernbedienung
 
-Standardmäßig aus. Im Eltern-Hub **Fernbedienung** öffnen, aktivieren und den QR scannen (oder `http://<tablet-ip>:8642`) vom Telefon im **selben WLAN**. Die Seite zeigt heutige Nutzung, Sterne und Status; +15/+30/+60 Min., **Jetzt sperren** oder **Entsperren**. Auth per QR-Token oder PIN (PIN wird nie angezeigt). Keine Cloud. Aktionen erscheinen im Wochenbericht als **Fernbedienung**.
+Standardmäßig aus. Im Eltern-Hub **Fernbedienung** öffnen, aktivieren und den QR scannen (oder `http://<tablet-ip>:8642`) vom Telefon im **selben WLAN**. Die Seite zeigt heutige Nutzung, Sterne und Status; +15/+30/+60 Min., **Jetzt sperren** oder **Entsperren**. Der QR-Link tauscht das Token einmal gegen ein Sitzungscookie und leitet auf eine URL ohne Token um. Danach gilt das Cookie; bei abgelaufener Sitzung den QR erneut scannen oder die PIN eingeben (PIN wird nie angezeigt). Keine Cloud. Aktionen erscheinen im Wochenbericht als **Fernbedienung**.
 
 | Einstellungen | Telefonseite | Nach +Zeit | Fernsperre |
 |:---:|:---:|:---:|:---:|
