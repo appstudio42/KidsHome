@@ -44,6 +44,7 @@ public class LockBackNavigationTest {
     @Before
     public void setUp() {
         context = ApplicationProvider.getApplicationContext();
+        // commit() so this reset is on disk before the activity reads prefs.
         context.getSharedPreferences(Prefs.PREFS_NAME, Context.MODE_PRIVATE)
                 .edit()
                 .clear()
