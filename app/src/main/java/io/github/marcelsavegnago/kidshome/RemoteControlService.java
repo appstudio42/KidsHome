@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ServiceInfo;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Handler;
@@ -90,7 +91,7 @@ public class RemoteControlService extends Service {
     public void onCreate() {
         super.onCreate();
         ensureChannel();
-        startForeground(NOTIF_ID, buildNotification());
+        promoteToForeground();
         startOrRestartServer();
         registerNetworkReceiver();
         lastKnownIp = nullToEmpty(RemoteNetwork.getLanIpv4(this));
@@ -103,7 +104,7 @@ public class RemoteControlService extends Service {
             stopSelf();
             return START_NOT_STICKY;
         }
-        startForeground(NOTIF_ID, buildNotification());
+        promoteToForeground();
         if (intent != null && ACTION_REFRESH.equals(intent.getAction())) {
             refreshAuthToken(this);
         }
@@ -228,11 +229,8 @@ public class RemoteControlService extends Service {
     private Notification buildNotification() {
         Intent open = new Intent(this, RemoteControlActivity.class);
         open.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            flags |= PendingIntent.FLAG_IMMUTABLE;
-        }
-        PendingIntent pi = PendingIntent.getActivity(this, 0, open, flags);
+        PendingIntent pi = BackgroundActivityStarter.activityPendingIntent(
+                this, BackgroundActivityStarter.REQUEST_NOTIFICATION + 2, open);
 
         String url = RemoteNetwork.buildBaseUrl(this);
         String text = url != null
@@ -253,6 +251,25 @@ public class RemoteControlService extends Service {
                 .setOngoing(true)
                 .setPriority(Notification.PRIORITY_LOW)
                 .build();
+    }
+
+    /**
+     * {@code specialUse} is not in the API 35 {@code BOOT_COMPLETED} block list
+     * ({@code dataSync}, camera, media, phone, projection, microphone), so boot may
+     * still start this service. The {@code SYSTEM_ALERT_WINDOW} exemption now also
+     * requires a visible overlay; this service is started from the parent UI or from
+     * boot, not from the zero-size home watcher.
+     */
+    private void promoteToForeground() {
+        Notification notification = buildNotification();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(
+                    NOTIF_ID,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+        } else {
+            startForeground(NOTIF_ID, notification);
+        }
     }
 
     private void updateNotification() {

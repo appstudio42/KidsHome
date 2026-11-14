@@ -3,6 +3,11 @@
 ## Unreleased
 
 ### Changed
+- `compileSdk` and `targetSdk` are 35 (Android 15). `versionCode` / `versionName` stay 151 / 1.5.1. AGP stays 8.7.3.
+- Lock screens and the kid home apply status, navigation, cutout, and IME insets. Immersive bars still hide. Parent screens that are not immersive get the same padding on API 35 only, so Fire OS keeps fitted windows.
+- PIN and other `AlertDialog`s on API 35 use a dialog theme that opts out of edge-to-edge, so the platform keeps them above the bars and the keyboard.
+- Home, screen-time lock, and emergency PIN relaunch opt into background activity starts (`PendingIntent` creator and sender modes) on API 34+.
+- The remote-control foreground service passes `specialUse` to `startForeground` on API 34+.
 - Website tiles load favicons from the site itself. The Google favicon service is no longer used.
 - `assembleRelease` stays unsigned unless `keystore.properties` exists or `-PciSignRelease=true` is set, so F-Droid can sign the build. CI still passes that property. Release APKs no longer embed git or dependency metadata.
 - Gradle wrapper jar replaced with the official Gradle 8.9 wrapper. The previous jar was the Gradle 2.10 bootstrap. `distributionSha256Sum` pins the 8.9 distribution.

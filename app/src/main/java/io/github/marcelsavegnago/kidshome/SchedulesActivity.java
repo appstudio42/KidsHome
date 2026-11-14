@@ -1,6 +1,5 @@
 package io.github.marcelsavegnago.kidshome;
 
-import android.app.AlertDialog;
 import android.app.TimePickerDialog;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -168,7 +167,7 @@ public class SchedulesActivity extends ParentPinActivity {
             nameInput.setText(existing.name);
         }
 
-        new AlertDialog.Builder(this)
+        Dialogs.builder(this)
                 .setTitle(existing == null ? R.string.schedules_add : R.string.schedules_edit)
                 .setView(nameInput)
                 .setPositiveButton(R.string.next, (d, w) -> {
@@ -193,7 +192,7 @@ public class SchedulesActivity extends ParentPinActivity {
             int[] modeIndex,
             boolean[] cats
     ) {
-        new AlertDialog.Builder(this)
+        Dialogs.builder(this)
                 .setTitle(R.string.schedule_pick_days)
                 .setMultiChoiceItems(R.array.weekday_full, days, (d, which, checked) -> days[which] = checked)
                 .setPositiveButton(R.string.next, (d, w) ->
@@ -248,7 +247,7 @@ public class SchedulesActivity extends ParentPinActivity {
                 getString(R.string.schedule_mode_categories),
                 getString(R.string.schedule_mode_bedtime)
         };
-        new AlertDialog.Builder(this)
+        Dialogs.builder(this)
                 .setTitle(R.string.schedule_pick_mode)
                 .setSingleChoiceItems(modeLabels, modeIndex[0], (d, which) -> modeIndex[0] = which)
                 .setPositiveButton(R.string.next, (d, w) -> {
@@ -276,7 +275,7 @@ public class SchedulesActivity extends ParentPinActivity {
         for (int i = 0; i < labels.length; i++) {
             labels[i] = getString(AppCategory.values()[i].labelResId());
         }
-        new AlertDialog.Builder(this)
+        Dialogs.builder(this)
                 .setTitle(R.string.schedule_pick_categories)
                 .setMultiChoiceItems(labels, cats, (d, which, checked) -> cats[which] = checked)
                 .setPositiveButton(R.string.save, (d, w) -> {

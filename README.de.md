@@ -238,7 +238,7 @@ adb uninstall io.github.marcelsavegnago.kidshome
 ./gradlew assembleRelease
 ```
 
-Benötigt **JDK 17+** und Android-SDK (`compileSdk` / `targetSdk` 34). `minSdk 22` (Fire 7 / SDK 28 voll unterstützt). Ohne `keystore.properties` oder `-PciSignRelease=true` bleibt das Release-APK unsigniert (so baut F-Droid). Store-Texte liegen in `fastlane/metadata/android/`. Ein fdroiddata-Entwurf liegt in `docs/fdroid/`.
+Benötigt **JDK 17+** und Android-SDK (`compileSdk` / `targetSdk` 35). `minSdk 22` (Fire 7 / SDK 28 voll unterstützt). Ohne `keystore.properties` oder `-PciSignRelease=true` bleibt das Release-APK unsigniert (so baut F-Droid). Store-Texte liegen in `fastlane/metadata/android/`. Ein fdroiddata-Entwurf liegt in `docs/fdroid/`.
 
 ### CI-Signierung
 

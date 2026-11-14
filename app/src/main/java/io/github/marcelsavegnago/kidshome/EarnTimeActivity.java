@@ -1,6 +1,5 @@
 package io.github.marcelsavegnago.kidshome;
 
-import android.app.AlertDialog;
 import android.content.pm.ApplicationInfo;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -97,7 +96,7 @@ public class EarnTimeActivity extends ParentPinActivity {
     private void grantNow(int minutes) {
         CharSequence[] choices = buildTargetChoices();
         final String[] targets = buildTargetValues();
-        new AlertDialog.Builder(this)
+        Dialogs.builder(this)
                 .setTitle(getString(R.string.earn_grant_title, minutes))
                 .setItems(choices, (d, which) -> {
                     Prefs.grantBonusMinutes(this, minutes, targets[which]);
@@ -151,7 +150,7 @@ public class EarnTimeActivity extends ParentPinActivity {
         final String[] targets = buildTargetValues();
         final int[] selected = {0};
 
-        new AlertDialog.Builder(this)
+        Dialogs.builder(this)
                 .setTitle(R.string.earn_add_task)
                 .setView(box)
                 .setSingleChoiceItems(choices, 0, (d, which) -> selected[0] = which)

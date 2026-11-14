@@ -1,10 +1,8 @@
 package io.github.marcelsavegnago.kidshome;
 
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.util.Log;
 
 /**
@@ -98,36 +96,17 @@ public final class HomePress {
         lastActivateMs = now;
 
         Intent intent = getDesiredIntent(context);
-        try {
-            int flags = PendingIntent.FLAG_UPDATE_CURRENT;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                flags |= PendingIntent.FLAG_IMMUTABLE;
-            }
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, flags);
-            pendingIntent.send();
-            return true;
-        } catch (Exception e) {
-            Log.w(TAG, "PendingIntent failed, falling back to startActivity", e);
-            try {
-                context.startActivity(intent);
-                return true;
-            } catch (Exception startError) {
-                Log.e(TAG, "Unable to launch home target", startError);
-                return false;
-            }
-        }
+        return BackgroundActivityStarter.launch(context, intent, BackgroundActivityStarter.REQUEST_HOME);
     }
 
     public static void warmTarget(Context context) {
         if (KidModeGate.isEscapeUiActive()) {
             return;
         }
-        try {
-            Intent intent = getDesiredIntent(context);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
-        } catch (Exception e) {
-            Log.w(TAG, "Warm launch failed", e);
+        Intent intent = getDesiredIntent(context);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (!BackgroundActivityStarter.launch(context, intent, BackgroundActivityStarter.REQUEST_HOME)) {
+            Log.w(TAG, "Warm launch failed");
         }
     }
 }

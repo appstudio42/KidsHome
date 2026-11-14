@@ -1,6 +1,5 @@
 package io.github.marcelsavegnago.kidshome;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.InputType;
 import android.widget.ArrayAdapter;
@@ -110,7 +109,7 @@ public class SiteShortcutsActivity extends AppCompatActivity {
         layout.addView(name);
         layout.addView(url);
 
-        new AlertDialog.Builder(this)
+        Dialogs.builder(this)
                 .setTitle(R.string.site_add_title)
                 .setView(layout)
                 .setNegativeButton(R.string.cancel, null)

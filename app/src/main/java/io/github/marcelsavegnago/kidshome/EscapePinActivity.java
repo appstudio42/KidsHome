@@ -1,6 +1,5 @@
 package io.github.marcelsavegnago.kidshome;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -84,6 +83,14 @@ public class EscapePinActivity extends AppCompatActivity {
         refreshLockoutState();
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus && !isFinishing()) {
+            ImmersiveHelper.enter(this);
+        }
+    }
+
     private void refreshLockoutState() {
         if (PinAttemptTracker.isLockedOut()) {
             long remain = PinAttemptTracker.remainingLockMs();
@@ -130,7 +137,7 @@ public class EscapePinActivity extends AppCompatActivity {
     }
 
     private void showParentOptions() {
-        new AlertDialog.Builder(this)
+        Dialogs.builder(this)
                 .setTitle(R.string.escape_unlocked_title)
                 .setMessage(R.string.escape_unlocked_message)
                 .setCancelable(false)

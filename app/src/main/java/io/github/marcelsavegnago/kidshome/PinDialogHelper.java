@@ -1,7 +1,6 @@
 package io.github.marcelsavegnago.kidshome;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.widget.EditText;
@@ -30,7 +29,7 @@ public final class PinDialogHelper {
         input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
         input.setHint(R.string.pin_hint);
 
-        new AlertDialog.Builder(activity)
+        Dialogs.builder(activity)
                 .setTitle(R.string.pin_enter_title)
                 .setMessage(R.string.pin_enter_message)
                 .setView(wrap(activity, input))
@@ -75,7 +74,7 @@ public final class PinDialogHelper {
         layout.addView(pin1);
         layout.addView(pin2);
 
-        new AlertDialog.Builder(activity)
+        Dialogs.builder(activity)
                 .setTitle(R.string.pin_create_title)
                 .setMessage(R.string.pin_create_message)
                 .setView(layout)

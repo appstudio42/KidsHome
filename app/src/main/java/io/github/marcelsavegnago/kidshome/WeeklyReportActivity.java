@@ -1,6 +1,5 @@
 package io.github.marcelsavegnago.kidshome;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -173,7 +172,7 @@ public class WeeklyReportActivity extends ParentPinActivity {
     }
 
     private void confirmClear() {
-        new AlertDialog.Builder(this)
+        Dialogs.builder(this)
                 .setTitle(R.string.report_clear)
                 .setMessage(R.string.report_clear_confirm)
                 .setPositiveButton(R.string.report_clear, (d, w) -> {
