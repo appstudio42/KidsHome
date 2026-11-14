@@ -71,6 +71,9 @@ public class KidHomeActivity extends AppCompatActivity {
             return;
         }
 
+        // Kid home is the root. Back must not reveal the previous task.
+        LockBack.consume(this, getOnBackPressedDispatcher());
+
         setContentView(R.layout.activity_kid_home);
         ImmersiveHelper.enter(this);
         ImmersiveHelper.applyContentInsets(findViewById(R.id.kidHomeContent));
@@ -159,12 +162,6 @@ public class KidHomeActivity extends AppCompatActivity {
             toneGenerator = null;
         }
         super.onDestroy();
-    }
-
-    @Override
-    @SuppressLint("MissingSuperCall")
-    public void onBackPressed() {
-        // Kid home is the root — ignore Back (escape is hold-Back / corner taps).
     }
 
     private void maybeAnimateEntry() {

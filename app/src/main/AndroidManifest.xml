@@ -86,29 +86,42 @@
             android:exported="false"
             android:parentActivityName=".MainActivity" />
 
+        <!--
+            Lock screens opt into predictive back so the system delivers Back to an
+            OnBackPressedCallback. onBackPressed() is not invoked on that path
+            (Android 13+ when this flag is set, and by default at targetSdk 36).
+            The application element leaves the flag unset: parent screens keep
+            legacy Back until their non-cancelable PIN dialogs are audited.
+        -->
         <activity
             android:name=".EscapePinActivity"
+            android:enableOnBackInvokedCallback="true"
             android:excludeFromRecents="true"
             android:exported="false"
             android:launchMode="singleTop"
             android:taskAffinity=""
-            android:theme="@style/Theme.KidsHome.Pin" />
+            android:theme="@style/Theme.KidsHome.Pin"
+            tools:targetApi="33" />
 
         <activity
             android:name=".ScreenTimeLockActivity"
+            android:enableOnBackInvokedCallback="true"
             android:excludeFromRecents="true"
             android:exported="false"
             android:launchMode="singleTop"
             android:taskAffinity=""
-            android:theme="@style/Theme.KidsHome.Lock" />
+            android:theme="@style/Theme.KidsHome.Lock"
+            tools:targetApi="33" />
 
         <!-- Kid home doubles as a real HOME/launcher for regular Android + Device Owner. -->
         <activity
             android:name=".KidHomeActivity"
+            android:enableOnBackInvokedCallback="true"
             android:excludeFromRecents="true"
             android:exported="true"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.KidsHome.Kid">
+            android:theme="@style/Theme.KidsHome.Kid"
+            tools:targetApi="33">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.HOME" />
