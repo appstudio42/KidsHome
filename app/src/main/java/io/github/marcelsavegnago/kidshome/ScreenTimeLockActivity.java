@@ -1,6 +1,5 @@
 package io.github.marcelsavegnago.kidshome;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -41,6 +40,8 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         KidModeGate.markScreenLockUiOpen();
+        // Stay on the lock screen until a parent PIN unlocks it.
+        LockBack.consume(this, getOnBackPressedDispatcher());
         // Do not keep the screen on — overnight lock must follow the system timeout
         // so screen-on time does not burn the next day's allowance.
         setContentView(R.layout.activity_screen_time_lock);
@@ -90,12 +91,6 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
         if (!ScreenTimeTracker.isBlocked(this)) {
             finishToHome();
         }
-    }
-
-    @Override
-    @SuppressLint("MissingSuperCall")
-    public void onBackPressed() {
-        // Stay on the lock screen until PIN unlock.
     }
 
     private void promptPin(ScreenTimeTracker.BlockReason reason) {

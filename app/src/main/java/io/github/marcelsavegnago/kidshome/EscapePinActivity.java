@@ -1,6 +1,5 @@
 package io.github.marcelsavegnago.kidshome;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -40,6 +39,9 @@ public class EscapePinActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         KidModeGate.markEscapeUiOpen();
+        // Same as Cancel: leave this screen and return to the locked target.
+        // Do not let the system finish the task onto whatever sits behind it.
+        LockBack.intercept(this, getOnBackPressedDispatcher(), this::returnToLockedTarget);
 
         // Do not keep the screen on — PIN / lock UI must follow the system timeout.
         setContentView(R.layout.activity_escape_pin);
@@ -80,12 +82,6 @@ public class EscapePinActivity extends AppCompatActivity {
         ImmersiveHelper.enter(this);
         KidModeGate.markEscapeUiOpen();
         refreshLockoutState();
-    }
-
-    @Override
-    @SuppressLint("MissingSuperCall")
-    public void onBackPressed() {
-        returnToLockedTarget();
     }
 
     private void refreshLockoutState() {
