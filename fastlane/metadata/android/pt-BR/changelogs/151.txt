@@ -1,0 +1,3 @@
+As telas de bloqueio durante a noite não mantêm mais o visor aceso nem descontam o tempo de tela do dia seguinte. O uso não conta enquanto o aparelho está bloqueado ou uma tela de bloqueio do KidsHome está visível.
+
+Os ícones dos sites são carregados do próprio site.

@@ -248,14 +248,15 @@ adb uninstall io.github.marcelsavegnago.kidshome
 ./gradlew assembleRelease
 ```
 
-Requer **JDK 17+** e Android SDK (`compileSdk` / `targetSdk` 34). `minSdk 22` (Fire 7 / SDK 28 totalmente suportado).
+Requer **JDK 17+** e Android SDK (`compileSdk` / `targetSdk` 34). `minSdk 22` (Fire 7 / SDK 28 totalmente suportado). Sem `keystore.properties` ou `-PciSignRelease=true`, o APK de release fica sem assinatura (é assim que o F-Droid compila). Os textos da ficha estão em `fastlane/metadata/android/`. O rascunho da receita fdroiddata está em `docs/fdroid/`.
 
 ### Assinatura no CI
 
 | Modo | Quando | Assinatura |
 |------|--------|------------|
-| **Chave de teste estável do CI** | Sem secrets `SIGNING_*` | `keystore/debug.keystore` (no repositório) — mesma assinatura entre builds, então `adb install -r` preserva dados |
-| **Chave de release** | Secrets definidos | Seu keystore privado |
+| **Sem assinatura** | Sem `keystore.properties` e sem `-PciSignRelease=true` | Nenhuma — o F-Droid assina esse APK |
+| **Chave de teste estável do CI** | `-PciSignRelease=true` e sem secrets `SIGNING_*` | `keystore/debug.keystore` (no repositório) — mesma assinatura entre builds, então `adb install -r` preserva dados |
+| **Chave de release** | `keystore.properties` presente (o CI grava o arquivo quando os secrets `SIGNING_*` existem) | Seu keystore privado |
 
 | Secret | Função |
 |--------|--------|

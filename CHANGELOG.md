@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Website tiles load favicons from the site itself. The Google favicon service is no longer used.
+- `assembleRelease` stays unsigned unless `keystore.properties` exists or `-PciSignRelease=true` is set, so F-Droid can sign the build. CI still passes that property. Release APKs no longer embed git or dependency metadata.
+- Gradle wrapper jar replaced with the official Gradle 8.9 wrapper. The previous jar was the Gradle 2.10 bootstrap. `distributionSha256Sum` pins the 8.9 distribution.
+- Removed the unused prebuilt `disabling pkg/pm.jar` left over from LauncherHijack.
+
+### Added
+- Fastlane metadata for F-Droid (`en-US` and `pt-BR`), including the versionCode 151 changelog.
+- Draft fdroiddata recipe at `docs/fdroid/io.github.marcelsavegnago.kidshome.yml`.
+
 ## 1.5.1
 
 Bugfix: overnight lock screens no longer keep the display awake or burn the next day's screen-time allowance.

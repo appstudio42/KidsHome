@@ -247,14 +247,15 @@ adb uninstall io.github.marcelsavegnago.kidshome
 ./gradlew assembleRelease
 ```
 
-Requires **JDK 17+** and Android SDK (`compileSdk` / `targetSdk` 34). `minSdk 22` (Fire 7 / SDK 28 fully supported).
+Requires **JDK 17+** and Android SDK (`compileSdk` / `targetSdk` 34). `minSdk 22` (Fire 7 / SDK 28 fully supported). Without `keystore.properties` or `-PciSignRelease=true`, the release APK is unsigned (what F-Droid builds). Store listing text is in `fastlane/metadata/android/`. A draft fdroiddata recipe is in `docs/fdroid/`.
 
 ### CI signing
 
 | Mode | When | Signature |
 |------|------|-----------|
-| **Stable CI test key** | No `SIGNING_*` secrets | `keystore/debug.keystore` (committed) — same across CI runs, so `adb install -r` upgrades keep settings |
-| **Release key** | Secrets set | Your private keystore |
+| **Unsigned** | No `keystore.properties` and no `-PciSignRelease=true` | None — F-Droid signs this APK |
+| **Stable CI test key** | `-PciSignRelease=true` and no `SIGNING_*` secrets | `keystore/debug.keystore` (committed) — same across CI runs, so `adb install -r` upgrades keep settings |
+| **Release key** | `keystore.properties` is present (CI writes it when `SIGNING_*` secrets are set) | Your private keystore |
 
 | Secret | Purpose |
 |--------|---------|
