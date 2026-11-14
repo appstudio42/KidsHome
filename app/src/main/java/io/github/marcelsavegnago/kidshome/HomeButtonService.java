@@ -71,10 +71,14 @@ public class HomeButtonService extends Service {
                 String action = intent.getAction();
                 if (Intent.ACTION_SCREEN_OFF.equals(action)) {
                     Prefs.flushScreenTime(context);
+                    // Zero both stamps so the sleep gap is not accrued on the next tick.
                     Prefs.setLastScreenTickMs(context, 0L);
                 } else if (Intent.ACTION_SCREEN_ON.equals(action)
                         || Intent.ACTION_USER_PRESENT.equals(action)) {
                     ScreenTimeTracker.tick(context);
+                } else if (Intent.ACTION_TIME_CHANGED.equals(action)
+                        || Intent.ACTION_TIMEZONE_CHANGED.equals(action)) {
+                    ScreenTimeTracker.onClockChanged(context);
                 }
             }
         };
@@ -82,6 +86,8 @@ public class HomeButtonService extends Service {
         filter.addAction(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(Intent.ACTION_USER_PRESENT);
+        filter.addAction(Intent.ACTION_TIME_CHANGED);
+        filter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
         try {
             if (Build.VERSION.SDK_INT >= 33) {
                 registerReceiver(screenReceiver, filter, Context.RECEIVER_EXPORTED);

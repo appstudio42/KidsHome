@@ -13,15 +13,6 @@ import android.view.accessibility.AccessibilityEvent;
 public class AccServ extends AccessibilityService {
     static final String TAG = "KidsHome.AccServ";
 
-    /** Known Fire OS / Android stock launcher packages that should be hijacked. */
-    private static final String[] HIJACK_PACKAGES = {
-            "com.amazon.firelauncher",
-            "com.amazon.launcher",
-            "com.android.launcher",
-            "com.android.launcher2",
-            "com.android.launcher3"
-    };
-
     private static final long BACK_HOLD_ESCAPE_MS = 3000L;
 
     static volatile boolean homePressCanceled = false;
@@ -91,69 +82,78 @@ public class AccServ extends AccessibilityService {
         if (!Prefs.isKidModeEnabled(this) || KidModeGate.isEscapeUiActive()) {
             return;
         }
-        if (ScreenTimeTracker.isBlocked(this)) {
-            HomePress.perform(this);
-            return;
-        }
-        if (!EnforcementController.shouldBlockNonAllowedApps(this)) {
-            // Still bounce apps that hit a per-app limit or schedule filter when we can see them.
-            String pkg = lastApp;
-            if (pkg != null && !pkg.isEmpty()
-                    && Prefs.getAllowedPackages(this).contains(pkg)
-                    && !ScreenTimeTracker.canLaunchApp(this, pkg)) {
-                HomePress.perform(this);
-            }
-            return;
-        }
         String packageName = lastApp;
-        if (packageName == null || packageName.isEmpty()) {
-            return;
+        boolean blocked = ScreenTimeTracker.isBlocked(this);
+        boolean blockNonAllowed = false;
+        boolean allowlisted = false;
+        boolean canLaunchAllowlisted = false;
+        boolean allowed = false;
+        if (!blocked) {
+            blockNonAllowed = EnforcementController.shouldBlockNonAllowedApps(this);
+            if (!blockNonAllowed) {
+                // Still bounce apps that hit a per-app limit or schedule filter.
+                allowlisted = packageName != null && !packageName.isEmpty()
+                        && Prefs.getAllowedPackages(this).contains(packageName);
+                canLaunchAllowlisted = allowlisted
+                        && ScreenTimeTracker.canLaunchApp(this, packageName);
+            } else {
+                allowed = isAllowedInKidMode(packageName);
+            }
         }
-        if (isAllowedInKidMode(packageName)) {
-            return;
+        if (KidModeEnforcement.enforcementAction(
+                true,
+                false,
+                blocked,
+                blockNonAllowed,
+                packageName,
+                allowlisted,
+                allowed,
+                canLaunchAllowlisted) == KidModeEnforcement.Action.REDIRECT) {
+            HomePress.perform(this);
         }
-        HomePress.perform(this);
     }
 
     private boolean isAllowedInKidMode(String packageName) {
-        if (packageName.equals(getPackageName())) {
-            // KidsHome itself (kid home / PIN / lock screens) is allowed; UI is PIN-gated.
-            return true;
+        String ownPackage = getPackageName();
+        boolean lockToApp = false;
+        String kidApp = null;
+        boolean lockedCanLaunch = false;
+        boolean allowlisted = false;
+        boolean chosenBrowser = false;
+        boolean canLaunch = false;
+        boolean consultPrefs = packageName != null
+                && !packageName.isEmpty()
+                && !packageName.equals(ownPackage)
+                && !KidModeEnforcement.isSystemPackage(packageName)
+                && !KidModeEnforcement.isHijackPackage(packageName);
+        if (consultPrefs) {
+            lockToApp = Prefs.isKidLockToApp(this);
+            if (lockToApp) {
+                kidApp = Prefs.getKidAppPackage(this);
+                lockedCanLaunch = packageName.equals(kidApp)
+                        && ScreenTimeTracker.canLaunchApp(this, packageName);
+            } else {
+                allowlisted = Prefs.getAllowedPackages(this).contains(packageName);
+                String browser = Prefs.getBrowserPackage(this);
+                chosenBrowser = browser != null && browser.equals(packageName);
+                if (allowlisted || chosenBrowser) {
+                    canLaunch = ScreenTimeTracker.canLaunchApp(this, packageName);
+                }
+            }
         }
-        if (packageName.equals("com.android.systemui")
-                || packageName.equals("android")
-                || packageName.startsWith("com.android.systemui")) {
-            return true;
-        }
-        if (shouldHijackPackage(packageName)) {
-            return false;
-        }
-
-        if (Prefs.isKidLockToApp(this)) {
-            String kidApp = Prefs.getKidAppPackage(this);
-            return packageName.equals(kidApp) && ScreenTimeTracker.canLaunchApp(this, packageName);
-        }
-
-        // Kid-home mode: allowlisted apps + chosen browser, with schedule / per-app limits.
-        boolean allowlisted = Prefs.getAllowedPackages(this).contains(packageName);
-        String browser = Prefs.getBrowserPackage(this);
-        boolean isBrowser = browser != null && browser.equals(packageName);
-        if (!allowlisted && !isBrowser) {
-            return false;
-        }
-        return ScreenTimeTracker.canLaunchApp(this, packageName);
+        return KidModeEnforcement.isAllowedInKidMode(
+                packageName,
+                ownPackage,
+                lockToApp,
+                kidApp,
+                lockedCanLaunch,
+                allowlisted,
+                chosenBrowser,
+                canLaunch);
     }
 
     private static boolean shouldHijackPackage(String packageName) {
-        if (packageName == null) {
-            return false;
-        }
-        for (String hijack : HIJACK_PACKAGES) {
-            if (hijack.equals(packageName)) {
-                return true;
-            }
-        }
-        return false;
+        return KidModeEnforcement.isHijackPackage(packageName);
     }
 
     @Override

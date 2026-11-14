@@ -25,6 +25,17 @@ public class EscapePinActivity extends AppCompatActivity {
     private ViewShakeTarget shakeTarget;
     private PinKeypadController keypad;
     private boolean finishingToKidApp;
+    /** Keeps a visible PIN screen inside the escape-gate window. */
+    private final Runnable refreshEscapeGate = new Runnable() {
+        @Override
+        public void run() {
+            if (isFinishing() || isDestroyed()) {
+                return;
+            }
+            KidModeGate.markEscapeUiOpen();
+            handler.postDelayed(this, KidModeGate.ESCAPE_UI_MAX_AGE_MS / 3L);
+        }
+    };
 
     private static final class ViewShakeTarget {
         final android.view.View view;
@@ -76,11 +87,31 @@ public class EscapePinActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        KidModeGate.markEscapeUiOpen();
+        handler.removeCallbacks(refreshEscapeGate);
+        handler.postDelayed(refreshEscapeGate, KidModeGate.ESCAPE_UI_MAX_AGE_MS / 3L);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         ImmersiveHelper.enter(this);
         KidModeGate.markEscapeUiOpen();
         refreshLockoutState();
+    }
+
+    @Override
+    protected void onStop() {
+        // A stopped PIN screen (shade → Settings, another task) must not keep
+        // enforcement and screen-time paused until onDestroy. onStart restores
+        // the gate if this screen comes back. Rotation keeps the flag.
+        handler.removeCallbacks(refreshEscapeGate);
+        if (!isChangingConfigurations()) {
+            KidModeGate.markEscapeUiClosed();
+        }
+        super.onStop();
     }
 
     @Override

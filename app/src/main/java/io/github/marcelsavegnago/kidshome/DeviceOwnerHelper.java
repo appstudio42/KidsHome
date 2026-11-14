@@ -61,6 +61,7 @@ public final class DeviceOwnerHelper {
         if (manager == null) {
             return;
         }
+        requireAutoTime(context);
 
         String[] packages = buildLockTaskPackages(context);
         try {
@@ -109,6 +110,46 @@ public final class DeviceOwnerHelper {
                 }
             } catch (Exception e) {
                 Log.w(TAG, "setKeyguardDisabled failed", e);
+            }
+        }
+    }
+
+    /**
+     * Device owner: keep network time on so a clock edit cannot clear the daily
+     * allowance. {@code setAutoTimeRequired} is the API 21 call (minSdk is 22).
+     * From API 30 the platform deprecates it in favor of {@code setAutoTimeEnabled}
+     * / {@code setAutoTimeZoneEnabled}; those are invoked as well.
+     */
+    @SuppressWarnings({"deprecation", "ObsoleteSdkInt"})
+    public static void requireAutoTime(Context context) {
+        if (!isDeviceOwner(context)) {
+            return;
+        }
+        DevicePolicyManager manager = dpm(context);
+        if (manager == null) {
+            return;
+        }
+        ComponentName admin = getAdminComponent(context);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            try {
+                manager.setAutoTimeRequired(admin, true);
+                Log.i(TAG, "setAutoTimeRequired(true)");
+            } catch (Exception e) {
+                Log.w(TAG, "setAutoTimeRequired failed", e);
+            }
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            try {
+                manager.setAutoTimeEnabled(admin, true);
+                Log.i(TAG, "setAutoTimeEnabled(true)");
+            } catch (Exception e) {
+                Log.w(TAG, "setAutoTimeEnabled failed", e);
+            }
+            try {
+                manager.setAutoTimeZoneEnabled(admin, true);
+                Log.i(TAG, "setAutoTimeZoneEnabled(true)");
+            } catch (Exception e) {
+                Log.w(TAG, "setAutoTimeZoneEnabled failed", e);
             }
         }
     }

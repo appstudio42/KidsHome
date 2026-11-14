@@ -69,7 +69,10 @@ public final class EnforcementController {
             DeviceOwnerHelper.applyKidModePolicies(context);
         }
         // Keep lock-task package list fresh if owner even when preference is AUTO.
+        // Automatic time stays required whenever we are device owner, including
+        // when the parent picked accessibility mode on a provisioned device.
         if (DeviceOwnerHelper.isDeviceOwner(context)) {
+            DeviceOwnerHelper.requireAutoTime(context);
             DeviceOwnerHelper.refreshLockTaskPackages(context);
         }
     }

@@ -83,6 +83,12 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        KidModeGate.markScreenLockUiOpen();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         ImmersiveHelper.enter(this);
@@ -90,6 +96,16 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
         if (!ScreenTimeTracker.isBlocked(this)) {
             finishToHome();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        // Stopped but not destroyed (another activity from the shade) must not
+        // leave the enforcement gate stuck. onStart restores it if we return.
+        if (!isChangingConfigurations()) {
+            KidModeGate.markScreenLockUiClosed();
+        }
+        super.onStop();
     }
 
     @Override
