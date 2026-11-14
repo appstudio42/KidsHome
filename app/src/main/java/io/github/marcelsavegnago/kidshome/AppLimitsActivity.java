@@ -1,6 +1,5 @@
 package io.github.marcelsavegnago.kidshome;
 
-import android.app.AlertDialog;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.view.LayoutInflater;
@@ -109,7 +108,7 @@ public class AppLimitsActivity extends ParentPinActivity {
             refreshLabel.run();
         });
 
-        new AlertDialog.Builder(this)
+        Dialogs.builder(this)
                 .setTitle(labelFor(packageName))
                 .setView(dialogView)
                 .setPositiveButton(R.string.save, (d, w) -> {

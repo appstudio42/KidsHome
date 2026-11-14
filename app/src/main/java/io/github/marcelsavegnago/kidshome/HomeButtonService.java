@@ -120,6 +120,9 @@ public class HomeButtonService extends Service {
             type = WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY;
         }
 
+        // Zero size on purpose: this view only hears close-system-dialogs.
+        // Android 15 does not treat a non-visible window as a background-activity
+        // or foreground-service exemption, so relaunch goes through BackgroundActivityStarter.
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 0,
                 0,

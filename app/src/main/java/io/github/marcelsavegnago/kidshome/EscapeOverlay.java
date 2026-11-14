@@ -91,7 +91,9 @@ public final class EscapeOverlay {
         );
         params.gravity = Gravity.TOP | Gravity.END;
         params.x = 0;
-        params.y = (int) (8 * metrics.density);
+        // Keep the 5-tap target below the status bar and cutout. On API 35 the
+        // window is edge-to-edge, so a y of a few dp sits under the clock or camera.
+        params.y = topSafeOffset(metrics);
 
         try {
             windowManager.addView(hotspot, params);
@@ -115,6 +117,16 @@ public final class EscapeOverlay {
         hotspot = null;
         tapCount = 0;
         windowStartMs = 0L;
+    }
+
+    private int topSafeOffset(DisplayMetrics metrics) {
+        int margin = (int) (8 * metrics.density);
+        int status = 0;
+        int resId = appContext.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resId > 0) {
+            status = appContext.getResources().getDimensionPixelSize(resId);
+        }
+        return status + margin;
     }
 
     private void onTap() {

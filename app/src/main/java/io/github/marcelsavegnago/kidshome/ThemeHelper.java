@@ -9,6 +9,8 @@ import android.view.Window;
 
 import androidx.annotation.NonNull;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.color.MaterialColors;
@@ -30,17 +32,29 @@ public final class ThemeHelper {
                 activity, com.google.android.material.R.attr.colorOnPrimary, Color.WHITE);
         int surface = MaterialColors.getColor(
                 activity, com.google.android.material.R.attr.colorSurface, Color.WHITE);
-        window.setStatusBarColor(primary);
-        window.setNavigationBarColor(surface);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            boolean lightPrimary = ColorUtils.calculateLuminance(primary) > 0.5;
-            int flags = window.getDecorView().getSystemUiVisibility();
-            if (lightPrimary) {
-                flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-            } else {
-                flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            // Bar colors are ignored. Icons must contrast with the window background
+            // that shows through the transparent bars (see ImmersiveHelper).
+            WindowInsetsControllerCompat controller =
+                    WindowCompat.getInsetsController(window, window.getDecorView());
+            if (controller != null) {
+                boolean lightBackground = ColorUtils.calculateLuminance(surface) > 0.5;
+                controller.setAppearanceLightStatusBars(lightBackground);
+                controller.setAppearanceLightNavigationBars(lightBackground);
             }
-            window.getDecorView().setSystemUiVisibility(flags);
+        } else {
+            window.setStatusBarColor(primary);
+            window.setNavigationBarColor(surface);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                boolean lightPrimary = ColorUtils.calculateLuminance(primary) > 0.5;
+                int flags = window.getDecorView().getSystemUiVisibility();
+                if (lightPrimary) {
+                    flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+                } else {
+                    flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+                }
+                window.getDecorView().setSystemUiVisibility(flags);
+            }
         }
         tintToolbars(activity.findViewById(android.R.id.content), primary, onPrimary);
     }

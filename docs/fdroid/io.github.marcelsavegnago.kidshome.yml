@@ -11,7 +11,7 @@
 # 14267f684d75b49c03d560461881e0eac4213a4b. The existing v1.5.1 APK will
 # not match this tree.
 #
-# Build needs JDK 17 and compileSdk 34. assembleRelease is unsigned unless
+# Build needs JDK 17 and compileSdk 35. assembleRelease is unsigned unless
 # keystore.properties exists or -PciSignRelease=true is passed. F-Droid
 # must not pass that property. vcsInfo and dependenciesInfo are disabled
 # so the APK does not embed the local git checkout. There is no product

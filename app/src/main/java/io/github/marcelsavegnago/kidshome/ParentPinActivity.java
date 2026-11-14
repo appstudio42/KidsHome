@@ -20,6 +20,9 @@ public abstract class ParentPinActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // The PIN dialog can return before setContentView. Mark the window now so the
+        // API 35 callback does not pad android.R.id.content and then parentRoot as well.
+        ImmersiveHelper.markEdgeToEdgeHandled(this);
         Prefs.migrateIfNeeded(this);
         if (Prefs.isKidModeEnabled(this) && !SessionAuth.isUnlocked()) {
             PinDialogHelper.promptVerify(this, new PinDialogHelper.PinCallback() {

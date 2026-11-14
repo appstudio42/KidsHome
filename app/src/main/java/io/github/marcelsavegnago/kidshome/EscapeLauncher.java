@@ -32,12 +32,12 @@ public final class EscapeLauncher {
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP
                 | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
                 | Intent.FLAG_ACTIVITY_NO_USER_ACTION);
-        try {
-            context.getApplicationContext().startActivity(intent);
+        if (BackgroundActivityStarter.launch(
+                context.getApplicationContext(), intent, BackgroundActivityStarter.REQUEST_ESCAPE_PIN)) {
             Log.i(TAG, "Emergency PIN UI launched");
-        } catch (Exception e) {
+        } else {
             KidModeGate.markEscapeUiClosed();
-            Log.e(TAG, "Unable to launch emergency PIN UI", e);
+            Log.e(TAG, "Unable to launch emergency PIN UI");
         }
     }
 }

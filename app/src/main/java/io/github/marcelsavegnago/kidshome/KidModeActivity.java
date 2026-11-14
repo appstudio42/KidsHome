@@ -1,6 +1,5 @@
 package io.github.marcelsavegnago.kidshome;
 
-import android.app.AlertDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
@@ -221,7 +220,7 @@ public class KidModeActivity extends AppCompatActivity {
     }
 
     private void showAvatarPicker() {
-        new AlertDialog.Builder(this)
+        Dialogs.builder(this)
                 .setTitle(R.string.pick_avatar)
                 .setItems(ChildAvatars.ALL, (d, which) -> {
                     pendingAvatar = ChildAvatars.ALL[which];
@@ -332,7 +331,7 @@ public class KidModeActivity extends AppCompatActivity {
             labels[i] = apps.get(i).loadLabel(getPackageManager())
                     + " (" + apps.get(i).activityInfo.packageName + ")";
         }
-        new AlertDialog.Builder(this)
+        Dialogs.builder(this)
                 .setTitle(R.string.pick_kid_app)
                 .setItems(labels, (dialog, which) -> {
                     ResolveInfo info = apps.get(which);
@@ -352,7 +351,7 @@ public class KidModeActivity extends AppCompatActivity {
             labels[i + 1] = browsers.get(i).loadLabel(getPackageManager())
                     + " (" + browsers.get(i).activityInfo.packageName + ")";
         }
-        new AlertDialog.Builder(this)
+        Dialogs.builder(this)
                 .setTitle(R.string.pick_browser)
                 .setItems(labels, (dialog, which) -> {
                     if (which == 0) {
@@ -377,7 +376,7 @@ public class KidModeActivity extends AppCompatActivity {
         if (Settings.canDrawOverlays(this)) {
             return true;
         }
-        new AlertDialog.Builder(this)
+        Dialogs.builder(this)
                 .setTitle(R.string.overlay_permission_title)
                 .setMessage(R.string.overlay_permission_message)
                 .setPositiveButton(R.string.open_settings, (d, w) -> {

@@ -1,8 +1,8 @@
 package io.github.marcelsavegnago.kidshome;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -29,9 +29,10 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP
                 | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
                 | Intent.FLAG_ACTIVITY_NO_USER_ACTION);
-        try {
-            context.getApplicationContext().startActivity(intent);
-        } catch (Exception e) {
+        if (!BackgroundActivityStarter.launch(
+                context.getApplicationContext(),
+                intent,
+                BackgroundActivityStarter.REQUEST_SCREEN_LOCK)) {
             KidModeGate.markScreenLockUiClosed();
         }
     }
@@ -60,16 +61,14 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
             message.setText(R.string.bedtime_lock_message);
             illustration.setImageResource(R.drawable.illust_bedtime);
             root.setBackgroundColor(ContextCompat.getColor(this, R.color.lock_bg_bedtime));
-            getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.lock_bg_bedtime));
-            getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.lock_bg_bedtime));
+            paintLockBars(ContextCompat.getColor(this, R.color.lock_bg_bedtime));
         } else if (reason == ScreenTimeTracker.BlockReason.REMOTE) {
             title.setText(R.string.remote_lock_title);
             message.setText(R.string.remote_lock_message);
             // Official KidsHome mark (same vector as launcher foreground / brand SVG).
             illustration.setImageResource(R.drawable.ic_home_foreground);
             root.setBackgroundColor(ContextCompat.getColor(this, R.color.lock_bg_timeup));
-            getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.lock_bg_timeup));
-            getWindow().setNavigationBarColor(ContextCompat.getColor(this, R.color.lock_bg_timeup));
+            paintLockBars(ContextCompat.getColor(this, R.color.lock_bg_timeup));
         } else {
             title.setText(R.string.screen_time_lock_title);
             message.setText(R.string.screen_time_lock_message);
@@ -93,6 +92,27 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        // A PIN dialog can clear immersive mode. Hide the bars again so Back/Home
+        // stay out of reach when focus returns to the lock screen.
+        if (hasFocus && !isFinishing()) {
+            ImmersiveHelper.enter(this);
+        }
+    }
+
+    private void paintLockBars(int color) {
+        // Status and navigation bar colors have no effect at targetSdk 35.
+        // The lock background shows through the transparent bars; insets keep
+        // the message and unlock button in the safe area.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            return;
+        }
+        getWindow().setStatusBarColor(color);
+        getWindow().setNavigationBarColor(color);
+    }
+
     private void promptPin(ScreenTimeTracker.BlockReason reason) {
         PinAttemptTracker.attach(this);
         if (PinAttemptTracker.isLockedOut()) {
@@ -102,7 +122,7 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
         final EditText input = new EditText(this);
         input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER
                 | android.text.InputType.TYPE_NUMBER_VARIATION_PASSWORD);
-        new AlertDialog.Builder(this)
+        Dialogs.builder(this)
                 .setTitle(R.string.pin_enter_title)
                 .setView(input)
                 .setNegativeButton(R.string.cancel, null)
@@ -135,7 +155,7 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
 
     private void showParentChoices(ScreenTimeTracker.BlockReason reason) {
         if (reason == ScreenTimeTracker.BlockReason.BEDTIME) {
-            new AlertDialog.Builder(this)
+            Dialogs.builder(this)
                     .setTitle(R.string.escape_unlocked_title)
                     .setItems(new CharSequence[]{
                             getString(R.string.bedtime_disable_tonight),
@@ -157,7 +177,7 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
         }
 
         if (reason == ScreenTimeTracker.BlockReason.REMOTE) {
-            new AlertDialog.Builder(this)
+            Dialogs.builder(this)
                     .setTitle(R.string.escape_unlocked_title)
                     .setItems(new CharSequence[]{
                             getString(R.string.remote_unlock_here),
@@ -179,7 +199,7 @@ public class ScreenTimeLockActivity extends AppCompatActivity {
             return;
         }
 
-        new AlertDialog.Builder(this)
+        Dialogs.builder(this)
                 .setTitle(R.string.escape_unlocked_title)
                 .setItems(new CharSequence[]{
                         getString(R.string.screen_time_bonus_15),

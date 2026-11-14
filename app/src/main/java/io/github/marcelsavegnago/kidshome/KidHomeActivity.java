@@ -149,6 +149,14 @@ public class KidHomeActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus && !isFinishing() && Prefs.isKidModeEnabled(this)) {
+            ImmersiveHelper.enter(this);
+        }
+    }
+
+    @Override
     protected void onPause() {
         handler.removeCallbacks(refreshTime);
         Prefs.flushScreenTime(this);

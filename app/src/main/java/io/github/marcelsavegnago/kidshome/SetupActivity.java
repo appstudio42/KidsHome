@@ -1,6 +1,5 @@
 package io.github.marcelsavegnago.kidshome;
 
-import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
@@ -269,7 +268,7 @@ public class SetupActivity extends AppCompatActivity {
             Toast.makeText(this, R.string.setup_not_device_owner, Toast.LENGTH_SHORT).show();
             return;
         }
-        new AlertDialog.Builder(this)
+        Dialogs.builder(this)
                 .setTitle(R.string.setup_remove_device_owner)
                 .setMessage(R.string.setup_remove_device_owner_message)
                 .setPositiveButton(R.string.ok, (d, w) -> {

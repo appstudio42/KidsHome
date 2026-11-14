@@ -15,12 +15,12 @@ def ciSignRelease = "true" == findProperty("ciSignRelease")?.toString()
 
 android {
     namespace 'io.github.marcelsavegnago.kidshome'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "io.github.marcelsavegnago.kidshome"
         minSdk 22
-        targetSdk 34
+        targetSdk 35
         versionCode 151
         versionName "1.5.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -107,7 +107,8 @@ android {
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.0'
     // Direct dependency so lock screens use OnBackPressedDispatcher (predictive back).
-    // 1.9.x matches compileSdk 34. Newer Activity artifacts require a higher SDK.
+    // 1.9.3 already exposes the insets/back APIs this target uses. Do not bump Activity
+    // just because compileSdk is 35.
     implementation 'androidx.activity:activity:1.9.3'
     implementation 'androidx.annotation:annotation:1.9.1'
     implementation 'com.google.android.material:material:1.12.0'

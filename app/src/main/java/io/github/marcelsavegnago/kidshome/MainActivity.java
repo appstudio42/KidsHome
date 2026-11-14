@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
                 AppAdapter adapter = (AppAdapter) parent.getAdapter();
                 final ResolveInfo appInfo = (ResolveInfo) adapter.getItem(pos);
 
-                new AlertDialog.Builder(MainActivity.this)
+                Dialogs.builder(MainActivity.this)
                         .setTitle(R.string.set_launcher_title)
                         .setMessage(getString(
                                 R.string.set_launcher_message,
@@ -245,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showAccessibilityDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+        AlertDialog.Builder builder = Dialogs.builder(this)
                 .setTitle(R.string.a11y_disabled_title)
                 .setMessage(R.string.a11y_disabled_message)
                 .setCancelable(true)

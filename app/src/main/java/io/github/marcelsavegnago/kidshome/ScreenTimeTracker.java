@@ -208,11 +208,8 @@ public final class ScreenTimeTracker {
         }
         Intent open = new Intent(context, KidHomeActivity.class);
         open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            flags |= PendingIntent.FLAG_IMMUTABLE;
-        }
-        PendingIntent pi = PendingIntent.getActivity(context, 0, open, flags);
+        PendingIntent pi = BackgroundActivityStarter.activityPendingIntent(
+                context, BackgroundActivityStarter.REQUEST_NOTIFICATION + 1, open);
         Notification.Builder b;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             b = new Notification.Builder(context, StatusNotifier.CHANNEL_ID);

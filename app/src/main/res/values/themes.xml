@@ -44,6 +44,29 @@
     <!-- Back-compat alias used by the manifest -->
     <style name="AppTheme" parent="Theme.KidsHome" />
 
+    <!--
+      API 35 only (see Dialogs). Opts the floating PIN / parent dialogs out of
+      edge-to-edge so the platform keeps them above the bars and the IME.
+      Activities stay edge-to-edge and apply insets themselves.
+    -->
+    <style name="Theme.KidsHome.Dialog" parent="Theme.Material3.DayNight.Dialog.Alert">
+        <item name="android:windowOptOutEdgeToEdgeEnforcement" tools:targetApi="35">true</item>
+        <item name="colorPrimary">@color/md_primary</item>
+        <item name="colorOnPrimary">@color/md_on_primary</item>
+        <item name="colorPrimaryContainer">@color/md_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/md_on_primary_container</item>
+        <item name="colorSecondary">@color/md_secondary</item>
+        <item name="colorOnSecondary">@color/md_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/md_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/md_on_secondary_container</item>
+        <item name="colorError">@color/md_error</item>
+        <item name="colorOnError">@color/md_on_error</item>
+        <item name="colorSurface">@color/md_surface</item>
+        <item name="colorOnSurface">@color/md_on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/md_on_surface_variant</item>
+        <item name="android:colorBackground">@color/md_background</item>
+    </style>
+
     <style name="Theme.KidsHome.Kid" parent="Theme.KidsHome">
         <item name="android:windowFullscreen">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
