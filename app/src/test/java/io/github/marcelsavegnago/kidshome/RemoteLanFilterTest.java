@@ -22,4 +22,13 @@ public class RemoteLanFilterTest {
         assertFalse(RemoteLanFilter.isAllowedPeer(""));
         assertFalse(RemoteLanFilter.isAllowedPeer(null));
     }
+
+    @Test
+    public void rejectsCarrierGradeNat() {
+        assertFalse(RemoteLanFilter.isAllowedPeer("100.64.0.1"));
+        assertFalse(RemoteLanFilter.isAllowedPeer("100.100.1.1"));
+        assertFalse(RemoteLanFilter.isAllowedPeer("100.127.255.254"));
+        assertFalse(RemoteLanFilter.isAllowedPeer("100.63.0.1"));
+        assertFalse(RemoteLanFilter.isAllowedPeer("100.128.0.1"));
+    }
 }

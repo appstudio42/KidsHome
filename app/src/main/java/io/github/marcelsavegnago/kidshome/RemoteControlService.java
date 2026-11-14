@@ -17,6 +17,8 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 
+import java.io.IOException;
+
 /**
  * Foreground service that keeps the LAN remote HTTP server alive while enabled.
  */
@@ -40,7 +42,7 @@ public class RemoteControlService extends Service {
             handler.postDelayed(this, 30_000L);
         }
     };
-    private String lastKnownIp = "";
+    private String lastKnownBind = "";
 
     public static void start(Context context) {
         if (!Prefs.isRemoteControlEnabled(context)) {
@@ -92,9 +94,9 @@ public class RemoteControlService extends Service {
         super.onCreate();
         ensureChannel();
         promoteToForeground();
+        lastKnownBind = RemoteNetwork.bindHost(this);
         startOrRestartServer();
         registerNetworkReceiver();
-        lastKnownIp = nullToEmpty(RemoteNetwork.getLanIpv4(this));
         handler.postDelayed(ipWatchdog, 30_000L);
     }
 
@@ -130,25 +132,69 @@ public class RemoteControlService extends Service {
         synchronized (LOCK) {
             AUTH.setExpectedToken(Prefs.getOrCreateRemoteToken(this));
             int port = Prefs.getRemoteControlPort(this);
+            String bindHost = RemoteNetwork.bindHost(this);
             try {
-                if (server != null) {
-                    if (server.getListeningPort() == port && server.isAlive()) {
-                        return;
-                    }
-                    server.stop();
-                    server = null;
+                if (server == null
+                        || !server.isAlive()
+                        || server.getListeningPort() != port
+                        || !bindHost.equals(server.getHostname())) {
+                    stopListeningLocked();
+                    RemoteRequestHandler requestHandler =
+                            new RemoteRequestHandler(AUTH, new RemoteControlBridge(this));
+                    server = listen(bindHost, port, requestHandler);
                 }
-                RemoteControlBridge bridge = new RemoteControlBridge(this);
-                RemoteRequestHandler handler = new RemoteRequestHandler(AUTH, bridge);
-                server = new RemoteControlServer(port, AUTH, handler);
-                server.start(NanoHTTPD_SOCKET_READ_TIMEOUT, false);
-                Log.i(TAG, "Remote server listening on port " + port);
             } catch (Exception e) {
                 Log.e(TAG, "Failed to start remote server", e);
-                server = null;
+                stopListeningLocked();
             }
         }
         updateNotification();
+    }
+
+    /**
+     * Binds to the current private Wi-Fi/Ethernet address. If that address cannot
+     * be claimed, falls back to loopback so the port is not opened on every NIC.
+     */
+    private RemoteControlServer listen(String bindHost, int port, RemoteRequestHandler requestHandler)
+            throws IOException {
+        RemoteControlServer created = new RemoteControlServer(bindHost, port, AUTH, requestHandler);
+        try {
+            created.start(NanoHTTPD_SOCKET_READ_TIMEOUT, false);
+            Log.i(TAG, "Remote server listening on " + created.getHostname() + ":" + port);
+            return created;
+        } catch (IOException primary) {
+            try {
+                created.stop();
+            } catch (Exception ignored) {
+            }
+            if (RemoteNetwork.LOOPBACK_BIND_HOST.equals(created.getHostname())) {
+                throw primary;
+            }
+            RemoteControlServer fallback = new RemoteControlServer(
+                    RemoteNetwork.LOOPBACK_BIND_HOST, port, AUTH, requestHandler);
+            try {
+                fallback.start(NanoHTTPD_SOCKET_READ_TIMEOUT, false);
+            } catch (IOException fallbackFailure) {
+                try {
+                    fallback.stop();
+                } catch (Exception ignored) {
+                }
+                primary.addSuppressed(fallbackFailure);
+                throw primary;
+            }
+            Log.w(TAG, "LAN bind failed; listening on loopback only", primary);
+            return fallback;
+        }
+    }
+
+    private static void stopListeningLocked() {
+        if (server != null) {
+            try {
+                server.stop();
+            } catch (Exception ignored) {
+            }
+            server = null;
+        }
     }
 
     private static final int NanoHTTPD_SOCKET_READ_TIMEOUT = 5_000;
@@ -167,15 +213,25 @@ public class RemoteControlService extends Service {
     }
 
     private void maybeRestartForIpChange() {
-        String ip = nullToEmpty(RemoteNetwork.getLanIpv4(this));
-        if (!ip.equals(lastKnownIp)) {
-            Log.i(TAG, "LAN IP changed: " + lastKnownIp + " -> " + ip);
-            lastKnownIp = ip;
-            // Server stays bound to all interfaces; refresh notification URL only.
-            updateNotification();
-        }
-        if (!isServerRunning() && Prefs.isRemoteControlEnabled(this)) {
+        String desired = RemoteNetwork.bindHost(this);
+        if (!desired.equals(lastKnownBind)) {
+            Log.i(TAG, "Bind address changed: " + lastKnownBind + " -> " + desired);
+            lastKnownBind = desired;
             startOrRestartServer();
+            return;
+        }
+        String actual = boundHost();
+        if ((actual.isEmpty() || !desired.equals(actual)) && Prefs.isRemoteControlEnabled(this)) {
+            startOrRestartServer();
+        }
+    }
+
+    private static String boundHost() {
+        synchronized (LOCK) {
+            if (server == null || server.getHostname() == null) {
+                return "";
+            }
+            return server.getHostname();
         }
     }
 
@@ -279,7 +335,4 @@ public class RemoteControlService extends Service {
         }
     }
 
-    private static String nullToEmpty(String value) {
-        return value == null ? "" : value;
-    }
 }
