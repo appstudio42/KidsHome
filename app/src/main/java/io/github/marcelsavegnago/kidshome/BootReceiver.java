@@ -53,6 +53,7 @@ public class BootReceiver extends BroadcastReceiver {
             StatusNotifier.notifyAccessibilityDisabled(context);
         }
 
+        DeviceOwnerHelper.requireAutoTime(context);
         if (Prefs.isKidModeEnabled(context) && DeviceOwnerHelper.isDeviceOwner(context)) {
             DeviceOwnerHelper.applyKidModePolicies(context);
         }

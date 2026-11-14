@@ -8,6 +8,13 @@ import java.util.TimeZone;
  * Pure helpers for daily limits / bedtime windows (device local timezone).
  */
 public final class ScreenTimeState {
+    /**
+     * Upper bound counted for one tick. The home-button watchdog is 15s; a delayed
+     * callback still counts, but a single tick never adds more than this — a missed
+     * screen-off during sleep cannot dump hours into the daily total.
+     */
+    public static final long MAX_ACCRUAL_PER_TICK_MS = 5L * 60L * 1000L;
+
     private ScreenTimeState() {
     }
 
@@ -40,6 +47,18 @@ public final class ScreenTimeState {
         return cal.getTimeInMillis();
     }
 
+    /** The next local midnight strictly after {@code epochMs} (absolute epoch millis). */
+    public static long nextLocalMidnightMillis(long epochMs) {
+        Calendar cal = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
+        cal.setTimeInMillis(epochMs);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        cal.add(Calendar.DAY_OF_YEAR, 1);
+        return cal.getTimeInMillis();
+    }
+
     /**
      * Portion of {@code [lastTickMs, nowMs]} that belongs to the calendar day of {@code nowMs}.
      * Time before midnight from a previous day is never charged to the new day.
@@ -64,6 +83,37 @@ public final class ScreenTimeState {
             boolean kidsHomeLockOrPinUiVisible
     ) {
         return screenOn && !deviceBlocked && !kidsHomeLockOrPinUiVisible;
+    }
+
+    /**
+     * Monotonic gap since the previous tick. The first sample and a reboot
+     * (elapsed clock moved backwards) contribute nothing.
+     */
+    public static long tickDeltaMillis(long lastElapsedMs, long nowElapsedMs) {
+        if (lastElapsedMs <= 0L || nowElapsedMs <= lastElapsedMs) {
+            return 0L;
+        }
+        return nowElapsedMs - lastElapsedMs;
+    }
+
+    /**
+     * Usage to add for one tick. Screen-off, a block, and lock/PIN UI add nothing.
+     * A positive gap is counted up to {@link #MAX_ACCRUAL_PER_TICK_MS} instead of
+     * being dropped when the watchdog runs late.
+     */
+    public static long millisToAccrue(
+            long deltaMs,
+            boolean screenOn,
+            boolean deviceBlocked,
+            boolean kidsHomeLockOrPinUiVisible
+    ) {
+        if (!shouldAccrueUsage(screenOn, deviceBlocked, kidsHomeLockOrPinUiVisible)) {
+            return 0L;
+        }
+        if (deltaMs <= 0L) {
+            return 0L;
+        }
+        return Math.min(deltaMs, MAX_ACCRUAL_PER_TICK_MS);
     }
 
     /** True if now is inside [start, end) allowing overnight windows (e.g. 20:00–07:00). */

@@ -74,4 +74,30 @@ public class ScreenTimeStateTest {
         assertEquals(0L, ScreenTimeState.millisChargedToCurrentDay(0L, nowAfterMidnight));
         assertEquals(0L, ScreenTimeState.millisChargedToCurrentDay(nowAfterMidnight, lastBeforeMidnight));
     }
+
+    @Test
+    public void lateWatchdogStillCountsUpToTheCap() {
+        long threeMinutes = 180_000L;
+        assertTrue(threeMinutes > 90_000L);
+        assertEquals(threeMinutes, ScreenTimeState.millisToAccrue(threeMinutes, true, false, false));
+        assertEquals(ScreenTimeState.MAX_ACCRUAL_PER_TICK_MS,
+                ScreenTimeState.millisToAccrue(2L * 60L * 60L * 1000L, true, false, false));
+    }
+
+    @Test
+    public void screenOffBlockAndLockUiAccrueNothing() {
+        long gap = 180_000L;
+        assertEquals(0L, ScreenTimeState.millisToAccrue(gap, false, false, false));
+        assertEquals(0L, ScreenTimeState.millisToAccrue(gap, true, true, false));
+        assertEquals(0L, ScreenTimeState.millisToAccrue(gap, true, false, true));
+        assertEquals(0L, ScreenTimeState.millisToAccrue(0L, true, false, false));
+        assertEquals(0L, ScreenTimeState.millisToAccrue(-5_000L, true, false, false));
+    }
+
+    @Test
+    public void tickDeltaIgnoresFirstSampleAndReboot() {
+        assertEquals(0L, ScreenTimeState.tickDeltaMillis(0L, 50_000L));
+        assertEquals(0L, ScreenTimeState.tickDeltaMillis(80_000L, 10_000L));
+        assertEquals(15_000L, ScreenTimeState.tickDeltaMillis(10_000L, 25_000L));
+    }
 }

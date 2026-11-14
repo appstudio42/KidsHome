@@ -59,6 +59,13 @@ public final class Prefs {
     public static final String KEY_BONUS_MILLIS = "BonusMillisToday";
     public static final String KEY_USAGE_DAY = "UsageDayKey";
     public static final String KEY_LAST_TICK = "LastScreenTickMs";
+    /** {@link android.os.SystemClock#elapsedRealtime()} at the last screen-time tick. */
+    public static final String KEY_LAST_TICK_ELAPSED = "LastScreenTickElapsedMs";
+    /** Trusted wall instant used to detect clock jumps. Not cleared on a jump. */
+    public static final String KEY_CLOCK_ANCHOR_WALL = "ClockAnchorWallMs";
+    public static final String KEY_CLOCK_ANCHOR_ELAPSED = "ClockAnchorElapsedMs";
+    /** Absolute millis of the next local midnight for {@link #KEY_USAGE_DAY}. */
+    public static final String KEY_CLOCK_NEXT_MIDNIGHT = "ClockNextMidnightMs";
     public static final String KEY_WARN_SHOWN_DAY = "ScreenTimeWarnDay";
     public static final String KEY_ST_DISABLED_DAY = "ScreenTimeDisabledDay";
     public static final String KEY_BT_DISABLED_DAY = "BedtimeDisabledDay";
@@ -462,10 +469,38 @@ public final class Prefs {
     }
 
     public static void ensureScreenTimeDay(Context context) {
-        String today = ScreenTimeState.dayKeyNow();
         SharedPreferences prefs = get(context);
         String stored = prefs.getString(KEY_USAGE_DAY, "");
-        if (today.equals(stored)) {
+        long anchorWall = prefs.getLong(KEY_CLOCK_ANCHOR_WALL, 0L);
+        long anchorElapsed = prefs.getLong(KEY_CLOCK_ANCHOR_ELAPSED, 0L);
+        long nextMidnight = prefs.getLong(KEY_CLOCK_NEXT_MIDNIGHT, 0L);
+        ScreenTimeClock.Clock clock = ScreenTimeClock.clock();
+        ScreenTimeClock.Decision decision = ScreenTimeClock.resolve(
+                stored,
+                anchorWall,
+                anchorElapsed,
+                nextMidnight,
+                clock.currentTimeMillis(),
+                clock.elapsedRealtime());
+        if (!decision.rollDay) {
+            // Keep today's usage across a clock jump. Refresh the monotonic anchor
+            // occasionally so the next comparison still has a recent sample.
+            boolean missingAnchor = anchorWall <= 0L || nextMidnight <= 0L;
+            boolean elapsedMoved = anchorElapsed <= 0L
+                    || Math.abs(decision.anchorElapsedMs - anchorElapsed) >= 5_000L;
+            boolean keyChanged = stored == null || !decision.dayKey.equals(stored);
+            // A discontinuity is already reflected in anchorElapsed/anchorWall.
+            // Writing it on every getter would flush prefs while the clock stays wrong;
+            // the next resolve still projects from the last saved anchor.
+            if (missingAnchor || elapsedMoved || keyChanged
+                    || nextMidnight != decision.nextMidnightMs) {
+                prefs.edit()
+                        .putString(KEY_USAGE_DAY, decision.dayKey)
+                        .putLong(KEY_CLOCK_ANCHOR_WALL, decision.anchorWallMs)
+                        .putLong(KEY_CLOCK_ANCHOR_ELAPSED, decision.anchorElapsedMs)
+                        .putLong(KEY_CLOCK_NEXT_MIDNIGHT, decision.nextMidnightMs)
+                        .apply();
+            }
             return;
         }
         // Archive the previous day's totals into usage history before resetting.
@@ -473,10 +508,11 @@ public final class Prefs {
             archiveDayLocked(context, stored,
                     prefs.getLong(KEY_USED_MILLIS, 0L),
                     PrefsMaps.longMapFromJson(prefs.getString(KEY_APP_USED_JSON, "{}")),
-                    prefs.getInt(KEY_STARS_TODAY, 0));
+                    prefs.getInt(KEY_STARS_TODAY, 0),
+                    decision.dayKey);
         }
         get(context).edit()
-                .putString(KEY_USAGE_DAY, today)
+                .putString(KEY_USAGE_DAY, decision.dayKey)
                 .putLong(KEY_USED_MILLIS, 0L)
                 .putLong(KEY_BONUS_MILLIS, 0L)
                 .putString(KEY_APP_USED_JSON, "{}")
@@ -487,7 +523,11 @@ public final class Prefs {
                 .putString(KEY_ST_DISABLED_DAY, "")
                 .putString(KEY_BT_DISABLED_DAY, "")
                 .putLong(KEY_LAST_TICK, 0L)
+                .putLong(KEY_LAST_TICK_ELAPSED, 0L)
                 .putString(KEY_FOREGROUND_PKG, "")
+                .putLong(KEY_CLOCK_ANCHOR_WALL, decision.anchorWallMs)
+                .putLong(KEY_CLOCK_ANCHOR_ELAPSED, decision.anchorElapsedMs)
+                .putLong(KEY_CLOCK_NEXT_MIDNIGHT, decision.nextMidnightMs)
                 .apply();
     }
 
@@ -496,7 +536,8 @@ public final class Prefs {
             String dayKey,
             long totalMillis,
             Map<String, Long> appMillis,
-            int starsToday
+            int starsToday,
+            String todayKeyForPrune
     ) {
         Map<String, UsageHistory.DayUsage> history = UsageHistory.fromJson(
                 get(context).getString(KEY_USAGE_HISTORY_JSON, "{\"days\":{}}"));
@@ -522,7 +563,10 @@ public final class Prefs {
             stars = existing.starsEarned;
         }
         history.put(dayKey, new UsageHistory.DayUsage(dayKey, merged, archivedTotal, stars));
-        history = UsageHistory.prune(history, ScreenTimeState.dayKeyNow());
+        String pruneToday = (todayKeyForPrune == null || todayKeyForPrune.isEmpty())
+                ? ScreenTimeState.dayKeyNow()
+                : todayKeyForPrune;
+        history = UsageHistory.prune(history, pruneToday);
         get(context).edit()
                 .putString(KEY_USAGE_HISTORY_JSON, UsageHistory.toJson(history))
                 .apply();
@@ -554,8 +598,24 @@ public final class Prefs {
         return get(context).getLong(KEY_LAST_TICK, 0L);
     }
 
+    public static long getLastScreenTickElapsedMs(Context context) {
+        return get(context).getLong(KEY_LAST_TICK_ELAPSED, 0L);
+    }
+
+    /** Clears both tick stamps. A wall-clock-only zero must not leave elapsed time running. */
     public static void setLastScreenTickMs(Context context, long ms) {
+        if (ms <= 0L) {
+            setScreenTimeTick(context, 0L, 0L);
+            return;
+        }
         get(context).edit().putLong(KEY_LAST_TICK, ms).apply();
+    }
+
+    public static void setScreenTimeTick(Context context, long wallMs, long elapsedMs) {
+        get(context).edit()
+                .putLong(KEY_LAST_TICK, Math.max(0L, wallMs))
+                .putLong(KEY_LAST_TICK_ELAPSED, Math.max(0L, elapsedMs))
+                .apply();
     }
 
     @SuppressLint("ApplySharedPref")
@@ -565,8 +625,13 @@ public final class Prefs {
         SharedPreferences prefs = get(context);
         prefs.edit()
                 .putLong(KEY_USED_MILLIS, prefs.getLong(KEY_USED_MILLIS, 0L))
+                .putLong(KEY_BONUS_MILLIS, prefs.getLong(KEY_BONUS_MILLIS, 0L))
                 .putLong(KEY_LAST_TICK, prefs.getLong(KEY_LAST_TICK, 0L))
+                .putLong(KEY_LAST_TICK_ELAPSED, prefs.getLong(KEY_LAST_TICK_ELAPSED, 0L))
                 .putString(KEY_USAGE_DAY, prefs.getString(KEY_USAGE_DAY, ScreenTimeState.dayKeyNow()))
+                .putLong(KEY_CLOCK_ANCHOR_WALL, prefs.getLong(KEY_CLOCK_ANCHOR_WALL, 0L))
+                .putLong(KEY_CLOCK_ANCHOR_ELAPSED, prefs.getLong(KEY_CLOCK_ANCHOR_ELAPSED, 0L))
+                .putLong(KEY_CLOCK_NEXT_MIDNIGHT, prefs.getLong(KEY_CLOCK_NEXT_MIDNIGHT, 0L))
                 .commit();
     }
 

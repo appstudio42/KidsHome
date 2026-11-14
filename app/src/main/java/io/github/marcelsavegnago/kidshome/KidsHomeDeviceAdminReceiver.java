@@ -16,6 +16,7 @@ public class KidsHomeDeviceAdminReceiver extends DeviceAdminReceiver {
     @Override
     public void onEnabled(Context context, Intent intent) {
         Log.i(TAG, "Device admin enabled");
+        DeviceOwnerHelper.requireAutoTime(context);
     }
 
     @Override

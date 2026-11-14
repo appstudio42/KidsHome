@@ -16,7 +16,6 @@ import android.util.Log;
 public final class ScreenTimeTracker {
     private static final String TAG = "KidsHome.ScreenTime";
     private static final long WARN_BEFORE_MS = 5L * 60L * 1000L;
-    private static final long MAX_DELTA_MS = 90_000L;
     private static final int NOTIF_WARN = 2001;
 
     private ScreenTimeTracker() {
@@ -28,37 +27,35 @@ public final class ScreenTimeTracker {
         Prefs.ensureScreenTimeDay(app);
 
         if (!Prefs.isKidModeEnabled(app)) {
-            Prefs.setLastScreenTickMs(app, 0L);
+            Prefs.setScreenTimeTick(app, 0L, 0L);
             Prefs.setForegroundTrackPackage(app, "");
             return;
         }
 
         boolean screenOn = isScreenOn(app);
-        long now = System.currentTimeMillis();
-        long last = Prefs.getLastScreenTickMs(app);
+        ScreenTimeClock.Clock clock = ScreenTimeClock.clock();
+        long nowWall = clock.currentTimeMillis();
+        long nowElapsed = clock.elapsedRealtime();
+        long lastElapsed = Prefs.getLastScreenTickElapsedMs(app);
         // Evaluate block / lock-UI before accruing so overnight lock screens and
-        // remote/bedtime blocks never burn today's allowance.
+        // remote/bedtime blocks never burn today's allowance. The gap is the
+        // monotonic tick, so a wall-clock edit cannot invent usage. A late
+        // watchdog still counts, capped in millisToAccrue; screen-off does not.
         boolean blocked = isBlocked(app);
         boolean lockOrPinUi = KidModeGate.isLockOrPinUiVisible();
-
-        if (ScreenTimeState.shouldAccrueUsage(screenOn, blocked, lockOrPinUi) && last > 0L) {
-            long delta = now - last;
-            if (delta > 0L && delta <= MAX_DELTA_MS) {
-                // Cap/split at midnight: pre-midnight time must not charge the new day.
-                long chargeable = ScreenTimeState.millisChargedToCurrentDay(last, now);
-                if (chargeable > 0L) {
-                    if (Prefs.isScreenTimeEnabled(app) && !Prefs.isScreenTimeDisabledToday(app)) {
-                        Prefs.addUsedMillisToday(app, chargeable);
-                    }
-                    String fg = resolveForegroundPackage(app);
-                    if (fg != null && !fg.isEmpty() && !fg.equals(app.getPackageName())) {
-                        Prefs.addAppUsedMillisToday(app, fg, chargeable);
-                        Prefs.setForegroundTrackPackage(app, fg);
-                    }
-                }
+        long delta = ScreenTimeState.tickDeltaMillis(lastElapsed, nowElapsed);
+        long chargeable = ScreenTimeState.millisToAccrue(delta, screenOn, blocked, lockOrPinUi);
+        if (chargeable > 0L) {
+            if (Prefs.isScreenTimeEnabled(app) && !Prefs.isScreenTimeDisabledToday(app)) {
+                Prefs.addUsedMillisToday(app, chargeable);
+            }
+            String fg = resolveForegroundPackage(app);
+            if (fg != null && !fg.isEmpty() && !fg.equals(app.getPackageName())) {
+                Prefs.addAppUsedMillisToday(app, fg, chargeable);
+                Prefs.setForegroundTrackPackage(app, fg);
             }
         }
-        Prefs.setLastScreenTickMs(app, now);
+        Prefs.setScreenTimeTick(app, nowWall, nowElapsed);
         Prefs.flushScreenTime(app);
 
         if (isBlocked(app)) {
@@ -79,6 +76,19 @@ public final class ScreenTimeTracker {
             return last;
         }
         return tracked;
+    }
+
+    /**
+     * Wall clock or timezone changed. Re-resolve the usage day against monotonic
+     * time and drop the wall half of the tick so the jump is not accrued.
+     */
+    public static void onClockChanged(Context context) {
+        Context app = context.getApplicationContext();
+        Prefs.ensureScreenTimeDay(app);
+        long elapsed = Prefs.getLastScreenTickElapsedMs(app);
+        if (elapsed > 0L) {
+            Prefs.setScreenTimeTick(app, ScreenTimeClock.clock().currentTimeMillis(), elapsed);
+        }
     }
 
     public static boolean isBlocked(Context context) {
