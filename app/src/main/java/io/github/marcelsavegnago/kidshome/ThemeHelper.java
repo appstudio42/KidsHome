@@ -26,8 +26,9 @@ public final class ThemeHelper {
 
     public static void applySystemBars(@NonNull Activity activity) {
         Window window = activity.getWindow();
+        // colorPrimary lives on AppCompat. Material 1.13 no longer re-exports it.
         int primary = MaterialColors.getColor(
-                activity, com.google.android.material.R.attr.colorPrimary, Color.BLACK);
+                activity, androidx.appcompat.R.attr.colorPrimary, Color.BLACK);
         int onPrimary = MaterialColors.getColor(
                 activity, com.google.android.material.R.attr.colorOnPrimary, Color.WHITE);
         int surface = MaterialColors.getColor(

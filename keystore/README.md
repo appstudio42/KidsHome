@@ -14,8 +14,15 @@ without release secrets produces an APK with the **same signature**. That lets y
 **Do not** use this key for Play Store, F-Droid, or other public distribution.
 F-Droid signs its own builds. `assembleRelease` uses this keystore only when
 Gradle is invoked with `-PciSignRelease=true` and `keystore.properties` is
-absent. GitHub Actions passes that property when `SIGNING_*` secrets are not
-set. With those secrets, CI writes `keystore.properties` and signs with your
-private release keystore instead. A plain `./gradlew assembleRelease` produces
-an unsigned APK. Switching from this test key to a release key (or the reverse)
-requires uninstalling the app once (settings will be lost).
+absent. Pull requests and branch builds on GitHub Actions pass that property
+when `SIGNING_*` secrets are not set. A push of a `v*` tag does **not**: the
+job fails if `SIGNING_KEYSTORE_BASE64`, `SIGNING_KEY_ALIAS`,
+`SIGNING_KEY_STORE_PASSWORD`, or `SIGNING_KEY_PASSWORD` is missing, and Gradle
+is invoked with `-PrequireReleaseSigning=true`, which refuses this debug
+keystore. With those secrets, CI writes `keystore.properties` and signs with
+your private release keystore instead. A plain `./gradlew assembleRelease`
+produces an unsigned APK. Switching from this test key to a release key (or
+the reverse) requires uninstalling the app once (settings will be lost).
+
+How to create the release key and the four secrets is in the README
+(English and pt-BR), section **CI signing**.

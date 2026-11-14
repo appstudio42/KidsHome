@@ -20,7 +20,7 @@
   <a href="https://github.com/appstudio42/KidsHome/releases/latest"><strong>⬇ APK herunterladen (neueste Version)</strong></a>
 </p>
 
-KidsHome (v1.5.1) macht aus einem Ersatzhandy oder -tablet einen kinderfreundlichen Startbildschirm: nur erlaubte Apps und Websites, mit täglichem Bildschirmzeitlimit, Bettzeit-Sperre, Notausstieg per Eltern-PIN und optionaler LAN-Fernbedienung im Telefonbrowser. Es wählt den besten Enforcement-Modus für das Gerät (oder Sie überschreiben ihn unter **Geräteeinrichtung**). Gepflegt von [App Studio 42](https://appstudio42.github.io).
+KidsHome (v1.6.0) macht aus einem Ersatzhandy oder -tablet einen kinderfreundlichen Startbildschirm: nur erlaubte Apps und Websites, mit täglichem Bildschirmzeitlimit, Bettzeit-Sperre, Notausstieg per Eltern-PIN und optionaler LAN-Fernbedienung im Telefonbrowser. Es wählt den besten Enforcement-Modus für das Gerät (oder Sie überschreiben ihn unter **Geräteeinrichtung**). Gepflegt von [App Studio 42](https://appstudio42.github.io).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="KidsHome-Einrichtung: PIN erstellen, Apps wählen, Bildschirmzeit setzen, Kindermodus starten" width="720" />
@@ -245,8 +245,9 @@ Benötigt **JDK 17+** und Android-SDK (`compileSdk` / `targetSdk` 35). `minSdk 2
 | Modus | Wann | Signatur |
 |------|------|----------|
 | **Unsigniert** | Keine `keystore.properties` und kein `-PciSignRelease=true` | Keine — F-Droid signiert dieses APK |
-| **Stabiler CI-Testschlüssel** | `-PciSignRelease=true` und keine `SIGNING_*`-Secrets | `keystore/debug.keystore` (im Repo) — gleiche Signatur über CI-Läufe, daher behält `adb install -r` Einstellungen |
-| **Release-Schlüssel** | `keystore.properties` vorhanden (CI schreibt sie, wenn `SIGNING_*`-Secrets gesetzt sind) | Ihr privater Keystore |
+| **Stabiler CI-Testschlüssel** | Pull Requests und Branch-Builds mit `-PciSignRelease=true` und ohne `SIGNING_*`-Secrets | `keystore/debug.keystore` (im Repo) — gleiche Signatur über CI-Läufe, daher behält `adb install -r` Einstellungen |
+| **Release-Schlüssel** | `keystore.properties` vorhanden (CI schreibt sie, wenn alle `SIGNING_*`-Secrets gesetzt sind) | Ihr privater Keystore |
+| **Tag-Release ohne Secrets** | Push eines `v*`-Tags und ein Secret fehlt | Der Job schlägt fehl und signiert nicht mit `keystore/debug.keystore` |
 
 | Secret | Zweck |
 |--------|-------|
@@ -255,7 +256,7 @@ Benötigt **JDK 17+** und Android-SDK (`compileSdk` / `targetSdk` 35). `minSdk 2
 | `SIGNING_KEY_STORE_PASSWORD` | Keystore-Passwort |
 | `SIGNING_KEY_PASSWORD` | Schlüsselpasswort |
 
-Siehe `keystore/README.md`.
+Ein `v*`-Tag ohne diese vier Secrets schlägt fehl. `keytool` und Base64 stehen im englischen README unter **CI signing**. Siehe auch `keystore/README.md`.
 
 ## Veröffentlichen
 
@@ -263,8 +264,8 @@ Siehe `keystore/README.md`.
 2. Tag `vX.Y.Z` pushen:
 
    ```bash
-   git tag v1.5.1
-   git push origin v1.5.1
+   git tag v1.6.0
+   git push origin v1.6.0
    ```
 
 3. GitHub Actions (`.github/workflows/android.yml`) baut die Release-APK und hängt sie an die GitHub Release.
@@ -283,4 +284,4 @@ Credits: BaronKiko (LauncherHijack), Meems33 / WhiteRaven777 (Launcher Replacer)
 
 ## Changelog
 
-Siehe [CHANGELOG.md](CHANGELOG.md) für Versionshinweise (aktuell: **1.5.1**).
+Siehe [CHANGELOG.md](CHANGELOG.md) für Versionshinweise (aktuell: **1.6.0**).

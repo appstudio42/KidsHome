@@ -20,7 +20,7 @@
   <a href="https://github.com/appstudio42/KidsHome/releases/latest"><strong>⬇ Download APK (latest release)</strong></a>
 </p>
 
-KidsHome (v1.5.1) turns a spare phone or tablet into a kid-friendly home screen: only the apps and sites you allow, with daily screen-time limits, bedtime lock, a parent PIN escape, and optional LAN remote control from a phone browser. It picks the best enforcement mode for the device (or you override it in **Device setup**). Maintained by [App Studio 42](https://appstudio42.github.io).
+KidsHome (v1.6.0) turns a spare phone or tablet into a kid-friendly home screen: only the apps and sites you allow, with daily screen-time limits, bedtime lock, a parent PIN escape, and optional LAN remote control from a phone browser. It picks the best enforcement mode for the device (or you override it in **Device setup**). Maintained by [App Studio 42](https://appstudio42.github.io).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="KidsHome setup: create PIN, choose apps, set screen time, enter kid mode" width="720" />
@@ -254,29 +254,65 @@ Requires **JDK 17+** and Android SDK (`compileSdk` / `targetSdk` 35). `minSdk 22
 | Mode | When | Signature |
 |------|------|-----------|
 | **Unsigned** | No `keystore.properties` and no `-PciSignRelease=true` | None — F-Droid signs this APK |
-| **Stable CI test key** | `-PciSignRelease=true` and no `SIGNING_*` secrets | `keystore/debug.keystore` (committed) — same across CI runs, so `adb install -r` upgrades keep settings |
-| **Release key** | `keystore.properties` is present (CI writes it when `SIGNING_*` secrets are set) | Your private keystore |
+| **Stable CI test key** | Pull requests and branch builds with `-PciSignRelease=true` and no `SIGNING_*` secrets | `keystore/debug.keystore` (committed) — same across CI runs, so `adb install -r` upgrades keep settings |
+| **Release key** | `keystore.properties` is present (CI writes it when every `SIGNING_*` secret is set) | Your private keystore |
+| **Tag release without secrets** | Push of a `v*` tag and any secret below is missing | The job fails. It does not sign with `keystore/debug.keystore` |
 
 | Secret | Purpose |
 |--------|---------|
-| `SIGNING_KEYSTORE_BASE64` | Base64-encoded `.jks` / `.keystore` |
+| `SIGNING_KEYSTORE_BASE64` | Base64-encoded `.jks` / `.keystore`, one line |
 | `SIGNING_KEY_ALIAS` | Key alias |
 | `SIGNING_KEY_STORE_PASSWORD` | Keystore password |
 | `SIGNING_KEY_PASSWORD` | Key password |
+
+#### Create the release key
+
+Do not commit the keystore. `*.keystore` is gitignored except `keystore/debug.keystore`.
+
+```bash
+keytool -genkeypair -v \
+  -keystore release.keystore \
+  -alias kidshome \
+  -keyalg RSA \
+  -keysize 2048 \
+  -validity 10000
+```
+
+`keytool` asks for the store password, the key password, and the certificate name. The alias in the example (`kidshome`) is the value of `SIGNING_KEY_ALIAS`. The store password is `SIGNING_KEY_STORE_PASSWORD`. The key password is `SIGNING_KEY_PASSWORD`.
+
+Encode the file as a single Base64 line. Do not commit that line.
+
+```bash
+# Linux (GNU coreutils)
+base64 -w 0 release.keystore
+
+# macOS
+base64 -i release.keystore | tr -d '\n'
+```
+
+On the GitHub repository open **Settings → Secrets and variables → Actions** and create repository secrets with these exact names:
+
+- `SIGNING_KEYSTORE_BASE64` — the Base64 line
+- `SIGNING_KEY_ALIAS` — the alias (`kidshome` above)
+- `SIGNING_KEY_STORE_PASSWORD` — the store password
+- `SIGNING_KEY_PASSWORD` — the key password
+
+A `v*` tag build fails if any of them is empty, and Gradle is run with `-PrequireReleaseSigning=true` so a missing `keystore.properties` cannot fall back to `keystore/debug.keystore`. Pull requests and pushes to `master` still pass `-PciSignRelease=true` and may use the test key when the secrets are absent.
 
 See `keystore/README.md`.
 
 ## Releasing
 
 1. Bump `versionName` / `versionCode` in `app/build.gradle`.
-2. Push a tag matching `vX.Y.Z`:
+2. Create the four `SIGNING_*` secrets above. A tag push without them fails and does not publish a debug-signed APK.
+3. Push a tag matching `vX.Y.Z` on the commit that contains that version:
 
    ```bash
-   git tag v1.3.0
-   git push origin v1.3.0
+   git tag v1.6.0
+   git push origin v1.6.0
    ```
 
-3. GitHub Actions (`.github/workflows/android.yml`) builds the release APK and attaches it to the GitHub Release.
+4. GitHub Actions (`.github/workflows/android.yml`) builds the release APK with the release key and attaches it to the GitHub Release.
 
 ## Contributing
 
@@ -292,4 +328,4 @@ Credits: BaronKiko (LauncherHijack), Meems33 / WhiteRaven777 (Launcher Replacer)
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for release notes (current: **1.5.1**).
+See [CHANGELOG.md](CHANGELOG.md) for release notes (current: **1.6.0**).

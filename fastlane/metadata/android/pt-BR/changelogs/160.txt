@@ -1,0 +1,5 @@
+Android 15 (targetSdk 35): telas de ponta a ponta. O Voltar usa OnBackPressedCallback e não fecha a home, o bloqueio de tempo nem o PIN de emergência.
+
+O tempo de tela segue bloqueado se o gate de escape fecha, o relógio muda ou o watchdog de acessibilidade reinicia. O remoto escuta só na LAN privada. O PIN usa PBKDF2 e o backup do Android fica desligado.
+
+Ícones dos sites vêm do próprio site, fora da UI. O boot restaura o modo criança. O ícone temático reutiliza o primeiro plano.

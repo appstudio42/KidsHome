@@ -60,16 +60,35 @@ jobs:
       - name: Lint
         run: ./gradlew lintDebug --stacktrace
 
-      - name: Prepare release signing (optional)
+      - name: Prepare release signing
         env:
           SIGNING_KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_STORE_PASSWORD: ${{ secrets.SIGNING_KEY_STORE_PASSWORD }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+          IS_TAG_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') }}
         run: |
-          if [ -n "${SIGNING_KEYSTORE_BASE64}" ] && [ -n "${SIGNING_KEY_ALIAS}" ] && [ -n "${SIGNING_KEY_STORE_PASSWORD}" ] && [ -n "${SIGNING_KEY_PASSWORD}" ]; then
+          set -euo pipefail
+          missing=()
+          [ -n "${SIGNING_KEYSTORE_BASE64:-}" ] || missing+=(SIGNING_KEYSTORE_BASE64)
+          [ -n "${SIGNING_KEY_ALIAS:-}" ] || missing+=(SIGNING_KEY_ALIAS)
+          [ -n "${SIGNING_KEY_STORE_PASSWORD:-}" ] || missing+=(SIGNING_KEY_STORE_PASSWORD)
+          [ -n "${SIGNING_KEY_PASSWORD:-}" ] || missing+=(SIGNING_KEY_PASSWORD)
+
+          # A tag release must be signed with the private key. Never fall back
+          # to the committed debug.keystore on that path.
+          if [ "${IS_TAG_RELEASE}" = "true" ] && [ "${#missing[@]}" -ne 0 ]; then
+            echo "::error::Falha na release por tag: segredos de assinatura ausentes (${missing[*]}). Cadastre SIGNING_KEYSTORE_BASE64, SIGNING_KEY_ALIAS, SIGNING_KEY_STORE_PASSWORD e SIGNING_KEY_PASSWORD. Este job não assina o APK com keystore/debug.keystore."
+            exit 1
+          fi
+
+          if [ "${#missing[@]}" -eq 0 ]; then
             echo "Release signing secrets found — configuring keystore"
             echo "${SIGNING_KEYSTORE_BASE64}" | base64 -d > "${GITHUB_WORKSPACE}/release.keystore"
+            if [ ! -s "${GITHUB_WORKSPACE}/release.keystore" ]; then
+              echo "::error::SIGNING_KEYSTORE_BASE64 decodificou para um keystore vazio. A release não usa keystore/debug.keystore."
+              exit 1
+            fi
             {
               echo "storeFile=release.keystore"
               echo "storePassword=${SIGNING_KEY_STORE_PASSWORD}"
@@ -77,17 +96,24 @@ jobs:
               echo "keyPassword=${SIGNING_KEY_PASSWORD}"
             } > "${GITHUB_WORKSPACE}/keystore.properties"
             echo "SIGNED=release" >> "$GITHUB_ENV"
+            if [ "${IS_TAG_RELEASE}" = "true" ]; then
+              # Refuse the debug keystore inside Gradle even if keystore.properties is missing.
+              echo "GRADLE_SIGNING_ARGS=-PrequireReleaseSigning=true" >> "$GITHUB_ENV"
+            else
+              echo "GRADLE_SIGNING_ARGS=-PciSignRelease=true" >> "$GITHUB_ENV"
+            fi
           else
-            echo "No SIGNING_* secrets — Gradle will sign release with keystore/debug.keystore when -PciSignRelease=true"
+            echo "No SIGNING_* secrets — PR/branch build signs with keystore/debug.keystore (-PciSignRelease=true). Tag releases fail before this path."
             if [ ! -f "${GITHUB_WORKSPACE}/keystore/debug.keystore" ]; then
               echo "Missing keystore/debug.keystore in the repository"
               exit 1
             fi
             echo "SIGNED=ci-debug" >> "$GITHUB_ENV"
+            echo "GRADLE_SIGNING_ARGS=-PciSignRelease=true" >> "$GITHUB_ENV"
           fi
 
       - name: Build release APK
-        run: ./gradlew assembleRelease --stacktrace -PciSignRelease=true
+        run: ./gradlew assembleRelease --stacktrace ${GRADLE_SIGNING_ARGS}
 
       - name: Name release artifact
         run: |
@@ -115,9 +141,7 @@ jobs:
           files: app/build/outputs/apk/release/KidsHome-release.apk
           generate_release_notes: true
           body: |
-            KidsHome release artifact.
-
-            Without `SIGNING_*` secrets this APK is signed with the repo’s stable **CI test** keystore (`keystore/debug.keystore`). With secrets, it uses your release key.
+            KidsHome release artifact, signed with the repository release key (`SIGNING_*` secrets). This job does not sign tag builds with `keystore/debug.keystore`.
 
             ## Install
             ```bash
