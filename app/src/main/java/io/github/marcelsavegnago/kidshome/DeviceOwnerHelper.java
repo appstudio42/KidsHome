@@ -48,7 +48,8 @@ public final class DeviceOwnerHelper {
     }
 
     /**
-     * Whitelist KidsHome + allowed apps + browser for lock task, set preferred HOME,
+     * Whitelist KidsHome + allowed apps for lock task (plus the chosen browser
+     * only when site shortcuts open outside KidsHome), set preferred HOME,
      * and optionally disable status bar / keyguard.
      */
     public static void applyKidModePolicies(Context context) {
@@ -196,9 +197,11 @@ public final class DeviceOwnerHelper {
         } else {
             packages.addAll(Prefs.getAllowedPackages(context));
         }
-        String browser = Prefs.getBrowserPackage(context);
-        if (browser != null && !browser.isEmpty()) {
-            packages.add(browser);
+        if (!Prefs.isSitesOpenEmbedded(context)) {
+            String browser = Prefs.getBrowserPackage(context);
+            if (browser != null && !browser.isEmpty()) {
+                packages.add(browser);
+            }
         }
         List<String> list = new ArrayList<>(packages);
         return list.toArray(new String[0]);

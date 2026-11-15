@@ -115,8 +115,9 @@ write_prefs() {
   <boolean name="KidLockToApp" value="false" />
   <set name="AllowedPackages">
 ${DEMO_PACKAGES_XML}  </set>
-  <string name="SiteShortcutsJson">[{"id":"poki","name":"Poki Kids","url":"https://kids.poki.com/"},{"id":"pbs","name":"PBS Kids","url":"https://pbskids.org/games"}]</string>
-  <boolean name="siteSuggestionsSeeded" value="true" />
+  <!-- Screenshot fixtures only. KidsHome does not seed site shortcuts. -->
+  <string name="SiteShortcutsJson">[{"id":"games","name":"Games","url":"https://games.example/"},{"id":"stories","name":"Stories","url":"https://stories.example/"}]</string>
+  <boolean name="SitesOpenEmbedded" value="true" />
   <boolean name="ScreenTimeEnabled" value="true" />
   <int name="DailyLimitMinutes" value="60" />
   <long name="UsedMillisToday" value="900000" />

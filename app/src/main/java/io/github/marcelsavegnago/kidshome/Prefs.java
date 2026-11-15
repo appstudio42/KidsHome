@@ -46,11 +46,17 @@ public final class Prefs {
     public static final String KEY_SITE_SHORTCUTS = "SiteShortcutsJson";
     public static final String KEY_BROWSER_PACKAGE = "BrowserPackage";
     public static final String KEY_BROWSER_ACTIVITY = "BrowserActivity";
+    /**
+     * When true (the default), site shortcuts open in {@link SiteActivity}.
+     * When false, they open in {@link #KEY_BROWSER_PACKAGE} (or the system browser).
+     * Existing browser keys are kept either way so a parent can switch back.
+     */
+    public static final String KEY_SITES_OPEN_EMBEDDED = "SitesOpenEmbedded";
     public static final String KEY_ONBOARDING_DONE = "OnboardingDone";
     public static final String KEY_TOUCH_SOUNDS = "KidTouchSounds";
     public static final String KEY_PREFS_VERSION = "PrefsVersion";
     /** Schema version for forward-compatible migrations. Existing installs stay at v0 until migrate. */
-    public static final int CURRENT_PREFS_VERSION = 3;
+    public static final int CURRENT_PREFS_VERSION = 4;
 
     public static final String KEY_SCREEN_TIME_ENABLED = "ScreenTimeEnabled";
     public static final String KEY_DAILY_LIMIT_MINUTES = "DailyLimitMinutes";
@@ -220,6 +226,14 @@ public final class Prefs {
             }
             if (!prefs.contains(KEY_REMOTE_ACTION_LOG_JSON)) {
                 editor.putString(KEY_REMOTE_ACTION_LOG_JSON, "{\"entries\":[]}");
+            }
+        }
+        // v4: site shortcuts open inside KidsHome. A previously chosen browser
+        // package is kept so the parent can switch back. Saved shortcuts are
+        // not added or removed.
+        if (version < 4) {
+            if (!prefs.contains(KEY_SITES_OPEN_EMBEDDED)) {
+                editor.putBoolean(KEY_SITES_OPEN_EMBEDDED, true);
             }
         }
         editor.putInt(KEY_PREFS_VERSION, CURRENT_PREFS_VERSION);
@@ -429,16 +443,29 @@ public final class Prefs {
         get(context).edit().putString(KEY_SITE_SHORTCUTS, SiteShortcut.toJson(shortcuts)).apply();
     }
 
-    public static void ensureDefaultSiteSuggestions(Context context) {
-        if (!getSiteShortcuts(context).isEmpty()) {
-            return;
+    /**
+     * Site shortcuts open in {@link SiteActivity} unless the parent opts into
+     * an external browser. Missing key means embedded: that is the default for
+     * new installs and for upgrades that have not run {@link #migrateIfNeeded}.
+     */
+    public static boolean isSitesOpenEmbedded(Context context) {
+        return get(context).getBoolean(KEY_SITES_OPEN_EMBEDDED, true);
+    }
+
+    public static void setSitesOpenEmbedded(Context context, boolean embedded) {
+        get(context).edit().putBoolean(KEY_SITES_OPEN_EMBEDDED, embedded).apply();
+    }
+
+    /**
+     * The configured browser may stay in front only while shortcuts are set to
+     * open outside KidsHome. Embedded mode does not treat that package as allowed.
+     */
+    public static boolean isExternalBrowserAllowed(Context context, String packageName) {
+        if (packageName == null || packageName.isEmpty() || isSitesOpenEmbedded(context)) {
+            return false;
         }
-        // Only seed once when empty so parents can delete them.
-        if (get(context).getBoolean("siteSuggestionsSeeded", false)) {
-            return;
-        }
-        setSiteShortcuts(context, SiteShortcut.defaultSuggestions());
-        get(context).edit().putBoolean("siteSuggestionsSeeded", true).apply();
+        String browser = getBrowserPackage(context);
+        return browser != null && !browser.isEmpty() && browser.equals(packageName);
     }
 
     public static String getBrowserPackage(Context context) {

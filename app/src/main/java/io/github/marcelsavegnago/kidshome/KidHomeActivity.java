@@ -101,7 +101,6 @@ public class KidHomeActivity extends AppCompatActivity {
             onItemClicked(adapter.getItem(position));
         });
 
-        Prefs.ensureDefaultSiteSuggestions(this);
         refreshHeader();
         refreshGrid();
     }
@@ -302,10 +301,28 @@ public class KidHomeActivity extends AppCompatActivity {
             startActivity(launch);
             return;
         }
-        openSite(item.url);
+        openSite(item);
     }
 
-    private void openSite(String url) {
+    private void openSite(KidHomeItem item) {
+        String url = item.url;
+        if (url == null || url.isEmpty()) {
+            return;
+        }
+        if (Prefs.isSitesOpenEmbedded(this)) {
+            if (SiteNavigationPolicy.httpHost(url) == null) {
+                Toast.makeText(this, R.string.site_load_error, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            AccServ.lastApp = getPackageName();
+            Prefs.setForegroundTrackPackage(this, getPackageName());
+            startActivity(SiteActivity.intent(this, new SiteShortcut(
+                    item.siteId != null ? item.siteId : url,
+                    item.label != null ? item.label : url,
+                    url
+            )));
+            return;
+        }
         Intent view = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         view.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         String browserPkg = Prefs.getBrowserPackage(this);

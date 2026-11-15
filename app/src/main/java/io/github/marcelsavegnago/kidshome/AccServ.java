@@ -134,8 +134,8 @@ public class AccServ extends AccessibilityService {
                         && ScreenTimeTracker.canLaunchApp(this, packageName);
             } else {
                 allowlisted = Prefs.getAllowedPackages(this).contains(packageName);
-                String browser = Prefs.getBrowserPackage(this);
-                chosenBrowser = browser != null && browser.equals(packageName);
+                // Embedded site shortcuts are this package (SiteActivity), not the browser.
+                chosenBrowser = Prefs.isExternalBrowserAllowed(this, packageName);
                 if (allowlisted || chosenBrowser) {
                     canLaunch = ScreenTimeTracker.canLaunchApp(this, packageName);
                 }

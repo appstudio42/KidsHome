@@ -107,9 +107,11 @@ public class AllowedAppsActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.allowedAppsSave).setOnClickListener(v -> {
-            String browser = Prefs.getBrowserPackage(this);
-            if (browser != null && !browser.isEmpty()) {
-                selected.add(browser);
+            if (!Prefs.isSitesOpenEmbedded(this)) {
+                String browser = Prefs.getBrowserPackage(this);
+                if (browser != null && !browser.isEmpty()) {
+                    selected.add(browser);
+                }
             }
             Prefs.setAllowedPackages(this, selected);
             DeviceOwnerHelper.refreshLockTaskPackages(this);

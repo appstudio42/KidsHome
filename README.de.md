@@ -64,6 +64,7 @@ Echte Aufnahmen von einem Android-Tablet-Emulator (1280×800) mit dem Demo-Kinde
   - Standard-Launcher — normales Android
   - Device Owner + Lock Task — stärkster Kiosk
 - **Kinder-Home** — großes Icon-Raster erlaubter Apps + Website-Shortcuts, oder Sperre auf eine einzelne App
+- **Websites in KidsHome** — Verknüpfungen öffnen sich bildschirmfüllend in der App (Titel und Symbol der Website, keine Adressleiste). Die Navigation bleibt auf der Domain der Verknüpfung und ihren Subdomains. Die Zeit zählt zum Tageslimit, die Bettzeit gilt weiter. Ein Browser muss nicht freigegeben werden; wer will, öffnet Sites im gewählten Browser. Die App fügt keine Vorschläge von selbst hinzu.
 - **Bildschirmzeit** — Tageslimit, Bettzeitfenster, Warnung, freundliche Sperrbildschirm, PIN zum Verlängern / Deaktivieren für heute
 - **Zeitpläne / Routinen** — Wochentagsfenster (Schule, Lesen, Schlafen) mit App-Kategorien
 - **Limits pro App** — tägliche Minuten pro erlaubter App zusätzlich zum Gesamttageslimit; gesperrte Kacheln bei Erschöpfung
@@ -158,7 +159,7 @@ Device Owner lässt sich nur setzen, wenn das Gerät **keine Konten** hat (Googl
 
 3. In **Geräteeinrichtung** Device Owner = ja bestätigen. Optional Statusleiste / Keyguard während der Sperre deaktivieren.
 4. **Kindermodus** aktivieren. KidsHome wird:
-   - `setLockTaskPackages` für erlaubte Apps + Browser + sich selbst setzen
+   - `setLockTaskPackages` für erlaubte Apps + sich selbst (der gewählte Browser nur, wenn Sites außerhalb von KidsHome geöffnet werden)
    - `addPersistentPreferredActivity` für HOME → `KidHomeActivity`
    - `startLockTask` vom Kinder-Home aus starten (Kiosk)
 5. Der PIN-Notausstieg ruft `stopLockTask` auf und kann den Kindermodus deaktivieren.

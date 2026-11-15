@@ -75,6 +75,7 @@ Real captures from an Android tablet emulator (1280×800) with demo child name *
   - Device Owner + lock task — strongest kiosk
 - **Modern Material 3 UI** — cheerful seed palette (dynamic color on Android 12+), light/dark parent themes, first-run onboarding
 - **Kid home** — large rounded app/site tiles, child avatar, remaining-time ring, soft motion (respects reduce-motion)
+- **In-app websites** — shortcuts open full screen inside KidsHome (site title and icon, no address bar). Navigation stays on that site and its subdomains. The time counts toward the daily limit, and bedtime still applies. A browser does not need to be allowed; kid mode can still open sites in a chosen browser. KidsHome does not add suggested sites on its own.
 - **Screen time** — daily limit slider, bedtime window, friendly lock illustrations, PIN to add time / disable for today
 - **Schedules / routines** — weekday time windows (school mornings, reading time, bedtime) with app categories
 - **Per-app limits** — daily minutes per allowed app on top of the total limit; locked tiles when exhausted
@@ -167,7 +168,7 @@ Device Owner can only be set when the device has **no accounts** (remove Google/
 
 3. In **Device setup**, confirm Device Owner = yes. Optionally disable status bar / keyguard while locked.
 4. Enable **Kid mode**. KidsHome will:
-   - `setLockTaskPackages` for allowed apps + browser + itself
+   - `setLockTaskPackages` for allowed apps + itself (the chosen browser is included only when sites open outside KidsHome)
    - `addPersistentPreferredActivity` for HOME → `KidHomeActivity`
    - `startLockTask` from kid home (kiosk)
 5. Emergency PIN exit calls `stopLockTask` and can disable kid mode.

@@ -16,6 +16,10 @@
 ### Added
 - Fastlane metadata for F-Droid (`en-US` and `pt-BR`), including the versionCode 151 changelog.
 - Draft fdroiddata recipe at `docs/fdroid/io.github.marcelsavegnago.kidshome.yml`.
+- Site shortcuts open full screen inside KidsHome (title and icon, no address bar). Navigation stays on the shortcut host and its subdomains; other links, popups to other sites, downloads, and non-http schemes stay in the app and do not open a browser. Time on the page counts toward the daily limit, and bedtime / the daily limit still lock the screen. Embedded mode is the default, including when a browser was already chosen; that browser setting is kept and can be selected again.
+
+### Removed
+- Automatic Poki Kids, PBS Kids Games, and Coolmath Games suggestions, and the button that added them. Shortcuts a parent already saved are kept.
 
 ## 1.5.1
 

@@ -40,6 +40,14 @@ public class KidModeEnforcementTest {
     }
 
     @Test
+    public void inAppSiteViewerIsTheOwnPackageSoItIsNotBlocked() {
+        assertTrue(KidModeEnforcement.isAllowedInKidMode(
+                OWN, OWN, false, null, false, false, false, false));
+        assertEquals(KidModeEnforcement.Action.ALLOW, KidModeEnforcement.enforcementAction(
+                true, false, false, true, OWN, false, true, false));
+    }
+
+    @Test
     public void packageAllowListMatchesKidModeRules() {
         assertTrue(KidModeEnforcement.isAllowedInKidMode(
                 OWN, OWN, true, "com.kid.app", false, false, false, false));
