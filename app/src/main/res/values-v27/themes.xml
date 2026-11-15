@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      API 27–34, light theme. The navigation bar uses the light surface and
+      dark icons (windowLightNavigationBar). The status bar stays on colorPrimary,
+      which is dark, so its icons stay light.
+    -->
+    <style name="Theme.KidsHome" parent="Theme.KidsHome.Base">
+        <item name="android:statusBarColor">?attr/colorPrimary</item>
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>

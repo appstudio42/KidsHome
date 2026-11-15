@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!--
+      Night colorPrimary is light. Dark status-bar icons keep that teal readable.
+      The navigation surface stays dark, so its icons stay light.
+    -->
+    <style name="Theme.KidsHome" parent="Theme.KidsHome.Base">
+        <item name="android:statusBarColor">?attr/colorPrimary</item>
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
+    </style>
+</resources>

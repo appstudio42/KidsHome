@@ -23,7 +23,8 @@ public class KidsHomeApp extends Application {
     }
 
     /**
-     * Applies safe-area padding on API 35 for screens that are not immersive.
+     * Applies safe-area padding on API 35 and bar contrast on every API, for
+     * screens that are not immersive.
      * {@code onActivityCreated} runs from {@code Activity.onCreate} before the
      * subclass has called {@code setContentView} or {@link ImmersiveHelper#enter}.
      * {@code onStart} runs after that, so lock screens have already opted out.
@@ -36,6 +37,13 @@ public class KidsHomeApp extends Application {
         @Override
         public void onActivityStarted(@NonNull Activity activity) {
             ImmersiveHelper.onActivityCreated(activity);
+            // Every non-immersive window (settings, wizard, hub, about) gets the
+            // same bar contrast, including screens that never call ThemeHelper
+            // themselves. Immersive kid/lock windows paint their own backgrounds
+            // and already hid the bars in onCreate.
+            if (!ImmersiveHelper.handlesOwnInsets(activity)) {
+                ThemeHelper.applySystemBars(activity);
+            }
         }
 
         @Override

@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         if (Prefs.isKidModeEnabled(this) && !SessionAuth.isUnlocked()) {
             awaitingPin = true;
             setContentView(R.layout.activity_pin_gate);
+            ThemeHelper.applySystemBars(this);
             findViewById(R.id.btnUnlock).setOnClickListener(v -> requestPinThenContinue());
             findViewById(R.id.btnBackToKidApp).setOnClickListener(v -> {
                 HomePress.perform(this, true);
