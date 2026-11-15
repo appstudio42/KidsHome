@@ -42,6 +42,7 @@ public class SiteShortcutsActivity extends AppCompatActivity {
 
     private void inflateUi() {
         setContentView(R.layout.activity_site_shortcuts);
+        ThemeHelper.applySystemBars(this);
         setTitle(R.string.site_shortcuts_title);
 
         Prefs.ensureDefaultSiteSuggestions(this);

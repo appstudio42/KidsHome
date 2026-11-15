@@ -49,6 +49,7 @@ public class OnboardingActivity extends AppCompatActivity {
             return;
         }
         setContentView(R.layout.activity_onboarding);
+        ThemeHelper.applySystemBars(this);
         progress = findViewById(R.id.onboardingProgress);
         stepLabel = findViewById(R.id.onboardingStepLabel);
         container = findViewById(R.id.onboardingContainer);

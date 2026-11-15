@@ -1,16 +1,12 @@
 package io.github.marcelsavegnago.kidshome;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.os.Build;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
@@ -67,16 +63,18 @@ public final class ImmersiveHelper {
             controller.hide(WindowInsetsCompat.Type.systemBars());
         }
         // Legacy fallback for devices without WindowInsetsController (Fire OS 5–7).
+        // The single setSystemUiVisibility call replaces every flag, so contrast
+        // bits are merged here. Otherwise a light navigation bar keeps light icons
+        // on Fire OS, which does not always honor HIDE_NAVIGATION.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            int immersive = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN;
             // noinspection deprecation
-            decor.setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                            | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-            );
+            decor.setSystemUiVisibility(ThemeHelper.legacyImmersiveFlags(window, immersive));
         }
         ViewCompat.requestApplyInsets(decor);
     }
@@ -131,7 +129,7 @@ public final class ImmersiveHelper {
         if (content != null) {
             applyContentInsets(content);
         }
-        applyTransparentBarContrast(activity);
+        // Icon contrast for the transparent bars is applied by ThemeHelper.
     }
 
     private static void applyCutoutMode(@NonNull Window window) {
@@ -148,28 +146,6 @@ public final class ImmersiveHelper {
                     WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
         }
         window.setAttributes(attrs);
-    }
-
-    private static void applyTransparentBarContrast(@NonNull Activity activity) {
-        Window window = activity.getWindow();
-        View decor = window.getDecorView();
-        WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, decor);
-        if (controller == null) {
-            return;
-        }
-        TypedValue value = new TypedValue();
-        int background = Color.WHITE;
-        if (activity.getTheme().resolveAttribute(android.R.attr.colorBackground, value, true)) {
-            if (value.type >= TypedValue.TYPE_FIRST_COLOR_INT
-                    && value.type <= TypedValue.TYPE_LAST_COLOR_INT) {
-                background = value.data;
-            } else if (value.resourceId != 0) {
-                background = ContextCompat.getColor(activity, value.resourceId);
-            }
-        }
-        boolean lightBackground = ColorUtils.calculateLuminance(background) > 0.5;
-        controller.setAppearanceLightStatusBars(lightBackground);
-        controller.setAppearanceLightNavigationBars(lightBackground);
     }
 
     private static int[] basePadding(@NonNull View content) {
