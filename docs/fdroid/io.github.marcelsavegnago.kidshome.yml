@@ -24,7 +24,10 @@
 #   and ZXing core (Apache-2.0). org.json:json is testImplementation only
 #   (JSON license) and is not in the APK; the app uses the platform org.json.
 # - Favicons are loaded from the same host as the parent-configured site.
-#   Default site tiles (Poki, PBS Kids, Coolmath) are optional bookmarks.
+#   KidsHome does not seed default sites (no Poki, PBS Kids, or Coolmath).
+#   Shortcuts open in an in-app WebView, so a browser does not need to be
+#   allowed. An optional kid-mode setting still opens them in a chosen browser.
+#   The WebView uses the platform Safe Browsing API. No Google/analytics SDK.
 # - Accessibility service hijacks Home on Amazon Fire, where the default
 #   launcher cannot be replaced, and can optionally bounce non-allowed apps.
 #   It is not used to read screen content for tracking.

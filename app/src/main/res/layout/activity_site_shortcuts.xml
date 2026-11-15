@@ -24,12 +24,6 @@
         android:layout_height="wrap_content"
         android:text="@string/site_add" />
 
-    <Button
-        android:id="@+id/siteAddSuggestions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/site_add_suggestions" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

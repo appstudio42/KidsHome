@@ -147,7 +147,6 @@ public class OnboardingActivity extends AppCompatActivity {
         Prefs.setChildProfile(this, pendingName, pendingAvatar);
         Prefs.setDailyLimitMinutes(this, pendingLimitMinutes);
         Prefs.setScreenTimeEnabled(this, true);
-        Prefs.ensureDefaultSiteSuggestions(this);
         Prefs.setOnboardingDone(this, true);
         SessionAuth.markUnlocked();
         Toast.makeText(this, R.string.onboarding_done_toast, Toast.LENGTH_LONG).show();

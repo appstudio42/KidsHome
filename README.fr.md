@@ -64,6 +64,7 @@ Captures réelles depuis un émulateur Android tablette (1280×800) avec le pré
   - Lanceur par défaut — Android classique
   - Device Owner + lock task — kiosque le plus strict
 - **Accueil enfant** — grande grille d’apps autorisées + raccourcis web, ou verrouillage sur une seule app
+- **Sites dans KidsHome** — les raccourcis s’ouvrent en plein écran dans l’app (titre et icône du site, sans barre d’adresse). La navigation reste sur le domaine du raccourci et ses sous-domaines. Le temps compte dans la limite quotidienne et le coucher s’applique toujours. Inutile d’autoriser un navigateur ; on peut encore ouvrir les sites dans le navigateur choisi. L’app n’ajoute pas de sites suggérés toute seule.
 - **Temps d’écran** — limite quotidienne, plage de coucher, avertissement, écran de verrouillage bienveillant, PIN pour ajouter du temps / désactiver pour aujourd’hui
 - **Horaires / routines** — créneaux par jour (école, lecture, coucher) avec catégories d’apps
 - **Limites par app** — minutes quotidiennes par app autorisée en plus de la limite totale ; tuiles verrouillées une fois épuisées
@@ -158,7 +159,7 @@ Device Owner ne peut être défini que si l’appareil **n’a aucun compte** (r
 
 3. Dans **Configuration de l’appareil**, confirmez Device Owner = oui. Optionnellement désactivez la barre d’état / le keyguard pendant le verrouillage.
 4. Activez le **Mode enfant**. KidsHome va :
-   - `setLockTaskPackages` pour apps autorisées + navigateur + lui-même
+   - `setLockTaskPackages` pour les apps autorisées + lui-même (le navigateur choisi n’est ajouté que si les sites s’ouvrent hors de KidsHome)
    - `addPersistentPreferredActivity` pour HOME → `KidHomeActivity`
    - `startLockTask` depuis l’accueil enfant (kiosque)
 5. La sortie d’urgence PIN appelle `stopLockTask` et peut désactiver le mode enfant.

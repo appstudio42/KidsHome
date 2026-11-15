@@ -45,8 +45,9 @@ public final class KidModeEnforcement {
 
     /**
      * Whether {@code packageName} may stay in front while kid mode is enforcing.
-     * Own app, system UI, and the locked/allowlisted target are allowed.
-     * Stock launchers are not.
+ * Own app, system UI, and the locked/allowlisted target are allowed.
+ * Stock launchers are not. {@link SiteActivity} is the own package, so the
+ * in-app site viewer is not a foreign app for {@link AccServ} or home hijack.
      */
     public static boolean isAllowedInKidMode(
             String packageName,

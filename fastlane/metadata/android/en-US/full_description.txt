@@ -10,6 +10,8 @@ The kid home shows large tiles, a remaining-time ring, and stars earned from sim
 
 Optional remote control serves a small page on the home Wi-Fi (port 8642). It is off by default, accepts only private LAN peers, and does not use a cloud account. From a phone browser, a parent can add time, lock, or unlock.
 
+Website shortcuts open inside KidsHome like an app, so a browser does not need to be allowed. A chosen browser remains optional.
+
 There are no ads, analytics, or Google Play Services. Website icons are loaded from the site you added. Screen time, the PIN, and usage history stay on the device.
 
 Maintained by App Studio 42. Licensed under the GNU GPL v3.
