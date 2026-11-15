@@ -75,4 +75,31 @@ public class KidModeEnforcementTest {
         assertFalse(KidModeEnforcement.isAllowedInKidMode(
                 null, OWN, false, null, false, false, false, false));
     }
+
+    @Test
+    public void webApkShellIsNotImplicitlyAllowed() {
+        String webapk = "org.chromium.webapk.a4aaa2f3deb113437_v2";
+        assertFalse(KidModeEnforcement.isAllowedInKidMode(
+                webapk, OWN, false, null, false, false, false, false));
+        assertTrue(KidModeEnforcement.isAllowedInKidMode(
+                OWN, OWN, false, null, false, false, false, false));
+    }
+
+    @Test
+    public void allowlistedWebApkWithHttpsUrlOpensInSiteActivity() {
+        assertEquals(KidModeEnforcement.WebApkHandoff.OPEN_SITE, KidModeEnforcement.webApkHandoff(
+                true, false, false, true, true, true));
+        assertEquals(KidModeEnforcement.WebApkHandoff.KEEP, KidModeEnforcement.webApkHandoff(
+                true, false, false, true, false, false));
+        assertEquals(KidModeEnforcement.WebApkHandoff.KEEP, KidModeEnforcement.webApkHandoff(
+                true, false, false, false, true, true));
+        assertEquals(KidModeEnforcement.WebApkHandoff.KEEP, KidModeEnforcement.webApkHandoff(
+                true, false, true, true, true, true));
+        assertEquals(KidModeEnforcement.WebApkHandoff.KEEP, KidModeEnforcement.webApkHandoff(
+                true, true, false, true, true, true));
+        assertEquals(KidModeEnforcement.WebApkHandoff.KEEP, KidModeEnforcement.webApkHandoff(
+                false, false, false, true, true, true));
+        assertEquals(KidModeEnforcement.WebApkHandoff.KEEP, KidModeEnforcement.webApkHandoff(
+                true, false, false, true, true, false));
+    }
 }

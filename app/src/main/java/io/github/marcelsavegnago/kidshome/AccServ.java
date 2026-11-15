@@ -100,6 +100,12 @@ public class AccServ extends AccessibilityService {
                 allowed = isAllowedInKidMode(packageName);
             }
         }
+        // An allowlisted WebAPK is a Chrome shell. Open the PWA in SiteActivity
+        // (this package) instead of leaving the shell up and instead of sending
+        // the child home. A shell the parent did not allow still redirects.
+        if (!blocked && WebApkLaunch.consumeShell(this, packageName)) {
+            return;
+        }
         if (KidModeEnforcement.enforcementAction(
                 true,
                 false,

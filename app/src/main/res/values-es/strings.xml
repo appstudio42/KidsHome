@@ -97,6 +97,8 @@ Luego introduce el PIN parental. El gesto de esquina necesita el permiso “Most
     <string name="site_url_hint">https://…</string>
     <string name="site_invalid">Nombre y URL son obligatorios</string>
     <string name="site_load_error">No se pudo abrir este sitio</string>
+    <string name="site_offline_message">Sin conexión, y esta página todavía no está guardada en esta tablet. Ábrela una vez con internet para que funcione después sin conexión.</string>
+    <string name="site_offline_retry">Reintentar</string>
     <string name="screen_time_section">Tiempo de pantalla</string>
     <string name="screen_time_enable">Límite diario de tiempo de pantalla</string>
     <string name="daily_limit_hint">Límite diario en minutos (p. ej. 60)</string>

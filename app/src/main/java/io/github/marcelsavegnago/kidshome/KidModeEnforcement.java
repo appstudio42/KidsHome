@@ -45,9 +45,11 @@ public final class KidModeEnforcement {
 
     /**
      * Whether {@code packageName} may stay in front while kid mode is enforcing.
- * Own app, system UI, and the locked/allowlisted target are allowed.
- * Stock launchers are not. {@link SiteActivity} is the own package, so the
- * in-app site viewer is not a foreign app for {@link AccServ} or home hijack.
+     * Own app, system UI, and the locked/allowlisted target are allowed.
+     * Stock launchers are not. {@link SiteActivity} is the own package, so the
+     * in-app site viewer is not a foreign app for {@link AccServ} or home hijack.
+     * A WebAPK opened that way does not need its shell package, or Chrome, to
+     * stay allowlisted: neither is the foreground app.
      */
     public static boolean isAllowedInKidMode(
             String packageName,
@@ -118,5 +120,41 @@ public final class KidModeEnforcement {
             return Action.ALLOW;
         }
         return Action.REDIRECT;
+    }
+
+    public enum WebApkHandoff {
+        /**
+         * The shell is allowlisted and has an https URL. Open {@link SiteActivity}
+         * and do not send the child home. The shell would otherwise delegate to
+         * Chrome, which the parent did not allow.
+         */
+        OPEN_SITE,
+        /** Use {@link #enforcementAction}. */
+        KEEP
+    }
+
+    /**
+     * Whether a WebAPK shell in the foreground should be replaced by
+     * {@link SiteActivity}. The shell does not become implicitly allowed: a
+     * package the parent did not list stays on the normal redirect path.
+     * After the handoff the foreground app is KidsHome, so the shell package
+     * no longer needs to be allowlisted for the page to stay open, and Chrome
+     * is never required.
+     */
+    public static WebApkHandoff webApkHandoff(
+            boolean kidModeEnabled,
+            boolean escapeUiActive,
+            boolean screenTimeBlocked,
+            boolean webApkWithHttpsUrl,
+            boolean allowlisted,
+            boolean canLaunch
+    ) {
+        if (!kidModeEnabled || escapeUiActive || screenTimeBlocked) {
+            return WebApkHandoff.KEEP;
+        }
+        if (!webApkWithHttpsUrl || !allowlisted || !canLaunch) {
+            return WebApkHandoff.KEEP;
+        }
+        return WebApkHandoff.OPEN_SITE;
     }
 }

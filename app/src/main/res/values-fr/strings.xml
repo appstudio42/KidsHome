@@ -94,6 +94,8 @@
     <string name="site_url_hint">https://…</string>
     <string name="site_invalid">Le nom et l’URL sont requis</string>
     <string name="site_load_error">Impossible d’ouvrir ce site</string>
+    <string name="site_offline_message">Hors ligne, et cette page n’est pas encore enregistrée sur cette tablette. Ouvrez-la une fois en ligne pour qu’elle fonctionne ensuite sans connexion.</string>
+    <string name="site_offline_retry">Réessayer</string>
     <string name="screen_time_section">Temps d’écran</string>
     <string name="screen_time_enable">Limite quotidienne de temps d’écran</string>
     <string name="daily_limit_hint">Limite quotidienne en minutes (ex. 60)</string>

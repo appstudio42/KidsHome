@@ -291,6 +291,10 @@ public class KidHomeActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.app_limit_reached_toast, Toast.LENGTH_SHORT).show();
                 return;
             }
+            // WebAPKs are Chrome shells. Open the PWA here so Chrome stays blocked.
+            if (WebApkLaunch.open(this, item.packageName)) {
+                return;
+            }
             Intent launch = getPackageManager().getLaunchIntentForPackage(item.packageName);
             if (launch == null) {
                 Toast.makeText(this, R.string.app_not_found, Toast.LENGTH_SHORT).show();

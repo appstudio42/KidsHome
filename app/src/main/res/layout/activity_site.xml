@@ -41,9 +41,45 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <WebView
-        android:id="@+id/siteWeb"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1">
+
+        <WebView
+            android:id="@+id/siteWeb"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <LinearLayout
+            android:id="@+id/siteOffline"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/md_background"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/space_md"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/siteOfflineMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/site_offline_message"
+                android:textColor="@color/md_on_surface"
+                android:textSize="18sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/siteOfflineRetry"
+                style="@style/Widget.KidsHome.Button.Tonal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_md"
+                android:minHeight="@dimen/touch_min"
+                android:text="@string/site_offline_retry" />
+        </LinearLayout>
+    </FrameLayout>
 </LinearLayout>

@@ -8,7 +8,10 @@ import static org.junit.Assert.assertTrue;
 /**
  * Navigation stays on the shortcut host and its subdomains.
  * A lookalike such as evil-poki.com is a different site.
+ * A WebAPK scope also limits the path, so another project on the same host
+ * (gamestudio42.github.io) cannot be opened from GS Kids.
  */
+
 public class SiteNavigationPolicyTest {
     private static final String POKI = "https://kids.poki.com/";
     private static final String APEX = "https://poki.com/games";
@@ -81,5 +84,68 @@ public class SiteNavigationPolicyTest {
         assertTrue(SiteNavigationPolicy.allows("http://10.0.0.8/game", "http://10.0.0.8/play"));
         assertFalse(SiteNavigationPolicy.allows("http://10.0.0.8/game", "http://10.0.0.80/"));
         assertFalse(SiteNavigationPolicy.allows("http://10.0.0.8/game", "http://evil.10.0.0.8/"));
+    }
+
+    @Test
+    public void missingScopeKeepsHostAndSubdomainRules() {
+        assertTrue(SiteNavigationPolicy.allows(POKI, null, "https://kids.poki.com/games/1"));
+        assertTrue(SiteNavigationPolicy.allows(POKI, "  ", "https://cdn.kids.poki.com/app.js"));
+        assertTrue(SiteNavigationPolicy.allows(POKI, "not a scope", "https://kids.poki.com/play"));
+    }
+
+    @Test
+    public void gsKidsScopeStaysOnThatPath() {
+        String start = "https://gamestudio42.github.io/gamestudio-kids/";
+        String scope = "https://gamestudio42.github.io/gamestudio-kids/";
+        assertTrue(SiteNavigationPolicy.allows(start, scope, start));
+        assertTrue(SiteNavigationPolicy.allows(start, scope, "https://gamestudio42.github.io/gamestudio-kids"));
+        assertTrue(SiteNavigationPolicy.allows(start, scope, "https://gamestudio42.github.io/gamestudio-kids/play"));
+        assertTrue(SiteNavigationPolicy.allows(start, scope, "https://gamestudio42.github.io/gamestudio-kids/index.html?x=1"));
+        assertTrue(SiteNavigationPolicy.allows(start, scope, "https://GameStudio42.GitHub.io/gamestudio-kids/level"));
+        assertFalse(SiteNavigationPolicy.allows(start, scope, "https://gamestudio42.github.io/another-game/"));
+        assertFalse(SiteNavigationPolicy.allows(start, scope, "https://gamestudio42.github.io/"));
+        assertFalse(SiteNavigationPolicy.allows(start, scope, "https://gamestudio42.github.io/gamestudio-kids-evil"));
+        assertFalse(SiteNavigationPolicy.allows(start, scope, "https://gamestudio42.github.io/gamestudio-kids-evil/play"));
+        assertFalse(SiteNavigationPolicy.allows(start, scope, "https://cdn.gamestudio42.github.io/gamestudio-kids/"));
+        assertFalse(SiteNavigationPolicy.allows(start, scope, "http://gamestudio42.github.io/gamestudio-kids/"));
+        assertFalse(SiteNavigationPolicy.allows(start, scope, "https://gamestudio42.github.io/gamestudio-kids/../other"));
+        assertFalse(SiteNavigationPolicy.allows(start, scope, "https://gamestudio42.github.io/gamestudio-kids/%2e%2e/secret"));
+        assertFalse(SiteNavigationPolicy.allows(start, scope, "intent://gamestudio42.github.io/gamestudio-kids/#Intent;scheme=https;end"));
+        assertFalse(SiteNavigationPolicy.allows(start, scope, "market://details?id=com.android.chrome"));
+    }
+
+    @Test
+    public void hostWideScopeAllowsEveryPathOnThatHost() {
+        String start = "https://gamestudio42.github.io/gamestudio-kids/";
+        String scope = "https://gamestudio42.github.io/";
+        assertTrue(SiteNavigationPolicy.allows(start, scope, "https://gamestudio42.github.io/other/"));
+        assertFalse(SiteNavigationPolicy.allows(start, scope, "https://example.com/gamestudio-kids/"));
+        assertFalse(SiteNavigationPolicy.allows(start, scope, "https://www.gamestudio42.github.io/gamestudio-kids/"));
+    }
+
+    @Test
+    public void serviceWorkerSameScopeIsNotBlocked() {
+        String start = "https://gamestudio42.github.io/gamestudio-kids/";
+        String scope = "https://gamestudio42.github.io/gamestudio-kids/";
+        assertTrue(SiteNavigationPolicy.allowsServiceWorkerRequest(
+                scope, start, "https://gamestudio42.github.io/gamestudio-kids/sw.js"));
+        assertTrue(SiteNavigationPolicy.allowsServiceWorkerRequest(
+                scope, start, "https://gamestudio42.github.io/gamestudio-kids/"));
+        // Navigation to a sibling project is blocked. A worker fetch is not:
+        // Cache Storage may hold a font or script from another https host.
+        assertFalse(SiteNavigationPolicy.allows(start, scope, "https://gamestudio42.github.io/another-game/"));
+        assertTrue(SiteNavigationPolicy.allowsServiceWorkerRequest(
+                scope, start, "https://cdn.example.com/app.js"));
+        assertFalse(SiteNavigationPolicy.allowsServiceWorkerRequest(
+                scope, start, "http://gamestudio42.github.io/gamestudio-kids/sw.js"));
+        assertFalse(SiteNavigationPolicy.allowsServiceWorkerRequest(
+                scope, start, "intent://scan/#Intent;scheme=https;end"));
+        assertFalse(SiteNavigationPolicy.allowsServiceWorkerRequest(
+                scope, start, "market://details?id=com.android.chrome"));
+        assertFalse(SiteNavigationPolicy.allowsServiceWorkerRequest(scope, start, "file:///sdcard/secret"));
+        assertFalse(SiteNavigationPolicy.allowsServiceWorkerRequest(scope, start, null));
+        assertTrue(SiteNavigationPolicy.allowsServiceWorkerRequest(
+                null, null, "https://gamestudio42.github.io/gamestudio-kids/sw.js"));
+        assertFalse(SiteNavigationPolicy.allowsServiceWorkerRequest(null, null, "javascript:alert(1)"));
     }
 }
