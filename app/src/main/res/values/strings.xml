@@ -101,6 +101,8 @@
     <string name="site_url_hint">https://…</string>
     <string name="site_invalid">Name and URL are required</string>
     <string name="site_load_error">This site could not be opened</string>
+    <string name="site_offline_message">You are offline, and this page is not saved on the tablet yet. Open it once while online, then it can work without a connection.</string>
+    <string name="site_offline_retry">Try again</string>
     <string name="screen_time_section">Screen time</string>
     <string name="screen_time_enable">Daily screen-time limit</string>
     <string name="daily_limit_hint">Daily limit in minutes (e.g. 60)</string>

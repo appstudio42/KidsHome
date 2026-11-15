@@ -4,8 +4,11 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,6 +16,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.webkit.CookieManager;
@@ -51,11 +55,20 @@ import java.util.Locale;
  * watchdog ticks while it is in front. Bedtime, the daily limit, and a remote
  * lock replace it with {@link ScreenTimeLockActivity}. The screen is this
  * app's own package, so {@link AccServ} and {@link HomeWatcher} do not treat
- * it as a foreign app.
+ * it as a foreign app. A Chrome WebAPK opened here is the same: the shell
+ * package and Chrome do not have to be allowlisted for the page to stay up.
+ *
+ * <p>DOM storage, IndexedDB, and Cache Storage stay in this WebView profile.
+ * Closing the screen does not clear them. The profile is not Chrome's, so a
+ * PWA works offline only after it has been opened here once while online.
+ * Service workers are enabled on API 24+.
  */
 public class SiteActivity extends AppCompatActivity {
     public static final String EXTRA_URL = "siteUrl";
     public static final String EXTRA_NAME = "siteName";
+    public static final String EXTRA_SCOPE = "siteScope";
+    /** WebAPK package whose label and icon are shown. Empty for a saved shortcut. */
+    public static final String EXTRA_PACKAGE = "sitePackage";
 
     private static final long TICK_MS = 15_000L;
 
@@ -74,8 +87,14 @@ public class SiteActivity extends AppCompatActivity {
     private WebView popupProbe;
     private ImageView siteIcon;
     private TextView siteTitle;
+    private View siteOffline;
     private String anchorUrl = "";
     private String siteName = "";
+    private String scopeUrl;
+    private String webApkPackage;
+    private boolean keepPackageIcon;
+    private int loadGeneration;
+    private int failedGeneration = -1;
     private long lastRecoverElapsedMs;
 
     public static Intent intent(Context context, SiteShortcut shortcut) {
@@ -85,19 +104,32 @@ public class SiteActivity extends AppCompatActivity {
         return intent;
     }
 
+    /**
+     * WebAPK session. The package is not required to be on the allowlist while
+     * this activity is in front; the kid launcher only offers allowlisted tiles.
+     */
+    public static Intent webApkIntent(
+            Context context,
+            String packageName,
+            String name,
+            String url,
+            String scopeUrl
+    ) {
+        Intent intent = intent(context, new SiteShortcut(
+                packageName != null ? packageName : url,
+                name,
+                url));
+        intent.putExtra(EXTRA_PACKAGE, packageName);
+        if (scopeUrl != null && !scopeUrl.isEmpty()) {
+            intent.putExtra(EXTRA_SCOPE, scopeUrl);
+        }
+        return intent;
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        anchorUrl = getIntent() != null ? getIntent().getStringExtra(EXTRA_URL) : null;
-        siteName = getIntent() != null ? getIntent().getStringExtra(EXTRA_NAME) : null;
-        if (anchorUrl == null) {
-            anchorUrl = "";
-        }
-        if (siteName == null || siteName.trim().isEmpty()) {
-            siteName = anchorUrl;
-        } else {
-            siteName = siteName.trim();
-        }
+        readIntent(getIntent());
         if (!canShow(anchorUrl)) {
             finish();
             return;
@@ -111,9 +143,21 @@ public class SiteActivity extends AppCompatActivity {
 
         siteIcon = findViewById(R.id.siteIcon);
         siteTitle = findViewById(R.id.siteTitle);
+        siteOffline = findViewById(R.id.siteOffline);
         webView = findViewById(R.id.siteWeb);
+        View retry = findViewById(R.id.siteOfflineRetry);
+        if (retry != null) {
+            retry.setOnClickListener(v -> {
+                if (webView != null && !anchorUrl.isEmpty()) {
+                    webView.loadUrl(anchorUrl);
+                }
+            });
+        }
         showTitle(siteName, null);
-        FaviconHelper.loadInto(this, anchorUrl, siteIcon, R.drawable.ic_web_shortcut);
+        showPackageIcon();
+        if (!keepPackageIcon) {
+            FaviconHelper.loadInto(this, anchorUrl, siteIcon, R.drawable.ic_web_shortcut);
+        }
 
         WebView.setWebContentsDebuggingEnabled(false);
         configureWebView(webView, true);
@@ -128,6 +172,22 @@ public class SiteActivity extends AppCompatActivity {
             restored = webView.restoreState(savedInstanceState) != null;
         }
         if (!restored) {
+            webView.loadUrl(anchorUrl);
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        readIntent(intent);
+        if (!canShow(anchorUrl)) {
+            finish();
+            return;
+        }
+        showTitle(siteName, null);
+        showPackageIcon();
+        if (webView != null && !anchorUrl.isEmpty()) {
             webView.loadUrl(anchorUrl);
         }
     }
@@ -183,10 +243,34 @@ public class SiteActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        // Destroying the view does not wipe cookies, DOM storage, IndexedDB,
+        // Cache Storage, or the HTTP cache. Those stay in this app's WebView
+        // profile so a PWA can open again offline. Nothing is cleared here.
         handler.removeCallbacksAndMessages(null);
         destroyPopup();
         destroyWebView();
         super.onDestroy();
+    }
+
+    private void readIntent(@Nullable Intent intent) {
+        anchorUrl = intent != null ? intent.getStringExtra(EXTRA_URL) : null;
+        siteName = intent != null ? intent.getStringExtra(EXTRA_NAME) : null;
+        scopeUrl = intent != null ? intent.getStringExtra(EXTRA_SCOPE) : null;
+        webApkPackage = intent != null ? intent.getStringExtra(EXTRA_PACKAGE) : null;
+        if (anchorUrl == null) {
+            anchorUrl = "";
+        }
+        if (scopeUrl != null && scopeUrl.trim().isEmpty()) {
+            scopeUrl = null;
+        }
+        if (webApkPackage != null && webApkPackage.trim().isEmpty()) {
+            webApkPackage = null;
+        }
+        if (siteName == null || siteName.trim().isEmpty()) {
+            siteName = anchorUrl;
+        } else {
+            siteName = siteName.trim();
+        }
     }
 
     private void onBack() {
@@ -212,7 +296,14 @@ public class SiteActivity extends AppCompatActivity {
             return;
         }
         AccServ.lastApp = getPackageName();
-        Prefs.setForegroundTrackPackage(this, getPackageName());
+        // WebAPK time counts toward the daily limit (every tick) and toward
+        // that package's own limit. The foreground window stays this app, so
+        // enforcement does not treat the shell as the open package.
+        if (webApkPackage != null) {
+            Prefs.setForegroundTrackPackage(this, webApkPackage);
+        } else {
+            Prefs.setForegroundTrackPackage(this, getPackageName());
+        }
         ScreenTimeTracker.tick(this);
         if (ScreenTimeTracker.isBlocked(this)) {
             if (webView != null) {
@@ -225,6 +316,11 @@ public class SiteActivity extends AppCompatActivity {
     private boolean canShow(String url) {
         if (!Prefs.isKidModeEnabled(this)) {
             return false;
+        }
+        // WebAPK sessions are not saved shortcuts and are not re-checked
+        // against the package allowlist. The shell is not what is on screen.
+        if (webApkPackage != null) {
+            return WebApkUrls.httpsUrl(url) != null;
         }
         if (SiteNavigationPolicy.httpHost(url) == null || !isSavedShortcut(url)) {
             return false;
@@ -252,7 +348,68 @@ public class SiteActivity extends AppCompatActivity {
         if ("about:blank".equals(url) || url.startsWith("about:blank#") || url.startsWith("about:blank?")) {
             return false;
         }
-        return !SiteNavigationPolicy.allows(anchorUrl, url);
+        return !SiteNavigationPolicy.allows(anchorUrl, scopeUrl, url);
+    }
+
+    private void notePageStarted() {
+        loadGeneration++;
+        failedGeneration = -1;
+    }
+
+    private void onMainFrameFailed() {
+        if (isFinishing()) {
+            return;
+        }
+        failedGeneration = loadGeneration;
+        if (SiteConnectivity.isOffline(this)) {
+            showOffline();
+            return;
+        }
+        Toast.makeText(this, R.string.site_load_error, Toast.LENGTH_SHORT).show();
+    }
+
+    private void onMainFrameFinished() {
+        if (failedGeneration != loadGeneration) {
+            hideOffline();
+        }
+    }
+
+    private void showOffline() {
+        if (siteOffline == null) {
+            return;
+        }
+        siteOffline.setVisibility(View.VISIBLE);
+        if (webView != null) {
+            webView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+        }
+    }
+
+    private void hideOffline() {
+        if (siteOffline == null) {
+            return;
+        }
+        siteOffline.setVisibility(View.GONE);
+        if (webView != null) {
+            webView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        }
+    }
+
+    private void showPackageIcon() {
+        keepPackageIcon = false;
+        if (webApkPackage == null || siteIcon == null) {
+            return;
+        }
+        try {
+            PackageManager pm = getPackageManager();
+            ApplicationInfo info = pm.getApplicationInfo(webApkPackage, 0);
+            Drawable icon = info.loadIcon(pm);
+            if (icon != null) {
+                siteIcon.setImageDrawable(icon);
+                keepPackageIcon = true;
+            }
+        } catch (PackageManager.NameNotFoundException ignored) {
+            // The shell was removed. The page can still use the generic icon.
+        }
     }
 
     private void recoverFromBlocked(WebView view) {
@@ -275,7 +432,7 @@ public class SiteActivity extends AppCompatActivity {
         }
         siteTitle.setText(label);
         setTitle(label);
-        if (icon != null) {
+        if (icon != null && !keepPackageIcon) {
             siteIcon.setImageBitmap(icon);
         }
         updateTaskDescription(label, icon);
@@ -315,6 +472,9 @@ public class SiteActivity extends AppCompatActivity {
     private void configureWebView(WebView view, boolean enableJavaScript) {
         WebSettings settings = view.getSettings();
         settings.setJavaScriptEnabled(enableJavaScript);
+        // DOM storage and the database flag keep localStorage and IndexedDB.
+        // Cache Storage is filled by the service worker (API 24+). LOAD_DEFAULT
+        // uses that cache when the device is offline. Nothing here clears it.
         settings.setDomStorageEnabled(true);
         settings.setDatabaseEnabled(true);
         settings.setAllowFileAccess(false);
@@ -388,6 +548,9 @@ public class SiteActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return new SiteClient26();
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return new SiteClient23();
+        }
         return new SiteClient();
     }
 
@@ -411,7 +574,14 @@ public class SiteActivity extends AppCompatActivity {
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             if (blockedNavigation(url)) {
                 recoverFromBlocked(view);
+                return;
             }
+            notePageStarted();
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            onMainFrameFinished();
         }
 
         @Override
@@ -424,17 +594,34 @@ public class SiteActivity extends AppCompatActivity {
         @SuppressWarnings("deprecation")
         @Override
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                return;
+            }
             if (isFinishing()) {
                 return;
             }
-            // API 23+ calls this from the main-frame overload only. Older WebViews
+            // API 23+ calls the main-frame overload instead. Older WebViews
             // report subresources here too, so ignore those.
             String current = view != null ? view.getUrl() : null;
             boolean mainFrame = failingUrl == null
                     || failingUrl.equals(anchorUrl)
                     || (current != null && failingUrl.equals(current));
             if (mainFrame) {
-                Toast.makeText(SiteActivity.this, R.string.site_load_error, Toast.LENGTH_SHORT).show();
+                onMainFrameFailed();
+            }
+        }
+    }
+
+    /**
+     * Loaded only on API 23+, where {@link android.webkit.WebResourceError} exists.
+     * The main-frame flag keeps a failed image from covering the page.
+     */
+    @RequiresApi(Build.VERSION_CODES.M)
+    private class SiteClient23 extends SiteClient {
+        @Override
+        public void onReceivedError(WebView view, WebResourceRequest request, android.webkit.WebResourceError error) {
+            if (request != null && request.isForMainFrame()) {
+                onMainFrameFailed();
             }
         }
     }
@@ -444,7 +631,7 @@ public class SiteActivity extends AppCompatActivity {
      * Returning true keeps a dead renderer from crashing the kid home.
      */
     @RequiresApi(Build.VERSION_CODES.O)
-    private final class SiteClient26 extends SiteClient {
+    private final class SiteClient26 extends SiteClient23 {
         @Override
         public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
             if (view != null) {
@@ -475,7 +662,7 @@ public class SiteActivity extends AppCompatActivity {
 
         @Override
         public void onReceivedIcon(WebView view, Bitmap icon) {
-            if (icon != null) {
+            if (icon != null && !keepPackageIcon) {
                 showTitle(siteTitle.getText() != null ? siteTitle.getText().toString() : siteName, icon);
             }
         }

@@ -32,6 +32,8 @@ public final class BackgroundActivityStarter {
     public static final int REQUEST_HOME = 4101;
     public static final int REQUEST_ESCAPE_PIN = 4102;
     public static final int REQUEST_SCREEN_LOCK = 4103;
+    /** WebAPK shell replaced by {@link SiteActivity} from the accessibility service. */
+    public static final int REQUEST_SITE = 4104;
 
     /** Notification content intents. Distinct from the home/lock relaunch codes. */
     public static final int REQUEST_NOTIFICATION = 4200;
