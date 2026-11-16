@@ -83,7 +83,7 @@
                     tools:text="★ 3 stars" />
             </LinearLayout>
 
-            <io.github.marcelsavegnago.kidshome.RemainingTimeRing
+            <io.github.appstudio42.kidshome.RemainingTimeRing
                 android:id="@+id/kidHomeTimeRing"
                 android:layout_width="@dimen/time_ring_size"
                 android:layout_height="@dimen/time_ring_size"

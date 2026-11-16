@@ -18,15 +18,15 @@ def ciSignRelease = "true" == findProperty("ciSignRelease")?.toString()
 def requireReleaseSigning = "true" == findProperty("requireReleaseSigning")?.toString()
 
 android {
-    namespace 'io.github.marcelsavegnago.kidshome'
+    namespace 'io.github.appstudio42.kidshome'
     compileSdk 35
 
     defaultConfig {
-        applicationId "io.github.marcelsavegnago.kidshome"
+        applicationId "io.github.appstudio42.kidshome"
         minSdk 22
         targetSdk 35
-        versionCode 160
-        versionName "1.6.0"
+        versionCode 161
+        versionName "1.6.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // Keep the APK lean for 1 GB Fire tablets. Locales match README languages.

@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.6.1
+
+The application id is now `io.github.appstudio42.kidshome`, matching [App Studio 42](https://appstudio42.github.io) so F-Droid can accept `io.github.appstudio42.*`. Release 1.6.0 used `io.github.marcelsavegnago.kidshome`. Those are different apps. Uninstall 1.6.0 and set the PIN, allowed apps, accessibility service, and Device Owner up again. Nothing is copied across.
+
+### Changed
+- `applicationId` and `namespace` are `io.github.appstudio42.kidshome`. The Java sources, unit tests, custom view class names, accessibility settings activity, and in-app intent actions (`REMOTE_REFRESH`, `REFRESH_ESCAPE_OVERLAY`) use that package.
+- Version **1.6.1** (`versionCode` 161). `compileSdk` and `targetSdk` stay 35. AGP stays 8.7.3. `minSdk` stays 22.
+- Draft fdroiddata recipe renamed to `docs/fdroid/io.github.appstudio42.kidshome.yml`. Builds older than 1.6.1 are removed. The only build is 1.6.1 / 161 with `commit: v1.6.1` (create that tag on the release commit before submitting the recipe). `AuthorName` is App Studio 42. `AuthorEmail` stays `marcel.savegnago@gmail.com`.
+- Fastlane changelogs for versionCode 161 (`en-US` and `pt-BR`).
+
 ## 1.6.0
 
 Android 15 edge-to-edge, a back handler that keeps lock screens up, screen-time gates that survive the clock and the watchdog, a LAN-only parent remote, a PBKDF2 PIN with backup turned off, in-app sites and Chrome PWAs, and navigation-bar contrast.

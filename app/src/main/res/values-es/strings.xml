@@ -138,9 +138,9 @@ Luego introduce el PIN parental. El gesto de esquina necesita el permiso “Most
     <string name="escape_stay_locked">Seguir en modo niño</string>
     <string name="overlay_permission_title">Se necesita permiso de superposición</string>
     <string name="overlay_permission_message">La salida por toques en la esquina necesita “Mostrar sobre otras apps”. Puedes concederlo ahora, o usar mantener Atrás. En Fire OS también puedes ejecutar:
-adb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allow</string>
+adb shell appops set io.github.appstudio42.kidshome SYSTEM_ALERT_WINDOW allow</string>
     <string name="overlay_permission_adb">Concede la superposición en Ajustes o:
-adb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allow</string>
+adb shell appops set io.github.appstudio42.kidshome SYSTEM_ALERT_WINDOW allow</string>
     <string name="overlay_permission_later">El modo niño se activará. Concede la superposición más tarde para los toques de esquina; mantener Atrás sigue funcionando.</string>
     <string name="about_title">Acerca de KidsHome</string>
     <string name="about_version">Versión %1$s</string>

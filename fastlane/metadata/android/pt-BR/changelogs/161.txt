@@ -1,0 +1,1 @@
+O ID do app agora é io.github.appstudio42.kidshome (antes io.github.marcelsavegnago.kidshome). São apps diferentes: desinstale a 1.6.0 e configure de novo o PIN, os apps permitidos, a acessibilidade e o Device Owner. As configurações não são copiadas.

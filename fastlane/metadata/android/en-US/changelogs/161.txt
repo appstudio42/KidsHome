@@ -1,0 +1,1 @@
+Application id is now io.github.appstudio42.kidshome (was io.github.marcelsavegnago.kidshome). These are different apps: uninstall 1.6.0 and set up the PIN, allowed apps, accessibility, and Device Owner again. Settings are not copied.

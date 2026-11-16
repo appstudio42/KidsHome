@@ -142,8 +142,8 @@
     <string name="escape_open_settings">Abrir configurações do KidsHome</string>
     <string name="escape_stay_locked">Continuar no modo criança</string>
     <string name="overlay_permission_title">Permissão de overlay necessária</string>
-    <string name="overlay_permission_message">A saída por toques no canto precisa de “Exibir sobre outros apps”. Você pode conceder agora ou usar segurar Voltar. No Fire OS também pode rodar:\nadb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allow</string>
-    <string name="overlay_permission_adb">Conceda overlay em Configurações ou:\nadb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allow</string>
+    <string name="overlay_permission_message">A saída por toques no canto precisa de “Exibir sobre outros apps”. Você pode conceder agora ou usar segurar Voltar. No Fire OS também pode rodar:\nadb shell appops set io.github.appstudio42.kidshome SYSTEM_ALERT_WINDOW allow</string>
+    <string name="overlay_permission_adb">Conceda overlay em Configurações ou:\nadb shell appops set io.github.appstudio42.kidshome SYSTEM_ALERT_WINDOW allow</string>
     <string name="overlay_permission_later">O modo criança será ativado. Conceda overlay depois para os toques no canto; segurar Voltar continua funcionando.</string>
 
     <string name="about_title">Sobre o KidsHome</string>
