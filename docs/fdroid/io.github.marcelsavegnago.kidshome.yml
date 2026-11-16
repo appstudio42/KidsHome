@@ -13,10 +13,22 @@
 #
 # Build needs JDK 17 and compileSdk 35. assembleRelease is unsigned unless
 # keystore.properties exists or -PciSignRelease=true is passed. F-Droid
-# must not pass that property. vcsInfo and dependenciesInfo are disabled
+# must not pass that property, and must not pass -PrequireReleaseSigning
+# (that flag fails the build when the release keystore is missing; the
+# tag job on GitHub Actions uses it so a release never falls back to
+# keystore/debug.keystore). vcsInfo and dependenciesInfo are disabled
 # so the APK does not embed the local git checkout. There is no product
 # flavor; `gradle: yes` runs assembleRelease from the repository root
 # (settings.gradle is there, so subdir must stay unset).
+#
+# 1.6.0 commit is the tag v1.6.0. Create that tag on the merge commit
+# that contains versionCode 160. Do not submit the 1.6.0 build upstream
+# until the tag exists. Unlike v1.5.1, the tag is the release commit, so
+# a tag name is a valid commit value.
+#
+# IssueTracker is omitted: GitHub Issues and Discussions are both
+# disabled on this repository, so the old /issues URL is not a tracker.
+# Changelog remains the public notes URL.
 #
 # Reviewer notes:
 # - No Google Play Services, Firebase, analytics, or proprietary SDK.
@@ -34,7 +46,9 @@
 # - Device Admin / Device Owner is an optional kiosk the parent provisions
 #   once with `dpm set-device-owner`. It is not required to use the app.
 # - keystore/debug.keystore is a published CI test key. Release builds ignore
-#   it unless -PciSignRelease=true. F-Droid should sign with its own key.
+#   it unless -PciSignRelease=true. -PrequireReleaseSigning=true fails the
+#   build instead of using it. F-Droid should sign with its own key and
+#   must pass neither property.
 # - AppIcon/RawLogo.psd is design source and is not packaged in the APK.
 # - Official Gradle wrapper 8.9:
 #   SHA-256 498495120a03b9a6ab5d155f5de3c8f0d986a449153702fb80fc80e134484f17
@@ -50,7 +64,6 @@ AuthorName: Marcel Savegnago
 AuthorEmail: marcel.savegnago@gmail.com
 WebSite: https://appstudio42.github.io
 SourceCode: https://github.com/appstudio42/KidsHome
-IssueTracker: https://github.com/appstudio42/KidsHome/issues
 Changelog: https://github.com/appstudio42/KidsHome/blob/HEAD/CHANGELOG.md
 
 AutoName: KidsHome
@@ -64,8 +77,13 @@ Builds:
     commit: 14267f684d75b49c03d560461881e0eac4213a4b
     gradle:
       - yes
+  - versionName: '1.6.0'
+    versionCode: 160
+    commit: v1.6.0
+    gradle:
+      - yes
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: '1.5.1'
-CurrentVersionCode: 151
+CurrentVersion: '1.6.0'
+CurrentVersionCode: 160

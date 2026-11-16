@@ -1,26 +1,41 @@
 # Changelog
 
-## Unreleased
+## 1.6.0
+
+Android 15 edge-to-edge, a back handler that keeps lock screens up, screen-time gates that survive the clock and the watchdog, a LAN-only parent remote, a PBKDF2 PIN with backup turned off, in-app sites and Chrome PWAs, and navigation-bar contrast.
+
+### Added
+- Themed launcher icon (`monochrome`) on the adaptive icon, reusing `ic_home_foreground`.
+- Fastlane changelogs for versionCode 160 (`en-US` and `pt-BR`).
+- F-Droid build block 1.6.0 / 160. `commit` is the tag `v1.6.0` (create that tag on the release commit before submitting the recipe). `IssueTracker` is omitted because GitHub Issues and Discussions are disabled.
+- Fastlane metadata for F-Droid (`en-US` and `pt-BR`), including the versionCode 151 changelog.
+- Draft fdroiddata recipe at `docs/fdroid/io.github.marcelsavegnago.kidshome.yml`.
+- Site shortcuts open full screen inside KidsHome (title and icon, no address bar) without allowing Chrome. Navigation stays on the shortcut host and its subdomains; other links, popups to other sites, downloads, and non-http schemes stay in the app and do not open a browser. Time on the page counts toward the daily limit, and bedtime / the daily limit still lock the screen. Embedded mode is the default, including when a browser was already chosen; that browser setting is kept and can be selected again.
+- Allowed Chrome WebAPKs (`org.chromium.webapk.*`, for example GS Kids) open in the in-app site viewer instead of handing off to Chrome. The parent does not need to allow Chrome. The start URL comes from `org.chromium.webapk.shell_apk.startUrl`. When `org.chromium.webapk.shell_apk.scope` is set, navigation stays on that path prefix, so another site on the same host stays out. Time on the page counts toward the daily limit. DOM storage, IndexedDB, Cache Storage, and service workers (API 24+) stay in the WebView profile and are not cleared when the screen closes. That cache is separate from Chrome: the PWA has to be opened here once while online before it can work offline.
 
 ### Changed
-- `compileSdk` and `targetSdk` are 35 (Android 15). `versionCode` / `versionName` stay 151 / 1.5.1. AGP stays 8.7.3.
+- Version **1.6.0** (`versionCode` 160). `compileSdk` and `targetSdk` stay 35. AGP stays 8.7.3. `minSdk` stays 22.
+- AppCompat **1.7.1** (1.8.0 requires minSdk 23), Material **1.13.0** (1.14.0 requires minSdk 23), RecyclerView **1.4.0**, ConstraintLayout **2.2.2**. `androidx.activity` stays **1.9.3**. `colorPrimary` is read from AppCompat because Material 1.13 no longer re-exports it.
+- A `v*` tag build fails when any `SIGNING_*` secret is missing and never signs with `keystore/debug.keystore`. Pull requests and branch builds still pass `-PciSignRelease=true`.
+- `compileSdk` and `targetSdk` are 35 (Android 15).
 - Lock screens and the kid home apply status, navigation, cutout, and IME insets. Immersive bars still hide. Parent screens that are not immersive get the same padding on API 35 only, so Fire OS keeps fitted windows.
 - PIN and other `AlertDialog`s on API 35 use a dialog theme that opts out of edge-to-edge, so the platform keeps them above the bars and the keyboard.
 - Home, screen-time lock, and emergency PIN relaunch opt into background activity starts (`PendingIntent` creator and sender modes) on API 34+.
 - The remote-control foreground service passes `specialUse` to `startForeground` on API 34+.
 - Website tiles load favicons from the site itself. The Google favicon service is no longer used.
-- `assembleRelease` stays unsigned unless `keystore.properties` exists or `-PciSignRelease=true` is set, so F-Droid can sign the build. CI still passes that property. Release APKs no longer embed git or dependency metadata.
+- `assembleRelease` stays unsigned unless `keystore.properties` exists or `-PciSignRelease=true` is set, so F-Droid can sign the build. Pull requests and branch CI still pass that property. A tag release passes `-PrequireReleaseSigning=true` instead and fails closed. Release APKs no longer embed git or dependency metadata.
 - Gradle wrapper jar replaced with the official Gradle 8.9 wrapper. The previous jar was the Gradle 2.10 bootstrap. `distributionSha256Sum` pins the 8.9 distribution.
 - Removed the unused prebuilt `disabling pkg/pm.jar` left over from LauncherHijack.
-
-### Added
-- Allowed Chrome WebAPKs (`org.chromium.webapk.*`, for example GS Kids) open in the in-app site viewer instead of handing off to Chrome. The parent does not need to allow Chrome. The start URL comes from `org.chromium.webapk.shell_apk.startUrl`. When `org.chromium.webapk.shell_apk.scope` is set, navigation stays on that path prefix, so another site on the same host stays out. Time on the page counts toward the daily limit. DOM storage, IndexedDB, Cache Storage, and service workers (API 24+) stay in the WebView profile and are not cleared when the screen closes. That cache is separate from Chrome: the PWA has to be opened here once while online before it can work offline.
-- Fastlane metadata for F-Droid (`en-US` and `pt-BR`), including the versionCode 151 changelog.
-- Draft fdroiddata recipe at `docs/fdroid/io.github.marcelsavegnago.kidshome.yml`.
-- Site shortcuts open full screen inside KidsHome (title and icon, no address bar). Navigation stays on the shortcut host and its subdomains; other links, popups to other sites, downloads, and non-http schemes stay in the app and do not open a browser. Time on the page counts toward the daily limit, and bedtime / the daily limit still lock the screen. Embedded mode is the default, including when a browser was already chosen; that browser setting is kept and can be selected again.
+- Screen time stays blocked when the escape gate closes, the clock changes, or the accessibility watchdog restarts. Device Owner requires automatic time.
+- The parent remote binds only to the private Wi-Fi or Ethernet address and no longer treats CGNAT as LAN.
+- The parent PIN is stored as PBKDF2-HMAC-SHA1. Android backup and device-to-device transfer are off.
+- Website favicons decode off the main thread. `BootReceiver` finishes with `goAsync`.
 
 ### Removed
 - Automatic Poki Kids, PBS Kids Games, and Coolmath Games suggestions, and the button that added them. Shortcuts a parent already saved are kept.
+
+### Fixed
+- Navigation-bar contrast on Fire OS 7: dark icons on a light bar from API 27 through 34, dark bars below API 27/23 where the platform can only draw light icons, and matching contrast on API 35 in light and night themes, on parent and setup screens.
 
 ## 1.5.1
 

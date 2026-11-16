@@ -9,9 +9,13 @@ if (keystorePropertiesFile.exists()) {
 }
 
 def ciDebugKeystore = rootProject.file("keystore/debug.keystore")
-// CI passes -PciSignRelease=true to sign with the committed test key.
+// PR and branch CI pass -PciSignRelease=true to sign with the committed test key.
 // A plain assembleRelease stays unsigned so F-Droid can sign the APK.
+// Tag releases pass -PrequireReleaseSigning=true and must not use the test key.
 def ciSignRelease = "true" == findProperty("ciSignRelease")?.toString()
+// Tag releases pass -PrequireReleaseSigning=true. A missing keystore.properties
+// is a hard failure on that path: never fall back to keystore/debug.keystore.
+def requireReleaseSigning = "true" == findProperty("requireReleaseSigning")?.toString()
 
 android {
     namespace 'io.github.marcelsavegnago.kidshome'
@@ -21,8 +25,8 @@ android {
         applicationId "io.github.marcelsavegnago.kidshome"
         minSdk 22
         targetSdk 35
-        versionCode 151
-        versionName "1.5.1"
+        versionCode 160
+        versionName "1.6.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // Keep the APK lean for 1 GB Fire tablets. Locales match README languages.
@@ -59,6 +63,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             if (keystorePropertiesFile.exists()) {
                 signingConfig signingConfigs.release
+            } else if (requireReleaseSigning) {
+                throw new GradleException("Release signing is required but keystore.properties is missing. " +
+                        "Refusing to sign with keystore/debug.keystore. " +
+                        "Set SIGNING_KEYSTORE_BASE64, SIGNING_KEY_ALIAS, " +
+                        "SIGNING_KEY_STORE_PASSWORD, and SIGNING_KEY_PASSWORD.")
             } else if (ciSignRelease && ciDebugKeystore.exists()) {
                 signingConfig signingConfigs.ciDebug
             }
@@ -105,15 +114,20 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.7.0'
+    // 1.8.0 raises the library minSdk to 23. This app stays on minSdk 22, so
+    // 1.7.1 is the newest stable AppCompat that still merges. compileSdk stays 35.
+    implementation 'androidx.appcompat:appcompat:1.7.1'
     // Direct dependency so lock screens use OnBackPressedDispatcher (predictive back).
     // 1.9.3 already exposes the insets/back APIs this target uses. Do not bump Activity
-    // just because compileSdk is 35.
+    // just because compileSdk is 35. AppCompat 1.7.1 and Material 1.13.0 request
+    // Activity 1.8.0; this direct pin stays at 1.9.3.
     implementation 'androidx.activity:activity:1.9.3'
     implementation 'androidx.annotation:annotation:1.9.1'
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
+    // 1.14.0 requires minSdk 23. 1.13.0 is the newest stable Material that still
+    // merges with minSdk 22, compileSdk 35, and AGP 8.7.3.
+    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.2'
     // Tiny FOSS embedded HTTP server for LAN parent remote control (Apache-2.0).
     implementation 'org.nanohttpd:nanohttpd:2.3.1'
     // QR encoder for pairing URL (Apache-2.0; F-Droid friendly).

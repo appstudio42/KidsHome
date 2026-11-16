@@ -20,7 +20,7 @@
   <a href="https://github.com/appstudio42/KidsHome/releases/latest"><strong>⬇ Descargar APK (última versión)</strong></a>
 </p>
 
-KidsHome (v1.5.1) convierte un móvil o tablet de repuesto en una pantalla de inicio pensada para niños: solo las apps y sitios que tú permitas, con límite diario de tiempo de uso, bloqueo a la hora de dormir, salida de emergencia con PIN parental y control remoto opcional en la red local desde el navegador del teléfono. Elige el mejor modo de aplicación para el dispositivo (o lo defines en **Configuración del dispositivo**). Mantenido por [App Studio 42](https://appstudio42.github.io).
+KidsHome (v1.6.0) convierte un móvil o tablet de repuesto en una pantalla de inicio pensada para niños: solo las apps y sitios que tú permitas, con límite diario de tiempo de uso, bloqueo a la hora de dormir, salida de emergencia con PIN parental y control remoto opcional en la red local desde el navegador del teléfono. Elige el mejor modo de aplicación para el dispositivo (o lo defines en **Configuración del dispositivo**). Mantenido por [App Studio 42](https://appstudio42.github.io).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="Configuración de KidsHome: crear PIN, elegir apps, definir tiempo de pantalla, entrar en modo niño" width="720" />
@@ -64,7 +64,8 @@ Capturas reales de un emulador Android tablet (1280×800) con el nombre de ejemp
   - Lanzador predeterminado — Android normal
   - Device Owner + lock task — quiosco más fuerte
 - **Inicio infantil** — cuadrícula de iconos grandes de apps y accesos a sitios, o bloquear en una sola app
-- **Sitios en KidsHome** — los accesos se abren a pantalla completa dentro de la app (título e icono del sitio, sin barra de direcciones). La navegación se queda en el dominio del acceso y sus subdominios. El tiempo cuenta para el límite diario y la hora de dormir sigue aplicando. No hace falta permitir un navegador; quien prefiera puede abrirlos en el navegador elegido. La app no añade sitios sugeridos por su cuenta.
+- **Sitios en KidsHome** — los accesos se abren a pantalla completa dentro de la app (título e icono del sitio, sin barra de direcciones), sin permitir Chrome. La navegación se queda en el dominio del acceso y sus subdominios. Las PWA de Chrome que el responsable permitió se abren igual y funcionan sin conexión tras una visita en línea. El tiempo cuenta para el límite diario y la hora de dormir sigue aplicando. Quien prefiera puede abrirlos en el navegador elegido. La app no añade sitios sugeridos por su cuenta.
+- **Contraste de la barra de navegación** — iconos oscuros en la barra clara del API 27 al 34 (incluido Fire OS 7), barras oscuras donde la plataforma solo dibuja iconos claros, y contraste coherente en el API 35 en los temas claro y oscuro.
 - **Tiempo de pantalla** — límite diario, franja de sueño, aviso, bloqueo amable, PIN para añadir tiempo / desactivar por hoy
 - **Horarios / rutinas** — ventanas por día (colegio, lectura, dormir) con categorías de apps
 - **Límites por app** — minutos diarios por app permitida además del límite total; mosaicos bloqueados al agotarse
@@ -246,8 +247,9 @@ Requiere **JDK 17+** y Android SDK (`compileSdk` / `targetSdk` 35). `minSdk 22` 
 | Modo | Cuándo | Firma |
 |------|--------|-------|
 | **Sin firma** | Sin `keystore.properties` y sin `-PciSignRelease=true` | Ninguna — F-Droid firma ese APK |
-| **Clave de prueba estable del CI** | `-PciSignRelease=true` y sin secrets `SIGNING_*` | `keystore/debug.keystore` (en el repo) — misma firma entre builds, así `adb install -r` conserva datos |
-| **Clave de release** | `keystore.properties` presente (CI lo escribe cuando hay secrets `SIGNING_*`) | Tu keystore privado |
+| **Clave de prueba estable del CI** | Pull requests y pushes de rama con `-PciSignRelease=true` y sin secrets `SIGNING_*` | `keystore/debug.keystore` (en el repo) — misma firma entre builds, así `adb install -r` conserva datos |
+| **Clave de release** | `keystore.properties` presente (CI lo escribe cuando están todos los secrets `SIGNING_*`) | Tu keystore privado |
+| **Release por tag sin secrets** | Push de un tag `v*` y falta cualquier secret | El job falla y no firma con `keystore/debug.keystore` |
 
 | Secret | Uso |
 |--------|-----|
@@ -256,7 +258,7 @@ Requiere **JDK 17+** y Android SDK (`compileSdk` / `targetSdk` 35). `minSdk 22` 
 | `SIGNING_KEY_STORE_PASSWORD` | Contraseña del keystore |
 | `SIGNING_KEY_PASSWORD` | Contraseña de la clave |
 
-Consulta `keystore/README.md`.
+Un tag `v*` sin esos cuatro secrets falla. `keytool` y Base64 están en el README en inglés, sección **CI signing**. Consulta también `keystore/README.md`.
 
 ## Publicar una versión
 
@@ -264,8 +266,8 @@ Consulta `keystore/README.md`.
 2. Sube una etiqueta `vX.Y.Z`:
 
    ```bash
-   git tag v1.5.1
-   git push origin v1.5.1
+   git tag v1.6.0
+   git push origin v1.6.0
    ```
 
 3. GitHub Actions (`.github/workflows/android.yml`) genera el APK de release y lo adjunta al GitHub Release.
@@ -284,4 +286,4 @@ Créditos: BaronKiko (LauncherHijack), Meems33 / WhiteRaven777 (Launcher Replace
 
 ## Changelog
 
-Ver [CHANGELOG.md](CHANGELOG.md) para notas de la versión (actual: **1.5.1**).
+Ver [CHANGELOG.md](CHANGELOG.md) para notas de la versión (actual: **1.6.0**).

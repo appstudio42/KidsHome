@@ -20,7 +20,7 @@
   <a href="https://github.com/appstudio42/KidsHome/releases/latest"><strong>⬇ Baixar APK (última versão)</strong></a>
 </p>
 
-O KidsHome (v1.5.1) transforma um celular ou tablet reserva em uma tela inicial amigável para crianças: só os apps e sites que você permitir, com limite diário de tempo de tela, bloqueio na hora de dormir, saída de emergência com PIN dos pais e controle remoto opcional na rede local pelo navegador do celular. Ele escolhe o melhor modo de enforcement para o aparelho (ou você redefine em **Configuração do dispositivo**). Mantido pelo [App Studio 42](https://appstudio42.github.io).
+O KidsHome (v1.6.0) transforma um celular ou tablet reserva em uma tela inicial amigável para crianças: só os apps e sites que você permitir, com limite diário de tempo de tela, bloqueio na hora de dormir, saída de emergência com PIN dos pais e controle remoto opcional na rede local pelo navegador do celular. Ele escolhe o melhor modo de enforcement para o aparelho (ou você redefine em **Configuração do dispositivo**). Mantido pelo [App Studio 42](https://appstudio42.github.io).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="Configuração do KidsHome: criar PIN, escolher apps, definir tempo de tela, entrar no modo criança" width="720" />
@@ -64,7 +64,8 @@ Capturas reais de um emulador Android tablet (1280×800) com o nome de exemplo *
   - Launcher padrão — Android comum
   - Device Owner + lock task — kiosk mais forte
 - **Home infantil** — grade com ícones grandes de apps e atalhos de sites, ou travar em um único app
-- **Sites no KidsHome** — atalhos abrem em tela cheia dentro do app (título e ícone do site, sem barra de endereço). A navegação fica no domínio do atalho e nos subdomínios. O tempo entra no limite diário e a hora de dormir continua valendo. Não é preciso liberar um navegador; quem preferir ainda pode abrir no navegador escolhido. O app não adiciona sites sugeridos sozinho.
+- **Sites no KidsHome** — atalhos abrem em tela cheia dentro do app (título e ícone do site, sem barra de endereço), sem liberar o Chrome. A navegação fica no domínio do atalho e nos subdomínios. PWAs do Chrome liberados pelo responsável abrem do mesmo jeito e funcionam offline depois de uma visita online. O tempo entra no limite diário e a hora de dormir continua valendo. Quem preferir ainda pode abrir no navegador escolhido. O app não adiciona sites sugeridos sozinho.
+- **Contraste da barra de navegação** — ícones escuros na barra clara do API 27 ao 34 (incluindo Fire OS 7), barras escuras onde a plataforma só desenha ícones claros, e contraste coerente no API 35 nos temas claro e noturno.
 - **Tempo de tela** — limite diário, janela de sono, aviso, tela de bloqueio amigável, PIN para adicionar tempo / desativar por hoje
 - **Horários / rotinas** — janelas por dia da semana (escola, leitura, dormir) com categorias de apps
 - **Limites por app** — minutos diários por app permitido além do limite total; tiles bloqueados quando esgotados
@@ -256,29 +257,65 @@ Requer **JDK 17+** e Android SDK (`compileSdk` / `targetSdk` 35). `minSdk 22` (F
 | Modo | Quando | Assinatura |
 |------|--------|------------|
 | **Sem assinatura** | Sem `keystore.properties` e sem `-PciSignRelease=true` | Nenhuma — o F-Droid assina esse APK |
-| **Chave de teste estável do CI** | `-PciSignRelease=true` e sem secrets `SIGNING_*` | `keystore/debug.keystore` (no repositório) — mesma assinatura entre builds, então `adb install -r` preserva dados |
-| **Chave de release** | `keystore.properties` presente (o CI grava o arquivo quando os secrets `SIGNING_*` existem) | Seu keystore privado |
+| **Chave de teste estável do CI** | Pull requests e pushes de branch com `-PciSignRelease=true` e sem secrets `SIGNING_*` | `keystore/debug.keystore` (no repositório) — mesma assinatura entre builds, então `adb install -r` preserva dados |
+| **Chave de release** | `keystore.properties` presente (o CI grava o arquivo quando todos os secrets `SIGNING_*` existem) | Seu keystore privado |
+| **Release por tag sem secrets** | Push de uma tag `v*` com qualquer secret abaixo ausente | O job falha. Não assina com `keystore/debug.keystore` |
 
 | Secret | Função |
 |--------|--------|
-| `SIGNING_KEYSTORE_BASE64` | `.jks` / `.keystore` em Base64 |
+| `SIGNING_KEYSTORE_BASE64` | `.jks` / `.keystore` em Base64, uma linha |
 | `SIGNING_KEY_ALIAS` | Alias da chave |
 | `SIGNING_KEY_STORE_PASSWORD` | Senha do keystore |
 | `SIGNING_KEY_PASSWORD` | Senha da chave |
+
+#### Criar a chave de release
+
+Não faça commit do keystore. `*.keystore` está no `.gitignore`, exceto `keystore/debug.keystore`.
+
+```bash
+keytool -genkeypair -v \
+  -keystore release.keystore \
+  -alias kidshome \
+  -keyalg RSA \
+  -keysize 2048 \
+  -validity 10000
+```
+
+O `keytool` pede a senha do keystore, a senha da chave e o nome do certificado. O alias do exemplo (`kidshome`) é o valor de `SIGNING_KEY_ALIAS`. A senha do keystore é `SIGNING_KEY_STORE_PASSWORD`. A senha da chave é `SIGNING_KEY_PASSWORD`.
+
+Codifique o arquivo em uma única linha Base64. Não faça commit dessa linha.
+
+```bash
+# Linux (GNU coreutils)
+base64 -w 0 release.keystore
+
+# macOS
+base64 -i release.keystore | tr -d '\n'
+```
+
+No repositório do GitHub abra **Settings → Secrets and variables → Actions** e crie secrets de repositório com estes nomes exatos:
+
+- `SIGNING_KEYSTORE_BASE64` — a linha Base64
+- `SIGNING_KEY_ALIAS` — o alias (`kidshome` acima)
+- `SIGNING_KEY_STORE_PASSWORD` — a senha do keystore
+- `SIGNING_KEY_PASSWORD` — a senha da chave
+
+Um build de tag `v*` falha se algum deles estiver vazio, e o Gradle roda com `-PrequireReleaseSigning=true` para que a ausência de `keystore.properties` não caia em `keystore/debug.keystore`. Pull requests e pushes em `master` continuam com `-PciSignRelease=true` e podem usar a chave de teste quando os secrets não existem.
 
 Veja `keystore/README.md`.
 
 ## Publicar uma versão
 
 1. Atualize `versionName` / `versionCode` em `app/build.gradle`.
-2. Envie uma tag `vX.Y.Z`:
+2. Cadastre os quatro secrets `SIGNING_*` acima. Uma tag sem eles faz o job falhar e não publica um APK assinado com a chave de debug.
+3. Envie uma tag `vX.Y.Z` no commit que contém essa versão:
 
    ```bash
-   git tag v1.5.1
-   git push origin v1.5.1
+   git tag v1.6.0
+   git push origin v1.6.0
    ```
 
-3. O GitHub Actions (`.github/workflows/android.yml`) gera o APK de release e anexa ao GitHub Release.
+4. O GitHub Actions (`.github/workflows/android.yml`) gera o APK de release com a chave de release e anexa ao GitHub Release.
 
 ## Contribuindo
 
@@ -294,4 +331,4 @@ Créditos: BaronKiko (LauncherHijack), Meems33 / WhiteRaven777 (Launcher Replace
 
 ## Changelog
 
-Veja [CHANGELOG.md](CHANGELOG.md) para as notas da versão (atual: **1.5.1**).
+Veja [CHANGELOG.md](CHANGELOG.md) para as notas da versão (atual: **1.6.0**).
