@@ -20,7 +20,7 @@
   <a href="https://github.com/appstudio42/KidsHome/releases/latest"><strong>⬇ Baixar APK (última versão)</strong></a>
 </p>
 
-O KidsHome (v1.6.0) transforma um celular ou tablet reserva em uma tela inicial amigável para crianças: só os apps e sites que você permitir, com limite diário de tempo de tela, bloqueio na hora de dormir, saída de emergência com PIN dos pais e controle remoto opcional na rede local pelo navegador do celular. Ele escolhe o melhor modo de enforcement para o aparelho (ou você redefine em **Configuração do dispositivo**). Mantido pelo [App Studio 42](https://appstudio42.github.io).
+O KidsHome (v1.6.1) transforma um celular ou tablet reserva em uma tela inicial amigável para crianças: só os apps e sites que você permitir, com limite diário de tempo de tela, bloqueio na hora de dormir, saída de emergência com PIN dos pais e controle remoto opcional na rede local pelo navegador do celular. Ele escolhe o melhor modo de enforcement para o aparelho (ou você redefine em **Configuração do dispositivo**). Mantido pelo [App Studio 42](https://appstudio42.github.io).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="Configuração do KidsHome: criar PIN, escolher apps, definir tempo de tela, entrar no modo criança" width="720" />
@@ -109,11 +109,13 @@ Fork GPL-3 de [Meems33/LauncherHijack](https://github.com/Meems33/LauncherHijack
 ## Início rápido
 
 1. Baixe o APK na [última versão](https://github.com/appstudio42/KidsHome/releases/latest) (ou o artefato `KidsHome-release-apk` do GitHub Actions).
-2. Instale (a mesma assinatura de teste do CI preserva os dados nos upgrades):
+2. Instale. O upgrade preserva os dados só quando o ID continua `io.github.appstudio42.kidshome` e a chave de assinatura é a mesma:
 
    ```bash
    adb install -r KidsHome-release.apk
    ```
+
+   **Instalou a 1.6.0?** Essa versão usava o ID `io.github.marcelsavegnago.kidshome`. A 1.6.1 é outro app. O Android não copia o PIN, a lista de apps, o tempo de tela, o serviço de acessibilidade nem o Device Owner. Desinstale a 1.6.0 (remova o Device Owner desse ID antes, se ele estiver ativo) e configure o KidsHome de novo. Não há migração de dados.
 
 3. Abra o KidsHome → menu → **Configuração do dispositivo** e conclua o checklist do seu modo.
 4. Menu → **Modo criança** → crie o PIN, configure apps / tempo de tela e ative.
@@ -129,18 +131,18 @@ O Fire OS **não** permite trocar o launcher padrão. O KidsHome mantém o seque
    **Componente ADB:**
 
    ```text
-   io.github.marcelsavegnago.kidshome/io.github.marcelsavegnago.kidshome.AccServ
+   io.github.appstudio42.kidshome/io.github.appstudio42.kidshome.AccServ
    ```
 
    ```bash
-   adb shell settings put secure enabled_accessibility_services io.github.marcelsavegnago.kidshome/io.github.marcelsavegnago.kidshome.AccServ
+   adb shell settings put secure enabled_accessibility_services io.github.appstudio42.kidshome/io.github.appstudio42.kidshome.AccServ
    adb shell settings put secure accessibility_enabled 1
    ```
 
 2. (Opcional, para saída pelo canto)
 
    ```bash
-   adb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allow
+   adb shell appops set io.github.appstudio42.kidshome SYSTEM_ALERT_WINDOW allow
    ```
 
 3. No KidsHome, vá em **Modo criança** (ou escolha um launcher de fallback se usar sequestro sem modo criança).
@@ -163,7 +165,7 @@ O Device Owner só pode ser definido em aparelho **sem contas** (remova contas G
 2. Provisione o Device Owner (o componente precisa bater exatamente):
 
    ```bash
-   adb shell dpm set-device-owner io.github.marcelsavegnago.kidshome/.KidsHomeDeviceAdminReceiver
+   adb shell dpm set-device-owner io.github.appstudio42.kidshome/.KidsHomeDeviceAdminReceiver
    ```
 
    O mesmo comando aparece / pode ser copiado em **Configuração do dispositivo**.
@@ -202,9 +204,9 @@ Em seguida digite o PIN dos pais para desativar o modo criança, abrir as config
 ### Como sair do modo criança via ADB?
 
 ```bash
-adb shell am force-stop io.github.marcelsavegnago.kidshome
+adb shell am force-stop io.github.appstudio42.kidshome
 # Ou limpar as preferências (reinicia as configurações):
-adb shell pm clear io.github.marcelsavegnago.kidshome
+adb shell pm clear io.github.appstudio42.kidshome
 ```
 
 Se o lock-task do Device Owner estiver ativo, remova o Device Owner primeiro (veja abaixo) ou desbloqueie com o PIN na interface.
@@ -219,12 +221,14 @@ adb install -r KidsHome-release.apk
 
 Trocar para outra chave de assinatura exige desinstalar uma vez antes.
 
+Esse `adb install -r` não vale para a 1.6.0. O ID daquela versão era `io.github.marcelsavegnago.kidshome`. Desinstale esse app e configure a 1.6.1 do zero.
+
 ### Como remover o Device Owner?
 
 Em **Configuração do dispositivo** → **Remover Device Owner** (PIN se o modo criança estiver ativo), ou o app chama `clearDeviceOwnerApp`. Depois:
 
 ```bash
-adb uninstall io.github.marcelsavegnago.kidshome
+adb uninstall io.github.appstudio42.kidshome
 ```
 
 Se você não limpar o Device Owner, o Android se recusa a desinstalar o app.
@@ -234,7 +238,7 @@ Se você não limpar o Device Owner, o Android se recusa a desinstalar o app.
 ```bash
 adb shell settings put secure enabled_accessibility_services ''
 adb shell settings put secure accessibility_enabled 0
-adb uninstall io.github.marcelsavegnago.kidshome
+adb uninstall io.github.appstudio42.kidshome
 ```
 
 ### Limitações conhecidas
@@ -311,8 +315,8 @@ Veja `keystore/README.md`.
 3. Envie uma tag `vX.Y.Z` no commit que contém essa versão:
 
    ```bash
-   git tag v1.6.0
-   git push origin v1.6.0
+   git tag v1.6.1
+   git push origin v1.6.1
    ```
 
 4. O GitHub Actions (`.github/workflows/android.yml`) gera o APK de release com a chave de release e anexa ao GitHub Release.
@@ -331,4 +335,4 @@ Créditos: BaronKiko (LauncherHijack), Meems33 / WhiteRaven777 (Launcher Replace
 
 ## Changelog
 
-Veja [CHANGELOG.md](CHANGELOG.md) para as notas da versão (atual: **1.6.0**).
+Veja [CHANGELOG.md](CHANGELOG.md) para as notas da versão (atual: **1.6.1**).

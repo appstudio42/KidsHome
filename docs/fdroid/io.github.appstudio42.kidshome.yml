@@ -1,0 +1,82 @@
+# Draft fdroiddata recipe for KidsHome. Do not submit this file upstream
+# until `fdroid lint`, `fdroid build`, and `fdroid scanner` have been run.
+# This repository does not submit anything to F-Droid.
+#
+# Package id is io.github.appstudio42.kidshome (this filename). The studio
+# site https://appstudio42.github.io is what F-Droid checks for
+# io.github.appstudio42.*. Release 1.6.0 used
+# io.github.marcelsavegnago.kidshome. That id is a different app, so the
+# 1.5.1 and 1.6.0 builds are not listed here. Do not add them back.
+#
+# 1.6.1 commit is the tag v1.6.1. Create that tag on the merge commit
+# that contains versionCode 161. Do not submit the 1.6.1 build upstream
+# until the tag exists. The tag is the release commit, so a tag name is
+# a valid commit value.
+#
+# Build needs JDK 17 and compileSdk 35. assembleRelease is unsigned unless
+# keystore.properties exists or -PciSignRelease=true is passed. F-Droid
+# must not pass that property, and must not pass -PrequireReleaseSigning
+# (that flag fails the build when the release keystore is missing; the
+# tag job on GitHub Actions uses it so a release never falls back to
+# keystore/debug.keystore). vcsInfo and dependenciesInfo are disabled
+# so the APK does not embed the local git checkout. There is no product
+# flavor; `gradle: yes` runs assembleRelease from the repository root
+# (settings.gradle is there, so subdir must stay unset).
+#
+# IssueTracker is omitted: GitHub Issues and Discussions are both
+# disabled on this repository, so the old /issues URL is not a tracker.
+# Changelog remains the public notes URL.
+#
+# Reviewer notes:
+# - No Google Play Services, Firebase, analytics, or proprietary SDK.
+#   Dependencies are AndroidX, Material (Apache-2.0), NanoHTTPD (Apache-2.0),
+#   and ZXing core (Apache-2.0). org.json:json is testImplementation only
+#   (JSON license) and is not in the APK; the app uses the platform org.json.
+# - Favicons are loaded from the same host as the parent-configured site.
+#   KidsHome does not seed default sites (no Poki, PBS Kids, or Coolmath).
+#   Shortcuts open in an in-app WebView, so a browser does not need to be
+#   allowed. An optional kid-mode setting still opens them in a chosen browser.
+#   The WebView uses the platform Safe Browsing API. No Google/analytics SDK.
+# - Accessibility service hijacks Home on Amazon Fire, where the default
+#   launcher cannot be replaced, and can optionally bounce non-allowed apps.
+#   It is not used to read screen content for tracking.
+# - Device Admin / Device Owner is an optional kiosk the parent provisions
+#   once with `dpm set-device-owner`. It is not required to use the app.
+# - keystore/debug.keystore is a published CI test key. Release builds ignore
+#   it unless -PciSignRelease=true. -PrequireReleaseSigning=true fails the
+#   build instead of using it. F-Droid should sign with its own key and
+#   must pass neither property.
+# - AppIcon/RawLogo.psd is design source and is not packaged in the APK.
+# - Official Gradle wrapper 8.9:
+#   SHA-256 498495120a03b9a6ab5d155f5de3c8f0d986a449153702fb80fc80e134484f17
+#   Distribution gradle-8.9-bin.zip:
+#   SHA-256 d725d707bfabd4dfdc958c624003b3c80accc03f7037b5122c4b1d0ef15cecab
+# - AuthorName is the studio. AuthorEmail stays the maintainer address.
+
+Categories:
+  - Launcher
+  - Digital Wellbeing
+  - System
+License: GPL-3.0-only
+AuthorName: App Studio 42
+AuthorEmail: marcel.savegnago@gmail.com
+WebSite: https://appstudio42.github.io
+SourceCode: https://github.com/appstudio42/KidsHome
+Changelog: https://github.com/appstudio42/KidsHome/blob/HEAD/CHANGELOG.md
+
+AutoName: KidsHome
+
+RepoType: git
+Repo: https://github.com/appstudio42/KidsHome.git
+
+Builds:
+  - versionName: '1.6.1'
+    versionCode: 161
+    commit: v1.6.1
+    gradle:
+      - yes
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: '1.6.1'
+CurrentVersionCode: 161

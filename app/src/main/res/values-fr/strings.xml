@@ -134,8 +134,8 @@
     <string name="escape_open_settings">Ouvrir les paramètres KidsHome</string>
     <string name="escape_stay_locked">Rester en mode enfant</string>
     <string name="overlay_permission_title">Overlay permission needed</string>
-    <string name="overlay_permission_message">The corner-tap escape needs “Display over other apps”. You can grant it now, or rely on holding Back. On Fire OS you can also run:\nadb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allow</string>
-    <string name="overlay_permission_adb">Grant overlay via Settings or:\nadb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allow</string>
+    <string name="overlay_permission_message">The corner-tap escape needs “Display over other apps”. You can grant it now, or rely on holding Back. On Fire OS you can also run:\nadb shell appops set io.github.appstudio42.kidshome SYSTEM_ALERT_WINDOW allow</string>
+    <string name="overlay_permission_adb">Grant overlay via Settings or:\nadb shell appops set io.github.appstudio42.kidshome SYSTEM_ALERT_WINDOW allow</string>
     <string name="overlay_permission_later">Kid mode will enable. Grant overlay later for corner taps; Back-hold still works.</string>
     <string name="about_title">À propos de KidsHome</string>
     <string name="about_version">Version %1$s</string>

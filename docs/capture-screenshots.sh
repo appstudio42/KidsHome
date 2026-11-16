@@ -9,8 +9,8 @@
 #   PHONE_SIZE  / PHONE_DPI   — phone portrait check (1080x1920 @ 420)
 set -euo pipefail
 
-PKG="${PKG:-io.github.marcelsavegnago.kidshome}"
-CLS="io.github.marcelsavegnago.kidshome"
+PKG="${PKG:-io.github.appstudio42.kidshome}"
+CLS="io.github.appstudio42.kidshome"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SHOT="${ROOT}/docs/screenshots"
 SHOT_140="${ROOT}/docs/screenshots/1.4.0"

@@ -20,7 +20,7 @@
   <a href="https://github.com/appstudio42/KidsHome/releases/latest"><strong>⬇ Télécharger l’APK (dernière version)</strong></a>
 </p>
 
-KidsHome (v1.6.0) transforme un téléphone ou une tablette de rechange en écran d’accueil adapté aux enfants : uniquement les apps et sites que vous autorisez, avec limite quotidienne de temps d’écran, verrouillage au coucher, sortie d’urgence par PIN parental et contrôle distant optionnel sur le réseau local depuis le navigateur du téléphone. Il choisit le meilleur mode d’application pour l’appareil (ou vous le définissez dans **Configuration de l’appareil**). Maintenu par [App Studio 42](https://appstudio42.github.io).
+KidsHome (v1.6.1) transforme un téléphone ou une tablette de rechange en écran d’accueil adapté aux enfants : uniquement les apps et sites que vous autorisez, avec limite quotidienne de temps d’écran, verrouillage au coucher, sortie d’urgence par PIN parental et contrôle distant optionnel sur le réseau local depuis le navigateur du téléphone. Il choisit le meilleur mode d’application pour l’appareil (ou vous le définissez dans **Configuration de l’appareil**). Maintenu par [App Studio 42](https://appstudio42.github.io).
 
 <p align="center">
   <img src="docs/media/setup.gif" alt="Configuration KidsHome : créer un PIN, choisir les apps, définir le temps d’écran, entrer en mode enfant" width="720" />
@@ -99,11 +99,13 @@ Fork GPL-3 de [Meems33/LauncherHijack](https://github.com/Meems33/LauncherHijack
 ## Démarrage rapide
 
 1. Téléchargez l’APK de la [dernière version](https://github.com/appstudio42/KidsHome/releases/latest) (ou l’artefact `KidsHome-release-apk` de GitHub Actions).
-2. Installez (la même signature de test CI conserve les données lors des mises à jour) :
+2. Installez. La mise à jour conserve les données seulement si l’ID reste `io.github.appstudio42.kidshome` et si la clé de signature est la même :
 
    ```bash
    adb install -r KidsHome-release.apk
    ```
+
+   **Vous avez installé la 1.6.0 ?** Cette version utilisait l’ID `io.github.marcelsavegnago.kidshome`. La 1.6.1 est une autre application. Android ne copie pas le PIN, la liste d’apps, le temps d’écran, le service d’accessibilité ni le Device Owner. Désinstallez la 1.6.0 (retirez d’abord le Device Owner de cet ID, s’il était actif) et configurez KidsHome à nouveau. Il n’y a pas de migration de données.
 
 3. Ouvrez KidsHome → menu → **Configuration de l’appareil** et terminez la checklist de votre mode.
 4. Menu → **Mode enfant** → créez le PIN, configurez apps / temps d’écran, activez.
@@ -119,18 +121,18 @@ Fire OS **ne permet pas** de remplacer le lanceur par défaut. KidsHome conserve
    **Composant ADB :**
 
    ```text
-   io.github.marcelsavegnago.kidshome/io.github.marcelsavegnago.kidshome.AccServ
+   io.github.appstudio42.kidshome/io.github.appstudio42.kidshome.AccServ
    ```
 
    ```bash
-   adb shell settings put secure enabled_accessibility_services io.github.marcelsavegnago.kidshome/io.github.marcelsavegnago.kidshome.AccServ
+   adb shell settings put secure enabled_accessibility_services io.github.appstudio42.kidshome/io.github.appstudio42.kidshome.AccServ
    adb shell settings put secure accessibility_enabled 1
    ```
 
 2. (Optionnel, pour la sortie par coin)
 
    ```bash
-   adb shell appops set io.github.marcelsavegnago.kidshome SYSTEM_ALERT_WINDOW allow
+   adb shell appops set io.github.appstudio42.kidshome SYSTEM_ALERT_WINDOW allow
    ```
 
 3. Dans KidsHome, allez dans **Mode enfant** (ou choisissez un lanceur de secours si vous utilisez le détournement sans mode enfant).
@@ -153,7 +155,7 @@ Device Owner ne peut être défini que si l’appareil **n’a aucun compte** (r
 2. Provisionnez Device Owner (le composant doit correspondre exactement) :
 
    ```bash
-   adb shell dpm set-device-owner io.github.marcelsavegnago.kidshome/.KidsHomeDeviceAdminReceiver
+   adb shell dpm set-device-owner io.github.appstudio42.kidshome/.KidsHomeDeviceAdminReceiver
    ```
 
    La même commande est affichée / copiable dans **Configuration de l’appareil**.
@@ -192,9 +194,9 @@ Puis saisissez le PIN parental pour désactiver le mode enfant, ouvrir les régl
 ### Comment quitter le mode enfant via ADB ?
 
 ```bash
-adb shell am force-stop io.github.marcelsavegnago.kidshome
+adb shell am force-stop io.github.appstudio42.kidshome
 # Ou effacer les préférences (réinitialise les réglages) :
-adb shell pm clear io.github.marcelsavegnago.kidshome
+adb shell pm clear io.github.appstudio42.kidshome
 ```
 
 Si le lock-task Device Owner est actif, retirez d’abord Device Owner (voir ci-dessous) ou déverrouillez avec le PIN dans l’interface.
@@ -209,12 +211,14 @@ adb install -r KidsHome-release.apk
 
 Changer de clé de signature exige une désinstallation préalable.
 
+Ce `adb install -r` ne s’applique pas à la 1.6.0. Son ID était `io.github.marcelsavegnago.kidshome`. Désinstallez cette app et configurez la 1.6.1 depuis zéro.
+
 ### Comment retirer Device Owner ?
 
 Dans **Configuration de l’appareil** → **Retirer Device Owner** (PIN si le mode enfant est actif), ou l’app appelle `clearDeviceOwnerApp`. Puis :
 
 ```bash
-adb uninstall io.github.marcelsavegnago.kidshome
+adb uninstall io.github.appstudio42.kidshome
 ```
 
 Sans retirer Device Owner, Android refuse de désinstaller l’app.
@@ -224,7 +228,7 @@ Sans retirer Device Owner, Android refuse de désinstaller l’app.
 ```bash
 adb shell settings put secure enabled_accessibility_services ''
 adb shell settings put secure accessibility_enabled 0
-adb uninstall io.github.marcelsavegnago.kidshome
+adb uninstall io.github.appstudio42.kidshome
 ```
 
 ### Limitations connues
@@ -266,8 +270,8 @@ Un tag `v*` sans ces quatre secrets échoue. `keytool` et Base64 sont dans le RE
 2. Poussez une étiquette `vX.Y.Z` :
 
    ```bash
-   git tag v1.6.0
-   git push origin v1.6.0
+   git tag v1.6.1
+   git push origin v1.6.1
    ```
 
 3. GitHub Actions (`.github/workflows/android.yml`) construit l’APK de release et l’attache à la GitHub Release.
@@ -286,4 +290,4 @@ Crédits : BaronKiko (LauncherHijack), Meems33 / WhiteRaven777 (Launcher Replace
 
 ## Changelog
 
-Voir [CHANGELOG.md](CHANGELOG.md) pour les notes de version (actuel : **1.6.0**).
+Voir [CHANGELOG.md](CHANGELOG.md) pour les notes de version (actuel : **1.6.1**).

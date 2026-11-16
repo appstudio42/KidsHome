@@ -1,12 +1,12 @@
 # KidsHome — keep accessibility entry points and receivers reachable.
--keep class io.github.marcelsavegnago.kidshome.AccServ { *; }
--keep class io.github.marcelsavegnago.kidshome.BootReceiver { *; }
--keep class io.github.marcelsavegnago.kidshome.HomeButtonService { *; }
--keep class io.github.marcelsavegnago.kidshome.RemoteControlService { *; }
--keep class io.github.marcelsavegnago.kidshome.KidsHomeDeviceAdminReceiver { *; }
+-keep class io.github.appstudio42.kidshome.AccServ { *; }
+-keep class io.github.appstudio42.kidshome.BootReceiver { *; }
+-keep class io.github.appstudio42.kidshome.HomeButtonService { *; }
+-keep class io.github.appstudio42.kidshome.RemoteControlService { *; }
+-keep class io.github.appstudio42.kidshome.KidsHomeDeviceAdminReceiver { *; }
 -keep class fi.iki.elonen.** { *; }
--keep class io.github.marcelsavegnago.kidshome.MainActivity { *; }
--keep class io.github.marcelsavegnago.kidshome.EscapePinActivity { *; }
--keep class io.github.marcelsavegnago.kidshome.ScreenTimeLockActivity { *; }
--keep class io.github.marcelsavegnago.kidshome.KidHomeActivity { *; }
--keep class io.github.marcelsavegnago.kidshome.SetupActivity { *; }
+-keep class io.github.appstudio42.kidshome.MainActivity { *; }
+-keep class io.github.appstudio42.kidshome.EscapePinActivity { *; }
+-keep class io.github.appstudio42.kidshome.ScreenTimeLockActivity { *; }
+-keep class io.github.appstudio42.kidshome.KidHomeActivity { *; }
+-keep class io.github.appstudio42.kidshome.SetupActivity { *; }
