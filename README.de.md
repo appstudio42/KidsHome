@@ -64,6 +64,8 @@ Echte Aufnahmen von einem Android-Tablet-Emulator (1280×800) mit dem Demo-Kinde
   - Standard-Launcher — normales Android
   - Device Owner + Lock Task — stärkster Kiosk
 - **Kinder-Home** — großes Icon-Raster erlaubter Apps + Website-Shortcuts, oder Sperre auf eine einzelne App
+- **Websites in KidsHome** — Verknüpfungen öffnen sich bildschirmfüllend in der App (Titel und Symbol der Website, keine Adressleiste), ohne Chrome freizugeben. Die Navigation bleibt auf der Domain der Verknüpfung und ihren Subdomains. Vom Elternteil erlaubte Chrome-PWAs öffnen sich genauso und funktionieren offline nach einem Besuch online. Die Zeit zählt zum Tageslimit, die Bettzeit gilt weiter. Wer will, öffnet Sites im gewählten Browser. Die App fügt keine Vorschläge von selbst hinzu.
+- **Kontrast der Navigationsleiste** — dunkle Symbole auf heller Leiste von API 27 bis 34 (einschließlich Fire OS 7), dunkle Leisten wo die Plattform nur helle Symbole zeichnet, und passender Kontrast auf API 35 in hellem und dunklem Thema.
 - **Bildschirmzeit** — Tageslimit, Bettzeitfenster, Warnung, freundliche Sperrbildschirm, PIN zum Verlängern / Deaktivieren für heute
 - **Zeitpläne / Routinen** — Wochentagsfenster (Schule, Lesen, Schlafen) mit App-Kategorien
 - **Limits pro App** — tägliche Minuten pro erlaubter App zusätzlich zum Gesamttageslimit; gesperrte Kacheln bei Erschöpfung
@@ -158,7 +160,7 @@ Device Owner lässt sich nur setzen, wenn das Gerät **keine Konten** hat (Googl
 
 3. In **Geräteeinrichtung** Device Owner = ja bestätigen. Optional Statusleiste / Keyguard während der Sperre deaktivieren.
 4. **Kindermodus** aktivieren. KidsHome wird:
-   - `setLockTaskPackages` für erlaubte Apps + Browser + sich selbst setzen
+   - `setLockTaskPackages` für erlaubte Apps + sich selbst (der gewählte Browser nur, wenn Sites außerhalb von KidsHome geöffnet werden)
    - `addPersistentPreferredActivity` für HOME → `KidHomeActivity`
    - `startLockTask` vom Kinder-Home aus starten (Kiosk)
 5. Der PIN-Notausstieg ruft `stopLockTask` auf und kann den Kindermodus deaktivieren.

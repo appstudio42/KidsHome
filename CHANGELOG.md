@@ -2,7 +2,7 @@
 
 ## 1.6.0
 
-Android 15 edge-to-edge, a back handler that keeps lock screens up, screen-time gates that survive the clock and the watchdog, a LAN-only parent remote, and a PBKDF2 PIN with backup turned off.
+Android 15 edge-to-edge, a back handler that keeps lock screens up, screen-time gates that survive the clock and the watchdog, a LAN-only parent remote, a PBKDF2 PIN with backup turned off, in-app sites and Chrome PWAs, and navigation-bar contrast.
 
 ### Added
 - Themed launcher icon (`monochrome`) on the adaptive icon, reusing `ic_home_foreground`.
@@ -10,6 +10,8 @@ Android 15 edge-to-edge, a back handler that keeps lock screens up, screen-time 
 - F-Droid build block 1.6.0 / 160. `commit` is the tag `v1.6.0` (create that tag on the release commit before submitting the recipe). `IssueTracker` is omitted because GitHub Issues and Discussions are disabled.
 - Fastlane metadata for F-Droid (`en-US` and `pt-BR`), including the versionCode 151 changelog.
 - Draft fdroiddata recipe at `docs/fdroid/io.github.marcelsavegnago.kidshome.yml`.
+- Site shortcuts open full screen inside KidsHome (title and icon, no address bar) without allowing Chrome. Navigation stays on the shortcut host and its subdomains; other links, popups to other sites, downloads, and non-http schemes stay in the app and do not open a browser. Time on the page counts toward the daily limit, and bedtime / the daily limit still lock the screen. Embedded mode is the default, including when a browser was already chosen; that browser setting is kept and can be selected again.
+- Allowed Chrome WebAPKs (`org.chromium.webapk.*`, for example GS Kids) open in the in-app site viewer instead of handing off to Chrome. The parent does not need to allow Chrome. The start URL comes from `org.chromium.webapk.shell_apk.startUrl`. When `org.chromium.webapk.shell_apk.scope` is set, navigation stays on that path prefix, so another site on the same host stays out. Time on the page counts toward the daily limit. DOM storage, IndexedDB, Cache Storage, and service workers (API 24+) stay in the WebView profile and are not cleared when the screen closes. That cache is separate from Chrome: the PWA has to be opened here once while online before it can work offline.
 
 ### Changed
 - Version **1.6.0** (`versionCode` 160). `compileSdk` and `targetSdk` stay 35. AGP stays 8.7.3. `minSdk` stays 22.
@@ -28,6 +30,12 @@ Android 15 edge-to-edge, a back handler that keeps lock screens up, screen-time 
 - The parent remote binds only to the private Wi-Fi or Ethernet address and no longer treats CGNAT as LAN.
 - The parent PIN is stored as PBKDF2-HMAC-SHA1. Android backup and device-to-device transfer are off.
 - Website favicons decode off the main thread. `BootReceiver` finishes with `goAsync`.
+
+### Removed
+- Automatic Poki Kids, PBS Kids Games, and Coolmath Games suggestions, and the button that added them. Shortcuts a parent already saved are kept.
+
+### Fixed
+- Navigation-bar contrast on Fire OS 7: dark icons on a light bar from API 27 through 34, dark bars below API 27/23 where the platform can only draw light icons, and matching contrast on API 35 in light and night themes, on parent and setup screens.
 
 ## 1.5.1
 

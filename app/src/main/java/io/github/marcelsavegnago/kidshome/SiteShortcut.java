@@ -18,14 +18,6 @@ public final class SiteShortcut {
         this.url = url;
     }
 
-    public static List<SiteShortcut> defaultSuggestions() {
-        List<SiteShortcut> list = new ArrayList<>();
-        list.add(new SiteShortcut("poki", "Poki Kids", "https://kids.poki.com/"));
-        list.add(new SiteShortcut("pbs", "PBS Kids Games", "https://pbskids.org/games"));
-        list.add(new SiteShortcut("coolmath", "Coolmath Games", "https://www.coolmathgames.com/"));
-        return list;
-    }
-
     public static String toJson(List<SiteShortcut> shortcuts) {
         JSONArray array = new JSONArray();
         try {

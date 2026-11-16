@@ -64,6 +64,8 @@ Capturas reales de un emulador Android tablet (1280×800) con el nombre de ejemp
   - Lanzador predeterminado — Android normal
   - Device Owner + lock task — quiosco más fuerte
 - **Inicio infantil** — cuadrícula de iconos grandes de apps y accesos a sitios, o bloquear en una sola app
+- **Sitios en KidsHome** — los accesos se abren a pantalla completa dentro de la app (título e icono del sitio, sin barra de direcciones), sin permitir Chrome. La navegación se queda en el dominio del acceso y sus subdominios. Las PWA de Chrome que el responsable permitió se abren igual y funcionan sin conexión tras una visita en línea. El tiempo cuenta para el límite diario y la hora de dormir sigue aplicando. Quien prefiera puede abrirlos en el navegador elegido. La app no añade sitios sugeridos por su cuenta.
+- **Contraste de la barra de navegación** — iconos oscuros en la barra clara del API 27 al 34 (incluido Fire OS 7), barras oscuras donde la plataforma solo dibuja iconos claros, y contraste coherente en el API 35 en los temas claro y oscuro.
 - **Tiempo de pantalla** — límite diario, franja de sueño, aviso, bloqueo amable, PIN para añadir tiempo / desactivar por hoy
 - **Horarios / rutinas** — ventanas por día (colegio, lectura, dormir) con categorías de apps
 - **Límites por app** — minutos diarios por app permitida además del límite total; mosaicos bloqueados al agotarse
@@ -158,7 +160,7 @@ Device Owner solo se puede configurar si el dispositivo **no tiene cuentas** (qu
 
 3. En **Configuración del dispositivo**, confirma Device Owner = sí. Opcionalmente desactiva la barra de estado / keyguard mientras esté bloqueado.
 4. Activa el **Modo niño**. KidsHome hará:
-   - `setLockTaskPackages` para apps permitidas + navegador + él mismo
+   - `setLockTaskPackages` para apps permitidas + él mismo (el navegador elegido solo entra si los sitios se abren fuera de KidsHome)
    - `addPersistentPreferredActivity` para HOME → `KidHomeActivity`
    - `startLockTask` desde el inicio infantil (quiosco)
 5. La salida de emergencia con PIN llama a `stopLockTask` y puede desactivar el modo niño.

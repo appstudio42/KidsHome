@@ -56,6 +56,9 @@ public class EscapePinActivity extends AppCompatActivity {
 
         // Do not keep the screen on — PIN / lock UI must follow the system timeout.
         setContentView(R.layout.activity_escape_pin);
+        // Light parent surface behind the bars. enter() keeps the icon flags
+        // when it installs the legacy immersive mask.
+        ThemeHelper.applySystemBars(this);
         ImmersiveHelper.enter(this);
         View root = findViewById(R.id.escapePinRoot);
         if (root != null) {

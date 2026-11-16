@@ -193,7 +193,7 @@ public class KidModeActivity extends AppCompatActivity {
                 startActivity(new Intent(this, AllowedAppsActivity.class)));
         findViewById(R.id.manageSites).setOnClickListener(v ->
                 startActivity(new Intent(this, SiteShortcutsActivity.class)));
-        findViewById(R.id.pickBrowser).setOnClickListener(v -> showBrowserPicker());
+        findViewById(R.id.pickBrowser).setOnClickListener(v -> showSiteOpenPicker());
 
         bedtimeStartButton.setOnClickListener(v -> pickTime(true));
         bedtimeEndButton.setOnClickListener(v -> pickTime(false));
@@ -292,11 +292,15 @@ public class KidModeActivity extends AppCompatActivity {
     }
 
     private void refreshBrowserLabel() {
+        if (Prefs.isSitesOpenEmbedded(this)) {
+            browserLabel.setText(R.string.open_sites_in_app);
+            return;
+        }
         String pkg = Prefs.getBrowserPackage(this);
         if (pkg == null || pkg.isEmpty()) {
-            browserLabel.setText(R.string.browser_default);
+            browserLabel.setText(R.string.open_sites_external_default);
         } else {
-            browserLabel.setText(getString(R.string.browser_selected, pkg));
+            browserLabel.setText(getString(R.string.open_sites_external_selected, pkg));
         }
     }
 
@@ -343,7 +347,26 @@ public class KidModeActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void showBrowserPicker() {
+    private void showSiteOpenPicker() {
+        Dialogs.builder(this)
+                .setTitle(R.string.open_sites_in)
+                .setItems(new CharSequence[] {
+                        getString(R.string.open_sites_in_app),
+                        getString(R.string.open_sites_external)
+                }, (dialog, which) -> {
+                    if (which == 0) {
+                        // Keep BrowserPackage so the parent can switch back.
+                        Prefs.setSitesOpenEmbedded(this, true);
+                        refreshBrowserLabel();
+                    } else {
+                        showExternalBrowserPicker();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void showExternalBrowserPicker() {
         final List<ResolveInfo> browsers = KidHomeActivity.queryBrowsers(getPackageManager());
         CharSequence[] labels = new CharSequence[browsers.size() + 1];
         labels[0] = getString(R.string.browser_default);
@@ -352,8 +375,9 @@ public class KidModeActivity extends AppCompatActivity {
                     + " (" + browsers.get(i).activityInfo.packageName + ")";
         }
         Dialogs.builder(this)
-                .setTitle(R.string.pick_browser)
+                .setTitle(R.string.open_sites_external)
                 .setItems(labels, (dialog, which) -> {
+                    Prefs.setSitesOpenEmbedded(this, false);
                     if (which == 0) {
                         Prefs.setBrowser(this, "", "");
                     } else {
@@ -436,7 +460,6 @@ public class KidModeActivity extends AppCompatActivity {
                 Prefs.setKidLockToApp(this, true);
             } else {
                 Prefs.setKidLockToApp(this, false);
-                Prefs.ensureDefaultSiteSuggestions(this);
                 if (Prefs.getAllowedPackages(this).isEmpty() && Prefs.getSiteShortcuts(this).isEmpty()) {
                     Toast.makeText(this, R.string.kid_home_empty_warning, Toast.LENGTH_LONG).show();
                 }

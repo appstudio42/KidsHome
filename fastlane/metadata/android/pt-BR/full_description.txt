@@ -10,6 +10,8 @@ A tela da criança mostra ícones grandes, um anel com o tempo restante e estrel
 
 O controle remoto opcional serve uma página pequena no Wi-Fi de casa (porta 8642). Vem desligado, aceita só pares de rede local privada e não usa conta na nuvem. Pelo navegador do celular, um responsável pode acrescentar tempo, bloquear ou desbloquear.
 
+Os atalhos de site abrem dentro do KidsHome como um app, então não é preciso liberar um navegador. Um navegador escolhido continua opcional.
+
 Não há anúncios, analytics nem Google Play Services. Os ícones dos sites vêm do próprio site que você adicionou. Tempo de tela, PIN e histórico de uso ficam no aparelho.
 
 Mantido pelo App Studio 42. Licenciado sob a GNU GPL v3.

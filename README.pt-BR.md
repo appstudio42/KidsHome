@@ -64,6 +64,8 @@ Capturas reais de um emulador Android tablet (1280×800) com o nome de exemplo *
   - Launcher padrão — Android comum
   - Device Owner + lock task — kiosk mais forte
 - **Home infantil** — grade com ícones grandes de apps e atalhos de sites, ou travar em um único app
+- **Sites no KidsHome** — atalhos abrem em tela cheia dentro do app (título e ícone do site, sem barra de endereço), sem liberar o Chrome. A navegação fica no domínio do atalho e nos subdomínios. PWAs do Chrome liberados pelo responsável abrem do mesmo jeito e funcionam offline depois de uma visita online. O tempo entra no limite diário e a hora de dormir continua valendo. Quem preferir ainda pode abrir no navegador escolhido. O app não adiciona sites sugeridos sozinho.
+- **Contraste da barra de navegação** — ícones escuros na barra clara do API 27 ao 34 (incluindo Fire OS 7), barras escuras onde a plataforma só desenha ícones claros, e contraste coerente no API 35 nos temas claro e noturno.
 - **Tempo de tela** — limite diário, janela de sono, aviso, tela de bloqueio amigável, PIN para adicionar tempo / desativar por hoje
 - **Horários / rotinas** — janelas por dia da semana (escola, leitura, dormir) com categorias de apps
 - **Limites por app** — minutos diários por app permitido além do limite total; tiles bloqueados quando esgotados
@@ -168,7 +170,7 @@ O Device Owner só pode ser definido em aparelho **sem contas** (remova contas G
 
 3. Em **Configuração do dispositivo**, confirme Device Owner = sim. Opcionalmente desative barra de status / keyguard enquanto travado.
 4. Ative o **Modo criança**. O KidsHome irá:
-   - `setLockTaskPackages` para apps permitidos + navegador + ele mesmo
+   - `setLockTaskPackages` para apps permitidos + ele mesmo (o navegador escolhido entra só quando os sites abrem fora do KidsHome)
    - `addPersistentPreferredActivity` para HOME → `KidHomeActivity`
    - `startLockTask` a partir do home infantil (kiosk)
 5. A saída de emergência com PIN chama `stopLockTask` e pode desativar o modo criança.

@@ -43,6 +43,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void inflateSettings() {
         setContentView(R.layout.activity_settings);
+        ThemeHelper.applySystemBars(this);
         setTitle(R.string.settings);
 
         hardwareDetection = findViewById(R.id.hardwareCB);

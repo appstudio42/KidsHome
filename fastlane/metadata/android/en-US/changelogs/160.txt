@@ -1,5 +1,3 @@
-Android 15 (targetSdk 35): edge-to-edge screens. Back uses OnBackPressedCallback and no longer closes the kid home, screen-time lock, or emergency PIN.
+Android 15 (targetSdk 35): edge-to-edge screens. Back uses OnBackPressedCallback and no longer closes the kid home, screen-time lock, or emergency PIN. Screen time stays blocked if the escape gate closes, the clock changes, or the watchdog restarts. The remote listens only on the private LAN. The PIN uses PBKDF2 and backup is off.
 
-Screen time stays blocked if the escape gate closes, the clock changes, or the accessibility watchdog restarts. The parent remote listens only on the private LAN. The PIN uses PBKDF2 and Android backup is off.
-
-Site icons load from the site, off the UI thread. Boot restores kid mode. Themed icon reuses the launcher foreground.
+Site shortcuts and Chrome PWAs open inside KidsHome, with offline use, without allowing Chrome. No suggested sites by default. Navigation-bar icons keep contrast.

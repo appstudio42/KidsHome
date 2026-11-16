@@ -19,7 +19,13 @@
     <!-- Wi-Fi is optional: Ethernet-only TVs and devices without Wi-Fi must stay installable. -->
     <uses-feature android:name="android.hardware.wifi" android:required="false" />
 
-    <!-- Package visibility for listing launchers / apps / browsers on Android 11+. -->
+    <!--
+        Package visibility for listing launchers / apps / browsers on Android 11+.
+        WebAPK shells (org.chromium.webapk.*) cannot be listed by name: each PWA
+        has its own id. They stay visible because they are launcher activities
+        and they handle https VIEW, which is what lets us read startUrl metadata
+        and the https intent-filter host.
+    -->
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
@@ -31,6 +37,12 @@
         </intent>
         <intent>
             <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <category android:name="android.intent.category.DEFAULT" />
             <data android:scheme="https" />
         </intent>
         <intent>
@@ -60,6 +72,11 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="31">
+
+        <!-- Platform Safe Browsing for the in-app site viewer. No extra SDK. -->
+        <meta-data
+            android:name="android.webkit.WebView.EnableSafeBrowsing"
+            android:value="true" />
 
         <activity
             android:name=".MainActivity"
@@ -149,6 +166,21 @@
             android:name=".SiteShortcutsActivity"
             android:exported="false"
             android:parentActivityName=".KidModeActivity" />
+
+        <!--
+            In-app site shortcut. Same task as kid home so Back returns there
+            and Home (singleTask) clears it. Not exported.
+        -->
+        <activity
+            android:name=".SiteActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize|uiMode"
+            android:enableOnBackInvokedCallback="true"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="standard"
+            android:theme="@style/Theme.KidsHome.Kid"
+            android:windowSoftInputMode="adjustResize"
+            tools:targetApi="33" />
 
         <activity
             android:name=".SchedulesActivity"

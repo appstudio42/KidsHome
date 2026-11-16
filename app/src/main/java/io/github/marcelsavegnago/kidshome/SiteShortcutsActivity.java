@@ -42,9 +42,9 @@ public class SiteShortcutsActivity extends AppCompatActivity {
 
     private void inflateUi() {
         setContentView(R.layout.activity_site_shortcuts);
+        ThemeHelper.applySystemBars(this);
         setTitle(R.string.site_shortcuts_title);
 
-        Prefs.ensureDefaultSiteSuggestions(this);
         shortcuts.clear();
         shortcuts.addAll(Prefs.getSiteShortcuts(this));
 
@@ -58,21 +58,6 @@ public class SiteShortcutsActivity extends AppCompatActivity {
         });
 
         findViewById(R.id.siteAdd).setOnClickListener(v -> promptAdd());
-        findViewById(R.id.siteAddSuggestions).setOnClickListener(v -> {
-            for (SiteShortcut suggestion : SiteShortcut.defaultSuggestions()) {
-                boolean exists = false;
-                for (SiteShortcut s : shortcuts) {
-                    if (s.url.equalsIgnoreCase(suggestion.url)) {
-                        exists = true;
-                        break;
-                    }
-                }
-                if (!exists) {
-                    shortcuts.add(suggestion);
-                }
-            }
-            refresh();
-        });
         findViewById(R.id.siteSave).setOnClickListener(v -> {
             Prefs.setSiteShortcuts(this, shortcuts);
             Toast.makeText(this, R.string.site_shortcuts_saved, Toast.LENGTH_SHORT).show();

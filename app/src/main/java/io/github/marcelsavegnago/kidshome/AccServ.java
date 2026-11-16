@@ -100,6 +100,12 @@ public class AccServ extends AccessibilityService {
                 allowed = isAllowedInKidMode(packageName);
             }
         }
+        // An allowlisted WebAPK is a Chrome shell. Open the PWA in SiteActivity
+        // (this package) instead of leaving the shell up and instead of sending
+        // the child home. A shell the parent did not allow still redirects.
+        if (!blocked && WebApkLaunch.consumeShell(this, packageName)) {
+            return;
+        }
         if (KidModeEnforcement.enforcementAction(
                 true,
                 false,
@@ -134,8 +140,8 @@ public class AccServ extends AccessibilityService {
                         && ScreenTimeTracker.canLaunchApp(this, packageName);
             } else {
                 allowlisted = Prefs.getAllowedPackages(this).contains(packageName);
-                String browser = Prefs.getBrowserPackage(this);
-                chosenBrowser = browser != null && browser.equals(packageName);
+                // Embedded site shortcuts are this package (SiteActivity), not the browser.
+                chosenBrowser = Prefs.isExternalBrowserAllowed(this, packageName);
                 if (allowlisted || chosenBrowser) {
                     canLaunch = ScreenTimeTracker.canLaunchApp(this, packageName);
                 }

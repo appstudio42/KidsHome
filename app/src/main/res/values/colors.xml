@@ -63,6 +63,9 @@
     <color name="bannerBackground">#FEF3C7</color>
     <color name="bannerText">#92400E</color>
 
+    <!-- Opaque bar used when the platform cannot draw dark status/nav icons. -->
+    <color name="system_bar_dark">#0F172A</color>
+
     <!-- Legacy aliases kept for any residual references -->
     <color name="colorPrimary">@color/md_primary</color>
     <color name="colorPrimaryDark">#0D5C56</color>
